@@ -1,0 +1,408 @@
+<div class="oj-flex">
+    <div class="oj-panel  oj-sm-margin-1x-bottom oj-xl-margin-10x oj-xl-padding-10x oj-lg-margin-10x oj-lg-padding-5x oj-md-margin-10x oj-md-padding-4x oj-sm-margin-10x oj-sm-padding-5x"
+        style="width: 40%;text-align: left">
+        <div class="oj-panel  demo-center-items io-color">
+            <div class="dbClass">
+                <oj-buttonset-one class="oj-buttonset-width-auto dbBtn" value="{{dbButton}}" style="width: 100%;">
+                    <oj-option id="addOption" value="addDB">Add DB</oj-option>
+                    <oj-option id="edOption" value="editDB">Edit DB</oj-option>
+                    <oj-option id="delOption" value="delDB">Delete DB</oj-option>
+                    <oj-option id="viewOption" value="viewDB">View Details</oj-option>
+                </oj-buttonset-one>
+            </div></br>
+            <h7>Alter Database Credentials</h7>
+        </div>
+        <div class="oj-panel ">
+            <oj-bind-if test="[[dbButton() === 'addDB']]">
+            <oj-validation-group id="dbcred" valid="{{groupValid}}">
+             <oj-form-layout id="fl2" readonly="[[isFormReadonly()]]" label-edge="start" label-width="50%"
+                max-columns="1" direction="row">
+                <oj-label for="DBName" show-required="[[isRequired]]" help.source='[[helpSource]]'>Credentialstore Alias 
+                </oj-label>
+                <oj-input-text required id="DBName" value="{{dbname}}"></oj-input-text>
+                <oj-label for="UserName" show-required="[[isRequired]]" help.source='[[helpSource]]'>Database UserName
+                </oj-label>
+                <oj-input-text required id="UserName" value="{{adduname}}"></oj-input-text>
+                <oj-label for="UnamePasswd" show-required="[[isRequired]]" help.source='[[helpSource]]'>Password
+                </oj-label>
+                <oj-input-password required id="UnamePasswd" value="{{addupasswd}}"></oj-input-password>
+
+                <oj-label for="ServiceName" show-required="[[isRequired]]" help.definition='[[helpDBService]]'
+                    help.source='[[helpSource]]'>Connect String
+                </oj-label>
+                <oj-input-text required id="ServiceName" label-hint="hostname:dbport/dbservice" label-edge="inside" value="{{addservicename}}"></oj-input-text>
+
+            </oj-form-layout>
+            </oj-validation-group>
+        </oj-bind-if>
+
+        <oj-bind-if test="[[dbButton() === 'editDB']]">
+            <oj-validation-group id="editcred" valid="{{groupValid}}">
+             <oj-form-layout id="fl2" readonly="[[isFormReadonly()]]" label-edge="start" label-width="50%"
+                max-columns="1" direction="row">
+                <oj-label for="DBName" show-required="[[isRequired]]" help.source='[[helpSource]]'>Credentialstore Alias 
+                </oj-label>
+                <oj-select-single required id="Database" label-hint="Select Database Alias" label-edge="inside" data="[[DBDetDP]]" value="{{currentDB}}" 
+                on-oj-value-action="[[valueChangedHandler]]" >
+               </oj-select-single>
+                <oj-label for="UserName" show-required="[[isRequired]]" help.source='[[helpSource]]'>Database UserName
+                </oj-label>
+                <oj-input-text required id="UserName" value="{{eduname}}"></oj-input-text>
+                <oj-label for="UnamePasswd" show-required="[[isRequired]]" help.source='[[helpSource]]'>Password
+                </oj-label>
+                <oj-input-password required id="UnamePasswd" value="{{edupasswd}}"></oj-input-password>
+
+                <oj-label for="ServiceName" show-required="[[isRequired]]" help.definition='[[helpDBService]]'
+                    help.source='[[helpSource]]'>Connect String
+                </oj-label>
+                <oj-input-text required id="ServiceName" label-hint="hostname:dbport/dbservice" label-edge="inside" value="{{edservicename}}"></oj-input-text>
+
+            </oj-form-layout>
+            </oj-validation-group>
+        </oj-bind-if>
+
+
+        <oj-bind-if test="[[dbButton() === 'delDB']]">
+            <oj-validation-group id="delcred" valid="{{groupValid}}">
+             <oj-form-layout id="fl2" readonly="[[isFormReadonly()]]" label-edge="start" label-width="50%"
+                max-columns="1" direction="row">
+                <oj-label for="DBName" show-required="[[isRequired]]" help.source='[[helpSource]]'>Credentialstore Alias 
+                </oj-label>
+                <oj-select-single required id="Database" label-hint="Select Database Alias" label-edge="inside" data="[[DBDetDP]]" value="{{currentDB}}" 
+                on-oj-value-action="[[valueChangedHandler]]" >
+               </oj-select-single>
+                <oj-label for="UserName" show-required="[[isRequired]]" help.source='[[helpSource]]'>Database UserName
+                </oj-label>
+                <oj-input-text  readonly="true" id="UserName" value="{{eduname}}"></oj-input-text>
+                <oj-label for="ServiceName" show-required="[[isRequired]]" help.definition='[[helpDBService]]'
+                    help.source='[[helpSource]]'>Connect String
+                </oj-label>
+                <oj-input-text readonly="true" id="ServiceName" label-hint="hostname:dbport/dbservice" label-edge="inside" value="{{edservicename}}"></oj-input-text>
+            </oj-form-layout>
+            </oj-validation-group>
+        </oj-bind-if>
+        
+        <oj-bind-if test="[[dbButton() === 'viewDB']]">
+            <oj-validation-group id="delcred" valid="{{groupValid}}">
+             <oj-form-layout id="fl2" readonly="[[isFormReadonly()]]" label-edge="start" label-width="50%"
+                max-columns="1" direction="row">
+                <oj-label for="DBName" show-required="[[isRequired]]" help.source='[[helpSource]]'>Credentialstore Alias 
+                </oj-label>
+                <oj-select-single required id="Database" label-hint="Select Database Alias" label-edge="inside" data="[[DBDetDP]]" value="{{currentDB}}" 
+                on-oj-value-action="[[valueChangedHandler]]" >
+               </oj-select-single>
+                <oj-label for="UserName" show-required="[[isRequired]]" help.source='[[helpSource]]'>Database UserName
+                </oj-label>
+                <oj-input-text  readonly="true" id="UserName" value="{{eduname}}"></oj-input-text>
+                <oj-label for="ServiceName" show-required="[[isRequired]]" help.definition='[[helpDBService]]'
+                    help.source='[[helpSource]]'>Connect String
+                </oj-label>
+                <oj-input-text readonly="true" id="ServiceName" label-hint="hostname:dbport/dbservice" label-edge="inside" value="{{edservicename}}"></oj-input-text>
+            </oj-form-layout>
+            </oj-validation-group>
+        </oj-bind-if>
+
+
+        </div>
+        <div class="oj-panel  ">
+            <div class="oj-flex-bar">
+                <oj-bind-if test="[[dbButton() === 'addDB']]">
+                    <oj-button id="addDB" class="oj-flex-bar-end oj-button-confirm" chroming="callToAction"
+                    on-oj-action="[[addDB]]" >
+                    Add
+                </oj-button>
+                </oj-bind-if>
+
+                <oj-bind-if test="[[dbButton() === 'editDB']]">
+                     <oj-button id="editDB" class="oj-flex-bar-end oj-button-confirm" chroming="callToAction"
+                    on-oj-action="[[editDB]]" >
+                    Save
+                </oj-button>
+                </oj-bind-if>
+
+                <oj-bind-if test="[[dbButton() === 'delDB']]">
+                     <oj-button id="delDB" class="oj-flex-bar-end oj-button-confirm" chroming="danger"
+                    on-oj-action="[[delDBDlg]]" >
+                    Delete
+                </oj-button>
+                </oj-bind-if>
+
+                <oj-bind-if test="[[dbButton() === 'viewDB']]">
+                    <oj-button id="viewDB" class="oj-flex-bar-end oj-button-confirm" chroming="callToAction"
+                   on-oj-action="[[viewDB]]" >
+                   View Details
+               </oj-button>
+               </oj-bind-if>
+
+
+                <oj-dialog id="DeleteDb" dialog-title="Delete Credentialstore User" modality="modeless" style="display:none;width:350px;min-width:240px;max-width:450px;">
+                    <div slot="body">
+                            <span>Are you sure ? </span>
+                    </div>
+                    <div slot="footer">
+                        <oj-button id="okYesButton" chroming="callToAction" on-oj-action="[[delDB]]">
+                         Yes 
+                     </oj-button>
+                     <oj-button id="okNoButton" chroming="callToAction" on-oj-action="[[CloseOkDlt]]">
+                        No
+                    </oj-button>
+                    </div>
+                    </oj-dialog>
+    
+                    <oj-dialog id="ViewDbDlg" dialog-title="View  Database Details" modality="modeless" style="display:none;width:1024px;min-width:1024px;max-width:1024px;">
+                        <div slot="body">
+                            <div class="class="oj-panel oj-flex-item oj-sm-margin-2x-bottom oj-xl-margin-2x oj-xl-padding-10x oj-lg-margin-2x oj-lg-padding-7x oj-md-margin-2x oj-md-padding-4x oj-sm-margin-1x oj-sm-padding-1x overwrite-sm5 oj-sm-5 bg_grey" >
+                            <oj-table id='viewDBDet' aria-label='View Database Details' data='[[viewDBMsgDP]]'
+                                scroll-policy="loadAll"
+                                selection-mode='{"row": "single"}' columns='{{viewDBColumArray}}'
+                                style='width: 100%;'>
+                            </oj-table>
+                        </div>
+                        </div>
+                        <div slot="footer">
+                     <oj-button id="okNoButton" chroming="callToAction" on-oj-action="[[CloseOkDBDet]]">
+                            OK
+                        </oj-button>
+                        </div>
+                        </oj-dialog>
+
+               
+                <oj-dialog id="addDBDialog" title="Working on it" modality="modeless"
+                    style="display:none;width:350px;min-width:240px;max-width:450px;" cancel-behavior="[[CancelBehaviorOpt]]">
+                    <div slot="body">
+                        <oj-progress-bar id="createbar" class="oj-progress-bar-embedded" value="-1">
+                        </oj-progress-bar>
+                    </div>
+                </oj-dialog>
+                
+                <oj-dialog id="DBDialog" dialog-title=[[dialogTitle]] modality="modeless" style="display:none;width:350px;min-width:240px;max-width:450px;">
+                    <div slot="body">
+                        <oj-bind-text value='[[AddDBMsg]]'></oj-bind-text>
+                    </div>
+                    <div slot="footer">
+                        <oj-button id="okdelButton" on-oj-action="[[AddDBMsgOKClose]]">
+                            OK
+                        </oj-button>
+                    </div>
+                </oj-dialog>
+            </div>
+        </div>
+    </div>
+    <div class="oj-panel  oj-sm-margin-1x-bottom oj-xl-margin-10x oj-xl-padding-10x oj-lg-margin-10x oj-lg-padding-5x oj-md-margin-10x oj-md-padding-4x oj-sm-margin-10x oj-sm-padding-5x"
+        style="width: 40%;text-align: left">
+        <div class="oj-panel demo-center-items io-color">
+            <div class="dbClass">
+                <oj-buttonset-one class="oj-buttonset-width-auto" value="{{userButton}}" style="width: 100%;">
+                    <oj-option id="addOption" value="addUser">Add User</oj-option>
+                    <oj-option id="edOption" value="editUser">Edit User</oj-option>
+                    <oj-bind-if test="[[userRole() === 'admin']]">
+                    <oj-option id="delOption" value="delUser">Delete User</oj-option>
+                </oj-bind-if>
+                </oj-buttonset-one>
+            </div></br>
+            <h7>Alter OneP User Credentials</h7>
+        </div>
+        <div class="oj-panel">
+            <oj-bind-if test="[[userButton() === 'addUser']]">
+            <oj-validation-group id="add_user" valid="{{groupValid}}">
+            <oj-form-layout id="fl2" readonly="[[isFormReadonly()]]" label-edge="start" max-columns="1" direction="row" label-width="50%">
+                <div class="oj-panel demo-center-items  panel-color">
+                    <oj-radioset id="enabledRadioset" value="{{depOption}}" 
+                         label-hint="Deployment Option" class="oj-choice-direction-row">
+                        <oj-option value="ld">Local Deployment</oj-option>
+                        <oj-option value="rd">Remote Deployment</oj-option>
+                    </oj-radioset>
+                </div>
+                <oj-bind-if test="[[depOption() === 'ld']]">
+                <oj-label for="OnePUName" show-required="[[isRequired]]" help.source='[[helpSource]]'>UserName
+                </oj-label>
+                <oj-input-text required id="OnePUName" value="{{onepUName}}"></oj-input-text>
+                <oj-label for="OnePPasswd" show-required="[[isRequired]]" help.source='[[helpSource]]'>Password</oj-label>
+                <oj-input-password required id="OnePPasswd" value="{{onepPasswd}}"></oj-input-password>
+
+                <oj-label for="OnePRole" show-required="[[isRequired]]" help.definition='[[helpRole]]'
+                    help.source='[[helpSource]]'>Role
+                </oj-label>
+                <oj-select-single id="OnePRole" data="[[OneRoleDP]]" value="{{currentRole}}">
+                </oj-select-single>
+                </oj-bind-if>
+
+                
+                <oj-bind-if test="[[depOption() === 'rd']]">
+                    <oj-label for="OnePUName" show-required="[[isRequired]]" help.source='[[helpSource]]'>Remote Deployment UserName
+                    </oj-label>
+                    <oj-input-text required id="OnePUName" value="{{onepUName}}"></oj-input-text>
+                    <oj-label for="OnePPasswd" show-required="[[isRequired]]" help.source='[[helpSource]]'>Password</oj-label>
+                    <oj-input-password required id="OnePPasswd" value="{{onepPasswd}}"></oj-input-password>
+                <oj-label for="onepProtocol" show-required="[[isRequired]]" help.definition='[[helpDef]]'
+                    help.source='[[helpSource]]'>Remote OneP Protocol
+                </oj-label>
+                <oj-select-single id="onepProtocol" data="[[onepProtocolDP]]" value="{{currentProtocol}}">
+                </oj-select-single>
+                <oj-label for="onepIP" show-required="[[isRequired]]" help.definition='[[helpDef]]'
+                    help.source='[[helpSource]]'>Remote OneP Host/IP
+                </oj-label>
+                <oj-input-text required id="onepIP" value="{{onePHost}}"></oj-input-text>
+                <oj-label for="onepPort" show-required="[[isRequired]]" help.definition='[[helpDef]]'
+                    help.source='[[helpSource]]'>Remote OneP Port
+                </oj-label>
+                <oj-input-number required id="onepPort" converter='[[decimalHalfDownConverter]]' min=1 value="{{onepPort}}"></oj-input-number>
+            </oj-bind-if>
+
+            </oj-form-layout>
+            </oj-validation-group>
+        </oj-bind-if>
+
+        <oj-bind-if test="[[userButton() === 'editUser']]">
+            <oj-validation-group id="editUser" valid="{{groupValid}}">
+            <oj-form-layout id="fl2" readonly="[[isFormReadonly()]]" label-edge="start" max-columns="1" direction="row" label-width="50%">
+                <div class="oj-panel demo-center-items  panel-color">
+                    <oj-radioset id="enabledRadioset" value="{{depOption}}" 
+                         label-hint="Deployment Option" class="oj-choice-direction-row">
+                        <oj-option value="ld">Local Deployment</oj-option>
+                        <oj-option value="rd">Remote Deployment</oj-option>
+                    </oj-radioset>
+                </div>
+                <oj-bind-if test="[[depOption() === 'ld']]">
+                <oj-label for="OnePUName" show-required="[[isRequired]]" help.source='[[helpSource]]'>UserName
+                </oj-label>
+                <oj-input-text disabled="true" id="username" value="{{username}}"></oj-input-text>
+                <oj-label for="OnePPasswd" show-required="[[isRequired]]" help.source='[[helpSource]]'>Password</oj-label>
+                <oj-input-password required id="OnePPasswd" value="{{onepPasswd}}"></oj-input-password>
+                </oj-bind-if>
+
+                
+                <!-- <oj-bind-if test="[[depOption() === 'rd']]">
+                    <oj-label for="OnePUName" show-required="[[isRequired]]" help.source='[[helpSource]]'>Remote Deployment UserName
+                    </oj-label>
+                    <oj-input-text required id="username" value="{{username}}"></oj-input-text>
+                    <oj-label for="OnePPasswd" show-required="[[isRequired]]" help.source='[[helpSource]]'>Password</oj-label>
+                    <oj-input-password required id="OnePPasswd" value="{{onepPasswd}}"></oj-input-password>
+                <oj-label for="onepProtocol" show-required="[[isRequired]]" help.definition='[[helpDef]]'
+                    help.source='[[helpSource]]'>Remote OneP Protocol
+                </oj-label>
+                <oj-select-single id="onepProtocol" data="[[onepProtocolDP]]" value="{{currentProtocol}}">
+                </oj-select-single>
+                <oj-label for="onepIP" show-required="[[isRequired]]" help.definition='[[helpDef]]'
+                    help.source='[[helpSource]]'>Remote OneP Host/IP
+                </oj-label>
+                <oj-input-text required id="onepIP" value="{{onePHost}}"></oj-input-text>
+                <oj-label for="onepPort" show-required="[[isRequired]]" help.definition='[[helpDef]]'
+                    help.source='[[helpSource]]'>Remote OneP Port
+                </oj-label>
+                <oj-input-number required id="onepPort" converter='[[decimalHalfDownConverter]]' min=1 value="{{onepPort}}"></oj-input-number>
+            </oj-bind-if> -->
+
+            </oj-form-layout>
+            </oj-validation-group>
+        </oj-bind-if>
+
+        <oj-bind-if test="[[userButton() === 'delUser']]">
+            <oj-validation-group id="delUser" valid="{{groupValid}}">
+            <oj-form-layout id="fl2" readonly="[[isFormReadonly()]]" label-edge="start" max-columns="1" direction="row" label-width="50%">
+                <div class="oj-panel demo-center-items  panel-color">
+                    <oj-radioset id="enabledRadioset" value="{{depOption}}" 
+                         label-hint="Deployment Option" class="oj-choice-direction-row">
+                        <oj-option value="ld">Local Deployment</oj-option>
+                        <oj-option value="rd">Remote Deployment</oj-option>
+                    </oj-radioset>
+                </div>
+                <oj-bind-if test="[[depOption() === 'ld']]">
+                <oj-label for="OnePUName" show-required="[[isRequired]]" help.source='[[helpSource]]'>UserName
+                </oj-label>
+                <oj-input-text required id="OnePUName" value="{{onepUName}}"></oj-input-text>
+                
+                </oj-bind-if>
+
+                
+                <!-- <oj-bind-if test="[[depOption() === 'rd']]">
+                    <oj-label for="OnePUName" show-required="[[isRequired]]" help.source='[[helpSource]]'>Remote Deployment UserName
+                    </oj-label>
+                    <oj-input-text required id="OnePUName" value="{{onepUName}}"></oj-input-text>
+                    <oj-label for="OnePPasswd" show-required="[[isRequired]]" help.source='[[helpSource]]'>Password</oj-label>
+                    <oj-input-password required id="OnePPasswd" value="{{onepPasswd}}"></oj-input-password>
+                <oj-label for="onepProtocol" show-required="[[isRequired]]" help.definition='[[helpDef]]'
+                    help.source='[[helpSource]]'>Remote OneP Protocol
+                </oj-label>
+                <oj-select-single id="onepProtocol" data="[[onepProtocolDP]]" value="{{currentProtocol}}">
+                </oj-select-single>
+                <oj-label for="onepIP" show-required="[[isRequired]]" help.definition='[[helpDef]]'
+                    help.source='[[helpSource]]'>Remote OneP Host/IP
+                </oj-label>
+                <oj-input-text required id="onepIP" value="{{onePHost}}"></oj-input-text>
+                <oj-label for="onepPort" show-required="[[isRequired]]" help.definition='[[helpDef]]'
+                    help.source='[[helpSource]]'>Remote OneP Port
+                </oj-label>
+                <oj-input-number required id="onepPort" converter='[[decimalHalfDownConverter]]' min=1 value="{{onepPort}}"></oj-input-number>
+            </oj-bind-if> -->
+
+            </oj-form-layout>
+            </oj-validation-group>
+        </oj-bind-if>
+
+        </div>
+        <div class="oj-panel  ">
+            <div class="oj-flex-bar">
+                <oj-bind-if test="[[userButton() === 'addUser']]">
+                    <oj-button id="addUser" class="oj-flex-bar-end oj-button-confirm" chroming="callToAction"
+                    on-oj-action="[[addUser]]">
+                    Add
+                </oj-button>
+                </oj-bind-if>
+
+                <oj-bind-if test="[[userButton() === 'editUser']]">
+                    <oj-button id="editUser" class="oj-flex-bar-end oj-button-confirm" chroming="callToAction"
+                    on-oj-action="[[editUser]]">
+                    Edit
+                </oj-button>
+                </oj-bind-if>
+
+                <oj-bind-if test="[[userButton() === 'delUser']]">
+                    <oj-button id="delUser" class="oj-flex-bar-end oj-button-confirm" chroming="callToAction"
+                    on-oj-action="[[delUserDlg]]">
+                    Delete
+                </oj-button>
+                </oj-bind-if>
+
+                 <oj-dialog id="DeleteUser" dialog-title="Delete Credentialstore User" modality="modeless" style="display:none;width:900px;min-width:900px;max-width:900px;">
+                        <div slot="body">
+                                <span>Are you sure ? </span>
+                        </div>
+                        <div slot="footer">
+                            <oj-button id="okYesButton" chroming="callToAction" on-oj-action="[[delUser]]">
+                             Yes 
+                         </oj-button>
+                         <oj-button id="okNoButton" chroming="callToAction" on-oj-action="[[CloseOkDltUser]]">
+                            No
+                        </oj-button>
+                        </div>
+                        </oj-dialog>
+                
+                <oj-dialog id="addUserDialog" title="Adding OneP User Details" modality="modeless"
+                    style="display:none;width:350px;min-width:240px;max-width:450px;" cancel-behavior="[[CancelBehaviorOpt]]">
+                    <div slot="body">
+                        <oj-progress-bar id="createbar" class="oj-progress-bar-embedded" value="-1">
+                        </oj-progress-bar>
+                    </div>
+                </oj-dialog>
+                <oj-dialog id="OnePDialog" dialog-title="Add OneP User Details"  style="display:none;width:350px;min-width:240px;max-width:450px;" cancel-behavior="[[CancelBehaviorOpt]]">
+                    <div slot="body">
+                        <ol>
+                        <oj-bind-text value='[[AddUserMsg]]'></oj-bind-text>
+                    </ol>
+                    </div>
+                    <div slot="footer">
+                        <oj-button id="okdelButton" chroming='solid' on-oj-action="[[AddUserMsgOKClose]]">
+                            OK
+                        </oj-button>
+                    </div>
+                </oj-dialog>
+
+        <oj-dialog id="TimeoutDb" dialog-title="There is a technical issue. Please try again later" modality="modeless"
+        style="display:none;width:350px;min-width:240px;max-width:450px;" cancel-behavior="[[CancelBehaviorOpt]]">
+        <div slot="body">
+        </div>
+        </oj-dialog>
+
+            </div>
+        </div>

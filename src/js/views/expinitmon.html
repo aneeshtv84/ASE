@@ -1,0 +1,206 @@
+<style>
+  .oj-button-toggle.oj-default.oj-button-outlined-chrome, .oj-button-toggle.oj-focus-only.oj-button-outlined-chrome, .oj-button-toggle.oj-disabled.oj-button-outlined-chrome, .oj-button.oj-default.oj-button-outlined-chrome .oj-button-button, .oj-button.oj-focus-only.oj-button-outlined-chrome .oj-button-button, .oj-button.oj-disabled.oj-button-outlined-chrome .oj-button-button {
+    border-color: rgb(241 239 237) !important;
+}
+</style>
+
+            
+        <h6 class="demo-center-items oj-typography-heading-xl" >Initial Load Monitor</h6>
+        <div class="oj-flex">
+        <oj-form-layout id="fl2" readonly="[[isFormReadonly()]]" max-columns="2" direction="row"
+        user-assistance-density='compact' >
+        
+        <oj-combobox-one required label-hint="Select the Initial Load Group" label-edge="inside" class='demo-rem-max-width'
+        id="SRCCredentialAlias" options="[[ILjobDP]]" value="{{currentILJOb}}"
+        on-oj-value-updated="[[getILTables]]" class="oj-sm-4">
+        </oj-combobox-one>
+    </oj-form-layout>
+ </div>
+      
+ <div class="oj-flex">
+  <div class="oj-panel" style="width: 50%;"  >
+
+            <div class="oj-panel oj-bg-neutral-30 oj-sm-margin-2x demo-mypanel" id="enableExpdpPanel" style="width: 95%;display:none" >
+              <oj-collapsible id="c1" expanded=[[enableExpdp]] data-oj-binding-provider="none">
+                
+                <h6 slot="header">
+                  <span class="oj-md-10">Export Job </span>
+                  <span class="oj-md-8">Flashback SCN - <oj-bind-text value="{{flashbackSCN}}"></oj-bind-text></span>
+                  <oj-button on-oj-action='[[exportReportAction]]' id='button1' chroming="callToAction" style="width:100px">View Log</oj-button>
+                </h6>
+           
+                  <div class="oj-panel demo-panel-progress">
+                    <oj-bind-text value='{{expPercentage}}'></oj-bind-text><span class="oj-bind-text">%</span>
+                    <oj-bind-text value="[[expState()]]"></oj-bind-text>
+                    <oj-progress-bar class="oj-progress-bar-embedded" value="{{expPercentage}}"></oj-progress-bar>
+                    
+                </div>
+              </oj-collapsible>
+            </div>
+            <div class="oj-panel oj-bg-neutral-30 oj-sm-margin-2x demo-mypanel" id="transer_data" style="width: 95%; display:none">
+              <oj-collapsible id="c2" expanded=[[enableXFR]] data-oj-binding-provider="none">
+                   <h6 slot="header">
+                    <span class="oj-md-12">Transfer Job to Target Database</span>
+                                        <span class="oj-md-1" style="max-width: 2.33333% !important;"></span>
+                    <oj-button id='buttons3xfr' on-oj-action='[[S3transferReportAction]]'  chroming="callToAction" style="width:100px">View Log</oj-button>
+                  </h6>
+
+                   <div class="oj-panel demo-panel-progress">
+                   <oj-bind-for-each data="[[XFRDP]]">
+                   <template>
+                    <div >
+                      <oj-bind-text value='{{$current.data.percent}}'></oj-bind-text><span class="oj-bind-text">%</span>
+                      <oj-progress-bar id=[[$current.data.name]]" class="oj-progress-bar-embedded" value="{{$current.data.percent}}"></oj-progress-bar>
+                      <oj-bind-text value="[[$current.data.name]]"></oj-bind-text><br><br>
+                    </div>
+              </template>
+            </oj-bind-for-each>
+                   </div>
+          </oj-collapsible>
+        </div>
+
+
+    <div class="oj-panel oj-bg-neutral-30 oj-sm-margin-2x demo-mypanel" id="import_data" style="width: 95%; display:none">
+      <oj-collapsible id="c3" expanded=[[enableImpdp]] data-oj-binding-provider="none">
+        <h6 slot="header">
+          <span class="oj-md-12">Import Job </span>
+                 <oj-button  on-oj-action='[[clickTshoot]]' id='button2' chroming="callToAction" style="width:100px">T-Shoot</oj-button>
+                 <span class="oj-md-1" style="max-width: 2.33333% !important;"></span>
+                  <oj-button   on-oj-action='[[importReportAction]]' id='button1' chroming="callToAction" style="width:100px">View Log</oj-button>
+                </h6>
+          <div class="oj-panel demo-panel-progress">
+            <oj-bind-text value="[[impState()]]"></oj-bind-text>
+            <oj-progress-bar class="oj-progress-bar-embedded" value="{{impPercentage}}"></oj-progress-bar>
+            
+        </div>
+      </oj-collapsible>
+    </div>
+
+
+    <div class="oj-panel oj-bg-neutral-30 oj-sm-margin-2x demo-mypanel" id="summary_data" style="width: 95%; display:none">
+      <oj-collapsible id="c4" expanded=[[enableSummary]] data-oj-binding-provider="none">
+        <h6 slot="header">Summary of the Job</h6>
+          <div class="oj-panel demo-panel-progress">
+            <oj-table id='dbDetListtable' aria-label='DB Detail Table' data='[[summaryDataDP]]' display='grid'
+            selection-mode='{"row": "single"}' columns='{{summaryDatacolumnArray}}' style='width: 100%;'>
+        </oj-table>
+        <oj-paging-control id="paging" data="[[summaryDataDP]]" page-size="10" slot="bottom">
+        </oj-paging-control>
+            
+        </div>
+      </oj-collapsible>
+    </div>
+
+  </div>
+
+
+
+    <div class="oj-panel" style="width: 50%;height: 500px; overflow-y: auto;"  >
+      <div align="center"> <h2><strong><oj-bind-text value='[[title]]'></oj-bind-text></strong></h2></div>
+      <div style="padding: 10px;">
+
+        <div id="XFRReport">
+          <div class="oj-panel demo-panel-progress">
+            <oj-table id='xfrListTable' aria-label='Transfer Dump files' data='[[transferS3ReportDP]]' display='grid'
+            selection-mode='{"row": "single"}' columns='{{xfrDataColumnArray}}' style='width: 100%;'>
+        </oj-table>
+        </div>
+        </div>
+
+
+        <div id="ExpReport">
+          <oj-bind-for-each data="[[expLogDP]]">
+            <template>
+                  <div >
+                    <oj-bind-text value='{{$current.data.name}}'></oj-bind-text></div>
+            </template>
+          </oj-bind-for-each>
+        </div>
+
+     <div id="tshoot" style="display:none">
+       
+      <div class="oj-flex">
+      <h6 class="oj-sm-10">Resumable Tasks</span> </h6>
+      <oj-button  on-oj-action='[[clickTshoot]]' id='button2' chroming="solid" style="margin-bottom:2%">Refresh</oj-button>
+    </div>
+
+  <oj-table id='tshootImpDPtable' aria-label='Resumable Tasks' data='[[impResumableTaskDP]]' display='grid'
+  selection-mode='{"row": "single"}' columns='{{resumableTaskcolumnArray}}' style='width: 100%;'>
+</oj-table>
+
+<oj-paging-control id="paging" data="[[impResumableTaskDP]]" page-size="5" slot="bottom">
+</oj-paging-control>
+<br>
+<h6>Session Waits</h6>
+<oj-table id='tshootsessionWait' aria-label='Session Waits' data='[[impWaitStatusDP]]' display='grid'
+selection-mode='{"row": "single"}' columns='{{waitStatuscolumnArray}}' style='width: 100%;'>
+</oj-table>
+<oj-paging-control id="paging" data="[[impWaitStatusDP]]" page-size="5" slot="bottom">
+</oj-paging-control>
+<br>
+<h6>Long Running Operations</h6>
+<oj-table id='tshootlongops' aria-label='Long Running Operations' data='[[impLongOpsDP]]' display='grid'
+selection-mode='{"row": "single"}' columns='{{impLongOpscolumnArray}}' style='width: 100%;'>
+</oj-table>
+<oj-paging-control id="paging" data="[[impLongOpsDP]]" page-size="5" slot="bottom">
+</oj-paging-control>
+<br>
+<h6>Session Locks</h6>
+<oj-table id='tshootsessionLock' aria-label='Session Locks' data='[[impLockStatusDP]]' display='grid'
+selection-mode='{"row": "single"}' columns='{{lockStatuscolumnArray}}' style='width: 100%;'>
+</oj-table>
+<oj-paging-control id="paging" data="[[impLockStatusDP]]" page-size="5" slot="bottom">
+</oj-paging-control>
+       </div>
+    
+    </div>
+    </div>
+  </div>
+
+
+
+  <oj-dialog id="UpdateS3Config" title="S3 Bucket details" modality="modeless" cancel-behavior="[[CancelBehaviorOpt]]">
+  <div slot="body"> 
+  <div class="oj-panel  oj-sm-margin-4x-bottom oj-flex-item" style="margin-left: 2%;">
+    <oj-validation-group id="UpdateS3ConfigForm" role="group" valid="{{groupValid}}" aria-labelledby="grouplabelid">
+      <oj-form-layout id="UpdateS3ConfigForm" readonly="[[isFormReadonly()]]" label-edge="start"
+          max-columns="1" direction="row">
+</oj-input-text>
+<oj-input-text  required id="AccessKeyID" value="{{AccessKeyID}}" label-hint="aws_access_key_id"
+label-edge="inside">
+</oj-input-text>
+<oj-input-text  required id="AccessKey" value="{{AccessKey}}" label-hint="aws_secret_access_key"
+label-edge="inside">
+</oj-input-text>
+</oj-form-layout>
+</oj-validation-group>
+</div>
+</div>
+<div slot="footer">
+    <oj-button id="okviewMgrBtn" chroming="callToAction" on-oj-action="[[UpdateS3ConfigOKClose]]">
+        OK
+    </oj-button>
+</div>
+</oj-dialog>
+
+
+<oj-dialog id="UpdateS3SuccessDialog"  dialog-title="AWS S3 Bucket Config Update" modality="modeless" 
+cancel-behavior="[[CancelBehaviorOpt]]" style="width: 500px;height:300px !important" >
+<div slot="body">
+  <oj-bind-for-each data="[[UpdateS3ConfigLogDP]]">
+    <template>
+          <div >
+            <oj-bind-text value='{{$current.data.name}}'></oj-bind-text></div>
+          </div>
+    </template>
+  </oj-bind-for-each>
+</div>
+</oj-dialog>
+
+<oj-dialog id="Working" title="Working on it.." modality="modeless"
+style="display:none;width:350px;min-width:240px;max-width:450px;">
+<div slot="body">
+<oj-progress-bar id="createbar" class="oj-progress-bar-embedded"  value="-1" >
+</oj-progress-bar>
+</div>
+</oj-dialog>

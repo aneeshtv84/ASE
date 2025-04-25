@@ -1,0 +1,62 @@
+      <div id="sampleDemo" style="" class="demo-padding demo-container">
+        <div id="componentDemoContent" style="width: 1px; min-width: 100%;">
+                  
+          <div id="pagingControlDemo">
+            
+
+   <oj-dialog style="display:none;width:350px;" id="dialog1" dialog-title="Goldengate Error Log"> 
+            <div slot="body">
+              <oj-progress-bar id="progressbar"  class="oj-progress-bar-embedded" value="-1" >
+              </oj-progress-bar>
+              Loading .....
+            </div>
+          
+          </oj-dialog>
+   
+                       <oj-bind-if test="[[AllData().length == 0]]">          
+                 <div class="oj-panel" style="width: 100%;"  >
+                <div class="oj-flex-bar oj-flex-bar-end">
+                    
+                    
+                         
+         
+          <oj-button id="buttonOpener" class="oj-flex-bar-start oj-button-confirm"  on-oj-action="[[handleOpen]]">
+            Open 
+          </oj-button>
+                    
+                </div>
+                 </div>
+                   </oj-bind-if>    
+
+                         <oj-table id="table" aria-label='All Table'
+                                          display="grid"
+                                          data="[[allDataProvider]]"
+                                          columns='{{allcolumnArray}}'
+                                          columns-default='{"sortable": "disabled"}'
+                                          style="width: 100%;max-height: 900px;"
+                                          scroll-policy="loadAll">       
+                         </oj-table>
+                        <oj-paging-control id="allpaging"  data="[[allDataProvider]]" page-size="100" >
+                    </oj-paging-control>       
+                                     <div class="oj-panel" style="width: 100%;"  >
+                <div class="oj-flex-bar">
+                    
+                   
+                             </oj-bind-if>
+                                  <oj-bind-if test="[[AllData().length > 0]]">     
+                                            <oj-bind-text  value="{{lineNum}}" ></oj-bind-text>
+
+          <oj-button id="buttonOpener" class="oj-flex-bar-end"  on-oj-action="[[handleOpen]]">
+            Load More 
+          </oj-button>
+                                  </oj-bind-if>
+                    
+                          
+                                      
+                </div>
+                                     </div>
+                                                        </div>
+          </div>
+        </div>
+        </div>
+

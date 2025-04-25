@@ -1,0 +1,54 @@
+<style>
+    .oj-listview-group-item.oj-sticky {
+display: none;
+    }
+     </style>
+            <div class="oj-flex">
+                <div class="oj-panel" style="width:30%;"  >
+                       <h6>Discard Files</h6>
+                    <!-- <oj-list-view class="dsc-list-view" id="listview" aria-label="list to show selection features" 
+                                  data="[[dscfileDP]]" selected="{{selectedItems}}"
+                                  selection-mode="single"
+                                  selection-required="[[selectedSelectionRequired]]"
+                                  on-selected-changed="[[viewDsc]]"
+                                  first-selected-item="{{firstSelectedItem}}">
+                        <template slot="itemTemplate" data-oj-as="item">
+                            <li>
+                            <oj-list-item-layout>
+                                <span class="oj-typography-body-md oj-text-color-primary"><oj-bind-text value="[[item.data.dscfile]]"></oj-bind-text></span>
+                            </oj-list-item-layout>
+                            </li>
+                        </template>
+                    </oj-list-view> -->
+
+                    <oj-input-text id="filterDepartId" placeholder="Search..." on-raw-value-changed="[[handleRawValueChanged]]" ></oj-input-text>
+                    <oj-list-view id="listview" aria-label="sticky group header" class="contacts"
+                    data="[[dataSource]]" item.renderer="[[renderer]]" item.focusable="[[itemOnly]]" drill-mode="none" group-header-position="sticky" selected="{{selectedItems}}"
+                    selection-mode="single"
+                    selection-required="[[selectedSelectionRequired]]"
+                    first-selected-item="{{firstSelectedItem}}" on-selected-changed="[[viewDsc]]" style="height: 436px;overflow-y: scroll;"> 
+                </oj-list-view>
+
+                    <script type="text/html" id="group_template">
+                        <li data-bind="attr: {id: id}" >
+                            <span data-bind="text: id" ></span>
+                        </li>
+                    </script>
+                    
+                    <script type="text/html" id="item_template">
+                        <li data-bind="attr: {id: id}">
+                            <span data-bind="text: name"></span>
+                        </li>
+                    </script>
+
+
+                </div>
+
+                <div class="oj-panel" style="width: 70%;"  >
+
+                    <oj-text-area readonly="true" id="chatWindow"  value="{{dscFileContent}}"   rows="35" style="width: 100%; min-width: 100%">
+                    </oj-text-area>      
+                    </div>
+                </div>
+            </div>
+   

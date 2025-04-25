@@ -1,0 +1,225 @@
+<div class="oj-panel oj-sm-margin-2x-bottom oj-xl-margin-5x  oj-sm-padding-4x ">
+    <oj-select-single required label-hint="Choose CDB(in CDB Mode)" label-edge="inside" id="dbdet" style="max-width:18em"
+        label-hint="Database Name" data="[[DBDetDP]]" value="{{currentDB}}" on-value-changed="[[getSuppLog]]">
+    </oj-select-single>
+</div>
+
+<oj-dialog id="dberrDialog" dialog-title="Error" modality="modeless" cancel-behavior="[[CancelBehaviorOpt]]" style="display:none;width:500px;min-width:540px;max-width:550px;">
+    <div slot="body">
+        <oj-bind-text value='[[dberr]]'></oj-bind-text>
+    </div>
+</oj-dialog>
+
+<div class="oj-panel oj-sm-margin-2x-bottom oj-xl-margin-5x  oj-sm-padding-4x " >
+    <h6>Database Checks</h6>
+    <oj-table id='table' aria-label='All Table' data='[[dbsupplogDP]]' display='grid' selection-mode='{"row": "single"}'
+        columns='{{supplogcolumnArray}}' columns-default='{"sortable": "disabled"}' style='width: 100%;'>
+
+    </oj-table>
+    <br>
+</div>
+
+<oj-bind-for-each data="[[dbSuppInfo]]">
+    <template data-oj-as="ExtMsg">
+        <oj-bind-if test="[[ExtMsg.data.SuppLog === 'YES' && ExtMsg.data.LogMode === 'ARCHIVELOG' && ExtMsg.data.FL === 'YES'  && ExtMsg.data.DB_Param === 'TRUE']]">
+            <div class="oj-panel oj-sm-margin-1x-bottom oj-xl-margin-5x  oj-sm-padding-5x">
+                <h6 class="demo-center-items oj-typography-heading-md">Schema/Table Supplemental Logging</h6>
+                <div class="oj-panel demo-center-items oj-xl-margin-5x">
+
+                    <oj-buttonset-one class="oj-buttonset-width-auto" value="{{buttonValue}}">
+                        <oj-option id="addOption" value="add">Add Trandata</oj-option>
+                        <oj-option id="edOption" value="info">View Trandata</oj-option>
+                        <oj-option id="delOption" value="del">Delete Trandata</oj-option>
+                    </oj-buttonset-one>
+                </div>
+                <div class="oj-panel oj-sm-margin-1x-bottom oj-xl-margin-5x  oj-sm-padding-5x">
+                    <oj-form-layout id="fl4" label-edge="start" direction="row">
+                        <oj-label for="comboboxed1">Credential Domain</oj-label>
+                        <oj-combobox-one required id="comboboxed1"  options="[[domname1]]"
+                            value="{{selectedDomCategory}}" on-oj-value-updated="[[domSelectionChanged]]">
+                        </oj-combobox-one>
+                        <oj-label for="comboboxed2">Credential Alias</oj-label>
+                        <oj-combobox-one label-hint="Choose PDB(in CDB Mode)" label-edge="inside"  style="max-width:25em" id="comboboxed2" options="{{aliascategories}}" value="{{currentPDB}}"
+                            on-oj-value-updated="[[suppLogSchema]]">
+                        </oj-combobox-one>
+                    </oj-form-layout>
+                    <oj-form-layout id="fl4" label-edge="start" max-columns=2>
+                        <oj-label for="Tranlevel">Trandata</oj-label>
+                        <oj-select-single id="Tranlevel"  style="max-width:25em" data="[[tranlevelDP]]"
+                            value="{{tranlevelVal}}">
+                        </oj-select-single>
+                        <oj-bind-if test="[[buttonValue() != 'info']]">
+                        <oj-select-single id="ST" style="max-width:15em" data="[[STOptionsDP]]" value="{{STVal}}">
+                        </oj-select-single>
+                        </oj-bind-if>
+
+                    </oj-form-layout>
+                    <oj-bind-if test="[[tranlevelVal() === 'schematrandata']]">
+                        <oj-validation-group id="tracker" valid="{{groupValid}}">
+                            <oj-form-layout id="fl4" label-edge="start" max-columns=2 direction="row">
+                                <oj-label for="schema">Schema Name</oj-label>
+                                <oj-select-single id="schema"  data="[[schemaListDP]]"
+                                    value="{{SchemaName}}" required>
+                                </oj-select-single>
+                                <oj-bind-if test="[[buttonValue() === 'add']]">
+                                    <oj-button id="addinfoButton" chroming='solid' on-oj-action="[[addSuppLog]]">Add
+                                        SchemaTrandata</oj-button>
+                                </oj-bind-if>
+                                <oj-bind-if test="[[buttonValue() === 'info']]">
+                                    <oj-button id="addsuppButton" chroming='callToAction' on-oj-action="[[addSuppLog]]">
+                                        Info SchemaTrandata</oj-button>
+                                </oj-bind-if>
+                                <oj-bind-if test="[[buttonValue() === 'del']]">
+                                    <oj-button id="addsuppButton" on-oj-action="[[openDelSuppLog]]" chroming="danger">Delete SchemaTrandata</oj-button>
+                                </oj-bind-if>
+
+                            </oj-form-layout>
+                        </oj-validation-group>
+                    </oj-bind-if>
+
+                    <oj-bind-if test="[[tranlevelVal() === 'trandata']]">
+                        <oj-form-layout id="fl4" label-edge="start" direction="row">
+                            <oj-label for="schema">Schema Name</oj-label>
+
+                            <oj-select-many id="schema" label-hint="Choose Schema Name" label-edge="inside"
+                                options="{{schemaListDP}}" value="{{schemaList}}" class="demo-max-width"
+                                on-value-changed="[[TableFetch]]">
+                            </oj-select-many>
+                        </oj-form-layout>
+                        <div class="oj-flex">
+                            <div class="oj-panel oj-sm-margin-1x-bottom oj-xl-margin-5x  oj-sm-padding-1x"
+                                style='width: 65%;'>
+                                <h6>Select the tables to to add Trandata</h6>
+                                <oj-table id='tableTrandata' aria-label='All Table' data='[[tableNameListDP]]'
+                                    selected='{{selectedItems}}' selection-mode=[[selectedSelectionMode]]
+                                    on-selected-changed='{{selectedChangedListener}}' scroll-policy="loadAll"
+                                    selection-mode='{"row": "single"}' columns='{{tableListcolumnArray}}'
+                                    style='width: 100%;'>
+                                    <oj-paging-control id="paging" data="[[tableNameListDP]]" page-size="10"
+                                        slot="bottom">
+                                    </oj-paging-control>
+                                </oj-table>
+                            </div>
+                            <div class="oj-panel oj-sm-margin-1x-bottom oj-xl-margin-5x  oj-sm-padding-1x"
+                                style='width: 30%;'>
+                                <h6>Tables to Add Trandata</h6>
+                                <oj-text-area readonly max-rows="100000" rows="10" value="[[selectionInfo]]">
+                                </oj-text-area>
+                            </div>
+                        </div>
+                        <div class="oj-panel oj-xl-margin-5x oj-sm-margin-4x-bottom">
+                            <div class="oj-flex-bar">
+                                <oj-bind-if test="[[buttonValue() === 'add']]">
+                                    <oj-button disabled="[[buttonStates]]" id="addsuppButton"
+                                        class="oj-flex-bar-end oj-button-confirm" chroming='solid'
+                                        on-oj-action="[[addSuppLog]]">Add Trandata</oj-button>
+                                </oj-bind-if>
+                                <oj-bind-if test="[[buttonValue() === 'info']]">
+                                    <oj-button disabled="[[buttonStates]]" id="infosuppButton"
+                                        class="oj-flex-bar-end oj-button-confirm" chroming='callToAction'
+                                        on-oj-action="[[addSuppLog]]">Info Trandata</oj-button>
+                                </oj-bind-if>
+                                <oj-bind-if test="[[buttonValue() === 'del']]">
+                                    <oj-button disabled="[[buttonStates]]" id="delsuppButton"
+                                        class="oj-flex-bar-end oj-button-confirm" on-oj-action="[[openDelSuppLog]]"
+                                        chroming="danger">Delete Trandata</oj-button>
+                                </oj-bind-if>
+                            </div>
+                        </div>
+
+                    </oj-bind-if>
+                </div>
+
+                <oj-dialog id="AddTranSuppDialog" dialog-title="Supplemental Logging" modality="modeless"
+                    style="display:none;width:900px;min-width:900px;max-width:900px;">
+                    <div slot="body">
+                        <oj-bind-for-each data="[[AddSuppMsg]]">
+                            <template data-oj-as="SuppMsg">
+                                <br>
+                                <oj-bind-text value='[[SuppMsg.data]]'></oj-bind-text>
+                            </template>
+                        </oj-bind-for-each>
+
+                    </div>
+                    <div slot="footer">
+                        <oj-button id="oksuppButton" chroming="callToAction" on-oj-action="[[addsuppOKClose]]">
+                            OK
+                        </oj-button>
+                    </div>
+                </oj-dialog>
+
+
+            </div>
+        </oj-bind-if>
+
+        <oj-bind-if test="[[ExtMsg.data.SuppLog === 'NO']]">
+            <br>
+            <span class="oj-text-color-danger">Please Enable Minimal Supplemental Logging</span>
+        </oj-bind-if>
+
+        <oj-bind-if test="[[ExtMsg.data.LogMode === 'NOARCHIVELOG']]">
+            <br>
+            <span class="oj-text-color-danger">Please Enable ARCHIVELOG Mode</span>
+        </oj-bind-if>
+
+        <oj-bind-if test="[[ExtMsg.data.FL === 'NO']]">
+            <br>
+            <span class="oj-text-color-danger">Please Enable Force Logging Mode</span>
+        </oj-bind-if>
+
+        <oj-bind-if test="[[ExtMsg.data.DB_Param === 'FALSE']]">
+            <br>
+            <span class="oj-text-color-danger">Please set Database Parameter enable_goldengate_replication=TRUE</span>
+        </oj-bind-if>
+
+    </template>
+</oj-bind-for-each>
+
+<oj-dialog id="SelectSchemaDialog" dialog-title="Fetching Schema Details" modality="modeless"
+    style="display:none;width:350px;min-width:240px;max-width:450px;">
+    <div slot="body">
+        <oj-progress-bar id="createbar" class="oj-progress-bar-embedded" value="-1">
+        </oj-progress-bar>
+    </div>
+</oj-dialog>
+
+
+<oj-dialog id="SuppLogDialog" dialog-title="Working on it.." modality="modeless"
+    style="display:none;width:350px;min-width:240px;max-width:450px;" cancel-behavior="[[CancelBehaviorOpt]]">
+    <div slot="body">
+        <oj-progress-bar id="createbar" class="oj-progress-bar-embedded" value="-1">
+        </oj-progress-bar>
+    </div>
+</oj-dialog>
+
+<oj-dialog id="TimeoutSup" dialog-title="There is a technical issue" modality="modeless"
+    style="display:none;width:350px;min-width:240px;max-width:450px;" cancel-behavior="[[CancelBehaviorOpt]]">
+    <div slot="body">
+    </div>
+</oj-dialog>
+
+<oj-dialog id="DeleteSupp" dialog-title="Delete Supplemental Logging" modality="modeless"
+    style="display:none;width:900px;min-width:900px;max-width:900px;">
+    <div slot="body">
+        <span>Are you sure ?</span>
+    </div>
+    <div slot="footer">
+        <oj-button id="okYesButton" chroming="callToAction" on-oj-action="[[addSuppLog]]">
+            Yes
+        </oj-button>
+        <oj-button id="okNoButton" chroming="callToAction" on-oj-action="[[CloseOkaddSuppLog]]">
+            No
+        </oj-button>
+    </div>
+</oj-dialog>
+<oj-dialog id="ErrorLoad" dialog-title="Error" modality="modeless"
+style="display:none;width:450px;min-width:450px;max-width:450px;" cancel-behavior="[[CancelBehaviorOpt]]">
+    <div slot="body">
+        <oj-bind-for-each data="[[OPError]]">
+            <template data-oj-as="error">
+                <br>
+                <oj-bind-text value='[[error.data]]'></oj-bind-text>
+            </template>
+        </oj-bind-for-each>   
+    </div>
+</oj-dialog>

@@ -1,0 +1,516 @@
+<div class="oj-panel oj-sm-margin-2x">
+    <oj-bind-if test='[[sessionStorage.getItem("userName")!=null]]'>
+               <h6 class="oj-flex-item oj-typography-heading-xl demo-center-items">Initial Load</h6>
+        <div class="oj-panel oj-sm-margin-2x oj-flex-bar">
+            <div class="oj-flex-bar-start">
+                <oj-button on-click="[[previousStep]]" disabled="[[selectedStepValue() == 'stp1']]">
+                    <span slot='startIcon' class='demo-stretched-train-step oj-fwk-icon-back oj-fwk-icon'></span>
+                    Back
+                </oj-button>
+            </div>
+            <div class="oj-flex-bar-middle oj-flex">
+                <oj-train id="train" class="oj-flex-item oj-train-stretch demo-stretched-train "
+                    on-selected-step-changed="[[updateLabelText]]" on-oj-before-select="[[validate]]"
+                    selected-step="{{selectedStepValue}}" steps="[[stepArray]]">
+                </oj-train>
+            </div>
+            <div class="oj-flex-bar-end">
+                <oj-button on-click="[[nextStep]]" disabled="[[selectedStepValue() == 'stp3']]">
+                    <span slot='endIcon' class='demo-stretched-train-step oj-fwk-icon-next oj-fwk-icon'></span>
+                    Next
+                </oj-button>
+            </div>
+        </div>
+        <br>
+        <br>
+
+        <oj-label label-id="grouplabelid">
+            <oj-bind-text value="[[selectedStepFormLabel()]]"></oj-bind-text>
+        </oj-label>
+
+        <oj-validation-group id="SRC" role="group" valid="{{groupValid}}" aria-labelledby="grouplabelid">
+            <oj-bind-if test="[[selectedStepValue() === 'stp1']]">
+                <div class="oj-flex">
+                    <div
+                        class="oj-panel oj-flex-item  oj-sm-margin-2x-bottom oj-xl-margin-2x oj-xl-padding-10x oj-lg-margin-2x oj-lg-padding-7x oj-md-margin-2x oj-md-padding-4x oj-sm-margin-1x oj-sm-padding-1x oj-sm-3">
+                        <oj-form-layout id="fl1" readonly="[[isFormReadonly()]]">
+                            <div class="oj-panel io-color demo-center-items">
+                                <h7>Source Deployment</h7>
+                            </div>
+                            <oj-select-single required id="srcdep" label-hint="Choose Deployment Name"
+                                label-edge="inside" data="{{onepDepListDP}}" value="{{SrcOnePDepName}}"
+                                class="demo-max-width" on-value-changed="[[SelectSRCDeployment]]">
+                            </oj-select-single>
+                            <oj-label for="SRCCredentialDomain" show-required="[[isRequired]]"
+                                help.definition='[[helpDef]]' help.source='[[helpSource]]'>Credential Domain
+                            </oj-label>
+                            <oj-combobox-one required id="SRCCredentialDomain" options="{{SRCdomname1}}"
+                                value="{{selectedSRCDomCategory}}" on-oj-value-updated="[[SRCdomSelectionChanged]]">
+                            </oj-combobox-one>
+
+                            <oj-label for="SRCCredentialAlias" show-required="[[isRequired]]"
+                                help.definition='[[helpDef]]' help.source='[[helpSource]]'>Credential Alias</oj-label>
+                            <oj-combobox-one required label-hint="Choose CDB(in CDB Mode)" label-edge="inside"
+                                id="SRCCredentialAlias" options="[[SRCaliascategories]]" value="{{SRCcurrentPDB}}"
+                                on-oj-value-updated="[[CDBData]]">
+                            </oj-combobox-one>
+                            <oj-bind-if test="[[CDBCheck() === 'YES']]">
+                                <oj-select-single required id="srcpdb" label-hint="Choose PDB Name" label-edge="inside"
+                                    data="{{PDBNameListDP}}" value="{{pdbList}}" class="demo-max-width"
+                                    on-value-changed="[[SRCDBSchema]]">
+                                </oj-select-single>
+                                <oj-select-many required id="srcschema" label-hint="Choose Schema Name"
+                                    label-edge="inside" options="{{schemaNameCDBListDP}}" value="{{schemaList}}"
+                                    class="demo-max-width" on-value-changed="[[valueChangedHandler]]">
+                                </oj-select-many>
+                            </oj-bind-if>
+                            <oj-bind-if test="[[CDBCheck() === 'NO']]">
+                                <oj-select-many required id="srcschema" label-hint="Choose Schema Name"
+                                    label-edge="inside" options="{{schemaNameListDP}}" value="{{schemaList}}"
+                                    class="demo-max-width" on-value-changed="[[valueChangedHandler]]">
+                                </oj-select-many>
+                            </oj-bind-if>
+                            <oj-switch id="metaswitch" value="{{gatherMeta}}" label-edge="inside"
+                                label-hint="Gather Metadata">
+                            </oj-switch>
+                    </div>
+                    <div
+                        class="oj-panel oj-flex-item oj-sm-margin-2x-bottom oj-xl-margin-2x oj-xl-padding-10x oj-lg-margin-2x oj-lg-padding-7x oj-md-margin-2x oj-md-padding-4x oj-sm-margin-1x oj-sm-padding-1x overwrite-sm5 oj-sm-5">
+
+                        <div class="oj-panel io-color demo-center-items">
+                            <h7>Source Database Details</h7>
+                        </div>
+                        <oj-table id='dbDetListtable' aria-label='DB Detail Table' data='[[dbDetListDP]]' display='grid'
+                            selection-mode='{"row": "single"}' columns='{{dbDetcolumnArray}}' style='width: 100%;'>
+                        </oj-table>
+                        <div class="oj-panel demo-center-items">
+                            <oj-button disabled="[[ButtonVal]]" id="confirmBtn"
+                                class="oj-flex-bar-start oj-button-confirm" chroming='solid'
+                                on-oj-action="[[SrcDBSchemaFetch]]">
+                                Analyze Selected Schemas
+                            </oj-button>
+                        </div>
+                        <div class="oj-panel io-color demo-center-items">
+                            <h7>Target Database Details</h7>
+                        </div>
+                        <oj-table id='dbTgtDetList' aria-label='All Table' data='[[dbTgtDetListDP]]' display='grid'
+                            selection-mode='{"row": "single"}' columns='{{dbDetcolumnArray}}' style='width: 100%;'>
+                        </oj-table>
+
+                    </div>
+                    <div
+                        class="oj-panel oj-flex-item oj-sm-margin-4x-bottom oj-xl-margin-2x oj-xl-padding-10x oj-lg-margin-2x oj-lg-padding-7x oj-md-margin-2x oj-md-padding-4x oj-sm-margin-1x oj-sm-padding-1x oj-sm-3">
+                        <oj-form-layout id="fl1" readonly="[[isFormReadonly()]]">
+                            <div class="oj-panel io-color demo-center-items">
+                                <h7>Target Deployment</h7>
+                            </div>
+                            <oj-select-single required id="tgtschema" label-hint="Choose Target Deployment"
+                                label-edge="inside" data="{{onepDepListDP}}" value="{{TgtOnePDepName}}"
+                                class="demo-max-width" on-value-changed="[[SelectTGTDeployment]]">
+                            </oj-select-single>
+                            <oj-label for="TGTCredentialDomain" show-required="[[isRequired]]"
+                                help.definition='[[helpDef]]' help.source='[[helpSource]]'>Credential Domain
+                            </oj-label>
+                            <oj-combobox-one required id="TGTCredentialDomain" options="{{TGTdomname1}}"
+                                value="{{selectedTGTDomCategory}}" on-oj-value-updated="[[TGTdomSelectionChanged]]">
+                            </oj-combobox-one>
+
+                            <oj-label for="TGTCredentialAlias" show-required="[[isRequired]]"
+                                help.definition='[[helpDef]]' help.source='[[helpSource]]'>Credential Alias</oj-label>
+                            <oj-combobox-one required label-hint="Choose PDB(in CDB Mode)" label-edge="inside"
+                                id="CredentialAlias" options="[[TGTaliascategories]]" value="{{TGTcurrentPDB}}"
+                                on-oj-value-updated="[[DBTgtSchema]]">
+                            </oj-combobox-one>
+                            <div class="oj-panel demo-center-items">
+                                <oj-button disabled="[[ApplyMetaButtonVal]]" id="confirmBtn"
+                                    class="oj-flex-bar-start oj-button-confirm" chroming='solid'
+                                    on-oj-action="[[ApplyMetadata]]">
+                                    Apply Metadata
+                                </oj-button>
+                            </div>
+                        </oj-form-layout>
+
+                    </div>
+                </div>
+                <div class="oj-flex ">
+                    <div class="oj-panel oj-sm-margin-4x-bottom oj-xl-margin-2x oj-xl-padding-10x oj-lg-margin-2x oj-lg-padding-7x oj-md-margin-2x oj-md-padding-4x oj-sm-margin-1x oj-sm-padding-1x oj-flex-item oj-sm-7" >
+                        <h6>Select the tables to exclude from Initail Load</h6>
+                        <oj-table id='tableNameList' aria-label='All Table' data='[[tableNameListDP]]' class="oj-sm-full-width"
+                            selected='{{selectedItems}}' selection-mode=[[selectedSelectionMode]]
+                            on-selected-changed='{{selectedChangedListener}}' scroll-policy="loadAll" display='grid'
+                            selection-mode='{"row": "single"}' columns='{{tableListcolumnArray}}'>
+                            <template slot='rowTemplate' data-oj-as='row'>
+                                <tr>
+                                  <td>
+                                    <oj-bind-text value="[[row.data.TABLE_NAME]]"></oj-bind-text>
+                                  </td>
+                                  <td>
+                                    <oj-bind-text value="[[row.data.ROWCNT]]"></oj-bind-text>
+                                  </td>
+                                  <td>
+                                    <oj-input-text readonly='true'
+                                                value="[[row.data.AVGSPC]]">
+                                    </oj-input-text>
+                                  </td>
+                                  <td>
+                                    <oj-input-text readonly='true'
+                                                value="[[row.data.ANALYZETIME]]">
+                                    </oj-input-text>
+                                  </td>
+                                </tr>
+                              </template>
+                            <template slot='revenueLabelTemplate'>
+                                <span class='oj-typography-subheading-lg'>
+                                  Total Average Size
+                                </span>
+                              </template>
+                              <template slot='revenueTotalTemplate'>
+                                <oj-input-text id="avg_total" 
+                                                value="[[avg_space]]"
+                                                readonly=true>
+                                </oj-input-text>
+                              </template>
+                            <oj-paging-control id="paging" data="[[tableNameListDP]]" page-size="10" slot="bottom">
+                            </oj-paging-control>
+                        </oj-table>
+                    </div>
+                    <div class="oj-panel oj-flex-item oj-sm-margin-4x-bottom oj-xl-margin-2x oj-xl-padding-10x oj-lg-margin-2x oj-lg-padding-7x oj-md-margin-2x oj-md-padding-4x oj-sm-margin-1x oj-sm-padding-1x overwrite_table oj-sm-5" >
+                        <h6>Tables to exclude from Initail Load</h6>
+                        <oj-text-area readonly max-rows="100000" rows="10" value="[[selectionInfo]]">
+                        </oj-text-area>
+                    </div>
+                </div>
+            </oj-bind-if>
+        </oj-validation-group>
+
+        <oj-validation-group id="dataSrc" role="group" valid="{{groupValid}}" aria-labelledby="grouplabelid">
+            <oj-bind-if test="[[selectedStepValue() === 'stp2' ]]">
+                <div class="oj-flex">
+                    <div class="oj-panel oj-flex-item oj-sm-margin-4x-bottom oj-xl-margin-10x oj-xl-padding-10x oj-lg-margin-7x oj-lg-padding-7x oj-md-margin-4x oj-md-padding-4x oj-sm-margin-1x oj-sm-padding-1x">
+                        <!-- <oj-validation-group id="dataSrc" role="group" valid="{{groupValid}}" aria-labelledby="grouplabelid">  -->
+                        <oj-form-layout id="fl2" class="oj-form-layout" readonly="[[isFormReadonly()]]" max-columns="1">
+                            <h7>Extract Details</h7>
+                            <br>
+                            <oj-input-text required id="ExtractName" value="{{ExtName}}" length.max="8"
+                                label-hint="Extract Name" validators="[[[regExpValidator]]]"></oj-input-text>
+                            <oj-input-text id="ExtDesc" value="{{ExtDesc}}" label-hint="Description">
+                            </oj-input-text>
+                            <oj-radioset id="enabledRadioset" value="{{LoadOption}}" label-hint="Initial Load Options">
+                                <oj-option value="file">Load Data From File to Replicat</oj-option>
+                                <oj-option value="sqlldr">Direct Bulk Load to SQL*Loader</oj-option>
+                                <oj-option value="ggdl">Oracle GoldenGate Direct Load </oj-option>
+                            </oj-radioset>
+                        </oj-form-layout>
+                    </div>
+
+                    <div class="oj-panel oj-flex-item oj-sm-margin-4x-bottom  oj-xl-margin-10x oj-xl-padding-10x oj-lg-margin-7x oj-lg-padding-7x oj-md-margin-4x oj-md-padding-4x oj-sm-margin-1x oj-sm-padding-1x"
+                        style="width: 28%;text-align: left">
+                        <oj-bind-if test="[[LoadOption() === 'file']]">
+                            <oj-form-layout id="fl2" readonly="[[isFormReadonly()]]" max-columns="1" direction="row"
+                                user-assistance-density='compact'>
+                                <h7>Remote Trail Details</h7>
+                                <br>
+                                <oj-input-text required id="Trail Name" value="{{TrailName}}" length.max="2"
+                                    label-hint="Trail Name"></oj-input-text>
+                                <oj-input-text required id="trailsubdir-input" value="{{trailSubDir}}"
+                                    label-hint="Trail Directory"></oj-input-text>
+                                <oj-input-number id="Trail Size" value="{{trailSize}}"
+                                    converter='[[decimalHalfDownConverter]]' min="0" label-hint="Trail Size(MB)">
+                                </oj-input-number>
+                            </oj-form-layout>
+                        </oj-bind-if>
+                    </div>
+
+                    <div class="oj-panel oj-flex-item oj-sm-margin-4x-bottom oj-xl-margin-5x oj-xl-padding-10x oj-lg-margin-7x oj-lg-padding-7x oj-md-margin-4x oj-md-padding-4x oj-sm-margin-1x oj-sm-padding-1x">
+                        <oj-form-layout id="fl2" class="oj-form-layout" readonly="[[isFormReadonly()]]"
+                            label-edge="start" max-columns="1">
+                            <h7>Replicat Details</h7>
+                            <br>
+                            <oj-input-text required id="ReplicatName" value="{{RepName}}" length.max="8"
+                                label-hint="Replicat Name" validators="[[[regExpValidator]]]"></oj-input-text>
+                            <oj-input-text id="Description" value="{{RepDesc}}" label-hint="Description">
+                            </oj-input-text>
+                        </oj-form-layout>
+                        <oj-bind-if test="[[LoadOption() === 'file']]">
+                            <oj-bind-if test="[[repType().length > 0]]">
+                                <oj-form-layout id="fl1" label-edge="start" readonly="[[isFormReadonly()]]">
+                                    <div
+                                        class="oj-panel  oj-bg-info-30 oj-sm-margin-1x-bottom  oj-xl-margin-1x oj-xl-padding-10x">
+                                        <oj-label for="radiosetBasicDemoId" show-required="[[isRequired]]"
+                                            help.definition='[[helpDef]]' help.source='[[helpSource]]'>Replicat type
+                                        </oj-label>
+                                        <oj-radioset id="radiosetBasicDemoId" labelled-by="mainlabelid"
+                                            value="{{currentRepType}}">
+                                            <oj-bind-for-each data="[[replicatDP]]">
+                                                <template>
+                                                    <br>
+                                                    <oj-option :id="[[$current.data.label]]"
+                                                        value="[[$current.data.value]]">
+                                                        <oj-bind-text value="[[$current.data.label]]"></oj-bind-text>
+                                                    </oj-option>
+                                                </template>
+                                            </oj-bind-for-each>
+                                        </oj-radioset>
+                                    </div>
+                                </oj-form-layout>
+
+                                <oj-form-layout id="fl2" readonly="[[isFormReadonly()]]" max-columns="2" direction="row"
+                                    user-assistance-density='compact'>
+                                    <h7>Checkpoint Table</h7>
+                                    <br>
+                                    <oj-select-single id="ckpt" data="[[chkpttblDP]]" value="{{currentChkptTbl}}"
+                                        class="demo-rem-max-width">
+                                    </oj-select-single>
+                                    <oj-button display='icons' on-oj-action="[[gotoGGAdmin]]"><span slot='startIcon'
+                                            class="demo-icon-sprite"></span></oj-button>
+                                </oj-form-layout>
+                            </oj-bind-if>
+                        </oj-bind-if>
+
+                        <oj-dialog id="chkDlg" dialog-title="CheckpointTable" modality="modeless"
+                            style="display:none;width: 400px;">
+                            <div slot="body">
+                                    <oj-form-layout id="fl2" readonly="[[isFormReadonly()]]" label-edge="start"
+                                        max-columns="1" direction="row">
+
+                                        <oj-label for="ChkTabName">Checkpoint TableName
+                                        </oj-label>
+                                        <oj-input-text  id="ChkTabName" value="{{chkptTblName}}">
+                                        </oj-input-text>
+
+                                    </oj-form-layout>
+ 
+
+                            </div>
+                            <div slot="footer">
+                                <oj-button id="oksuppButton" chroming="callToAction" on-oj-action="[[addsuppOKClose]]">
+                                    Cancel
+                                </oj-button>
+                                <oj-button id="oksuppButton" chroming="callToAction" on-oj-action="[[addChkptTbl]]">
+                                    Save
+                                </oj-button>
+                            </div>
+                        </oj-dialog>
+
+                        <oj-dialog id="ChkptTblDialog" dialog-title="Add Checkpoint Table" modality="modeless"
+                            style="display:none;width:350px;min-width:240px;max-width:450px;">
+                            <div slot="body">
+                                <oj-bind-text value='[[AddChkptTblMsg]]'></oj-bind-text>
+                            </div>
+                            <div slot="footer">
+                                <oj-button id="okdelButton" on-oj-action="[[AddChkptTblMsgOKClose]]">
+                                    OK
+                                </oj-button>
+                            </div>
+                        </oj-dialog>
+
+                    </div>
+                </div>
+            </oj-bind-if>
+
+            <oj-dialog id="LoadDict" title="Loading Dictionary Details" modality="modeless"
+                style="display:none;width:350px;min-width:240px;max-width:450px;">
+                <div slot="body">
+                    <oj-progress-bar id="createbar" class="oj-progress-bar-embedded" value="-1">
+                    </oj-progress-bar>
+                </div>
+            </oj-dialog>
+
+            <oj-bind-if test="[[selectedStepValue() === 'stp3']]">
+                <div class="oj-flex">
+                    <div class="oj-panel  oj-sm-margin-4x-bottom" style="width: 70%;text-align: left">
+                        <oj-text-area id="paramwindow" value="{{currentExtParamList}}" raw-value="{{newExtParamList}}"
+                            rows="20">
+                        </oj-text-area>
+                    </div>
+                    <div class="oj-panel  oj-sm-margin-4x-bottom" style="width: 30%;text-align: left">
+                        <oj-label id="optparams">Optional Parameters</oj-label>
+                        <oj-checkboxset id="extoptprms" labelled-by="Extract Parameters" value="{{ExtoptParam}}">
+                            <oj-option id="EXTCATALOGEXCLUDE" value="CATALOGEXCLUDE">CATALOGEXCLUDE</oj-option>
+                            <oj-option id="EXTSCHEMAEXCLUDE" value="SCHEMAEXCLUDE">SCHEMAEXCLUDE</oj-option>
+                            <oj-option id="EXTMAPEXCLUDE" value="TABLEEXCLUDE">TABLEEXCLUDE</oj-option>
+                            <oj-option id="EXTEXCLUDEWILDCARDOBJECTSONLY" value="EXCLUDEWILDCARDOBJECTSONLY">
+                                EXCLUDEWILDCARDOBJECTSONLY</oj-option>
+                        </oj-checkboxset>
+
+                    </div>
+                    <div class="oj-panel  oj-sm-margin-4x-bottom" style="width: 100%;">
+                        <div class="oj-flex-bar">
+                            <oj-button id="confirmBtn" class="oj-flex-bar-start oj-button-cancel"
+                                on-oj-action="[[cancel]]">
+                                Cancel
+                            </oj-button>
+                            <oj-switch id="switch" class="oj-flex-item oj-flex-bar-center-absolute"
+                                value="{{startExtChk}}" label-edge="inside" label-hint="Defer Start">
+                            </oj-switch>
+                            <oj-button id="addILExtBtn" class="oj-flex-bar-end oj-button-confirm" chroming='solid'
+                                on-oj-action="[[addInitialLoadExt]]">
+                                Add InitialLoad Extract
+                            </oj-button>
+                        </div>
+                    </div>
+                    <div class="oj-panel  oj-sm-margin-4x-bottom" style="width: 70%;text-align: left">
+                        <oj-text-area id="paramwindow" value="{{currentRepParamList}}" raw-value="{{newRepParamList}}"
+                            rows="20">
+                        </oj-text-area>
+                    </div>
+
+                    <div class="oj-panel  oj-sm-margin-4x-bottom" style="width: 30%;text-align: left">
+                        <oj-label id="repoptparams">Optional Parameters</oj-label>
+                        <oj-checkboxset id="repoptparams" labelled-by="Replicat Parameters" value="{{RepoptParam}}">
+                            <oj-bind-if test="[[currentRepType() === 'SPECIALRUN']]">
+                                <oj-option id="REPCATALOGEXCLUDE" value="CATALOGEXCLUDE">CATALOGEXCLUDE</oj-option>
+                                <oj-option id="REPSCHEMAEXCLUDE" value="SCHEMAEXCLUDE">SCHEMAEXCLUDE</oj-option>
+                                <oj-option id="REPMAPEXCLUDE" value="MAPEXCLUDE">MAPEXCLUDE</oj-option>
+                                <oj-option id="REPEXCLUDEWILDCARDOBJECTSONLY" value="EXCLUDEWILDCARDOBJECTSONLY">
+                                    EXCLUDEWILDCARDOBJECTSONLY</oj-option>
+                            </oj-bind-if>
+                            <oj-option id="cereperror1403" value="REPERROR(1403,DISCARD)">REPERROR-1403</oj-option>
+                            <oj-option id="cereperror1" value="REPERROR(-1,DISCARD)">REPERROR-1</oj-option>
+                            <oj-bind-if test="[[currentRepType() === '']]">
+                                <oj-option id="cebatchsql" value="BATCHSQL OPSPERBATCH 30000">BATCHSQL</oj-option>
+                                <oj-option id="cedbopt" value="DBOPTIONS SETTAG 00">DBOPTIONS SETTAG</oj-option>
+                            </oj-bind-if>
+                            <oj-bind-if test="[[currentRepType() === 'integrated']]">
+                                <oj-option id="intdbpara"
+                                    value="DBOPTIONS INTEGRATEDPARAMS(PARALLELISM 4,MAX_PARALLELISM 50">DBOPTIONS
+                                    INTEGRATEDPARAMS</oj-option>
+                                <oj-option id="intdbopt" value="DBOPTIONS SETTAG 00">DBOPTIONS SETTAG</oj-option>
+                            </oj-bind-if>
+                            <oj-bind-if test="[[currentRepType() === 'parallel']]">
+                                <oj-option id="prbatchsql" value="BATCHSQL OPSPERBATCH 30000">BATCHSQL</oj-option>
+                                <oj-option id="prlook" value="LOOKAHEADTRANSACTIONS 1000">LOOK_AHEAD_TRANSACTIONS
+                                </oj-option>
+                                <oj-option id="prsplit" value="SPLIT_TRANS_RECS 30000">SPLIT_TRANS_RECS</oj-option>
+                                <oj-option id="prmap" value="MAP_PARALLELISM 2">MAP_PARALLELISM</oj-option>
+                                <oj-option id="prapply" value="APPLY_PARALLELISM 8">APPLY_PARALLELISM</oj-option>
+                            </oj-bind-if>
+                        </oj-checkboxset>
+
+                    </div>
+
+                </div>
+
+                <div class="oj-panel  oj-sm-margin-4x-bottom">
+                    <div class="oj-flex-bar">
+                        <oj-button id="confirmBtn" class="oj-flex-bar-start oj-button-cancel" on-oj-action="[[cancel]]">
+                            Cancel
+                        </oj-button>
+                        <oj-switch id="switch" class="oj-flex-item oj-flex-bar-center-absolute" value="{{startRepChk}}"
+                            label-edge="inside" label-hint="Defer Start">
+                        </oj-switch>
+                        <oj-button id="addILRepBtn" class="oj-flex-bar-end oj-button-confirm" chroming='solid'
+                            on-oj-action="[[addInitialLoadRep]]">
+                            Add InitialLoad Replicat
+                        </oj-button>
+                    </div>
+                </div>
+            </oj-bind-if>
+            <oj-dialog id="AddInitailLoadExtDialog" dialog-title="Initial Load Extract"
+                style="display:none;width:550px;min-width:540px;max-width:750px;">
+                <div slot="body">
+                    <oj-bind-for-each data="[[AddExtractMsg]]">
+                        <template data-oj-as="ExtMsg">
+                            <br>
+                            <oj-bind-text value='[[ExtMsg.data]]'></oj-bind-text>
+                        </template>
+                    </oj-bind-for-each>
+                </div>
+                <div slot="footer">
+                    <oj-button id="okdelButton" on-oj-action="[[AddInitialLoadExtOKClose]]">
+                        OK
+                    </oj-button>
+                </div>
+            </oj-dialog>
+
+            <oj-dialog id="AddInitailLoadRepDialog" dialog-title="Initial Load Replicat"
+                style="display:none;width:550px;min-width:540px;max-width:750px;">
+                <div slot="body">
+                    <oj-bind-for-each data="[[AddReplicatMsg]]">
+                        <template data-oj-as="RepMsg">
+                            <br>
+                            <oj-bind-text value='[[RepMsg.data]]'></oj-bind-text>
+                        </template>
+                    </oj-bind-for-each>
+                </div>
+                <div slot="footer">
+                    <oj-button id="okdelButton" on-oj-action="[[AddInitialLoadRepOKClose]]">
+                        OK
+                    </oj-button>
+                </div>
+            </oj-dialog>
+    </oj-bind-if>
+    </oj-validation-group>
+    </oj-bind-if>
+</div>
+
+<oj-dialog id="SelectSchemaDialog" title="Fetching Schema Details" modality="modeless"
+    style="display:none;width:350px;min-width:240px;max-width:450px;">
+    <div slot="body">
+        <oj-progress-bar id="createbar" class="oj-progress-bar-embedded" value="-1">
+        </oj-progress-bar>
+    </div>
+</oj-dialog>
+
+<oj-dialog id="CreateExtractDialog" title="Creating Extract" modality="modeless"
+    style="display:none;width:350px;min-width:240px;max-width:450px;">
+    <div slot="body">
+        <oj-progress-bar id="createbar" class="oj-progress-bar-embedded" value="-1">
+        </oj-progress-bar>
+    </div>
+</oj-dialog>
+<oj-dialog id="CreateReplicatDialog" title="Creating Replicat" modality="modeless"
+    style="display:none;width:350px;min-width:240px;max-width:450px;">
+    <div slot="body">
+        <oj-progress-bar id="createbar" class="oj-progress-bar-embedded" value="-1">
+        </oj-progress-bar>
+    </div>
+</oj-dialog>
+<oj-dialog id="CreateTableProgress" title="Creating Tables in the Target Database" modality="modeless"
+    style="display:none;width:350px;min-width:240px;max-width:450px;">
+    <div slot="body">
+        <oj-progress-bar id="createtab" class="oj-progress-bar-embedded" value="-1">
+        </oj-progress-bar>
+    </div>
+</oj-dialog>
+
+<oj-dialog id="CreateTableDialog" dialog-title="Target Table Creation"
+    style="display:none;width:850px;min-width:850px;max-width:850px;">
+    <div slot="body">
+        <div class="oj-panel  oj-sm-margin-4x-bottom">
+            <oj-table id='metatbl' aria-label='Metadata Table' data='[[CreateTblMsgDP]]' columns='[{"headerText": "Table Name", 
+                   "field": "TabName"},
+                  {"headerText": "Message", 
+                   "field": "msg"}]' scroll-policy="loadAll" display="grid">
+            </oj-table>
+        </div>
+        <oj-paging-control id="metapaging" data="[[CreateTblMsgDP]]" page-size="20">
+        </oj-paging-control>
+
+
+    </div>
+    <div slot="footer">
+        <oj-button id="okdelButton" chroming="callToAction" on-oj-action="[[createTblOkClose]]">
+            OK
+        </oj-button>
+    </div>
+</oj-dialog>
+
+<oj-dialog id="TimeoutInLoad" dialog-title="There is a technical issue. Please try again later" modality="modeless"
+style="display:none;width:350px;min-width:240px;max-width:450px;" cancel-behavior="[[CancelBehaviorOpt]]">
+    <div slot="body">
+        
+    </div>
+</oj-dialog>
+
+<oj-dialog id="ErrorLoad" dialog-title="Error" modality="modeless"
+style="display:none;width:450px;min-width:450px;max-width:450px;" cancel-behavior="[[CancelBehaviorOpt]]">
+    <div slot="body">
+        <oj-bind-for-each data="[[OPError]]">
+            <template data-oj-as="error">
+                <br>
+                <oj-bind-text value='[[error.data]]'></oj-bind-text>
+            </template>
+        </oj-bind-for-each>   
+    </div>
+</oj-dialog>

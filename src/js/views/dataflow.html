@@ -1,0 +1,50 @@
+    <div id="sampleDemo" class="demo-padding demo-container">
+        <div id="componentDemoContent" style="width: 1px; min-width: 100%;">
+
+            <div id='diagram-container'>
+                <div class="oj-panel demo-centering-container oj-xl-margin-1x oj-xl-padding-1x oj-lg-margin-1x oj-lg-padding-1x oj-md-margin-1x oj-md-padding-1x oj-sm-margin-1x oj-sm-padding-1x">
+                    <h6 class="oj-flex-item oj-typography-heading-xl">Replication flow </h6>
+                </div>
+                <oj-bind-if test="[[NodeData().length == 0]]">
+                    <oj-progress-bar class="oj-progress-bar-embedded" id="createbar" value="-1">
+                    </oj-progress-bar>
+                </oj-bind-if>
+                <oj-bind-if test="[[NodeData().length > 0]]">
+                    <div class="oj-panel demo-centering-container  oj-xl-margin-1x oj-xl-padding-1x oj-lg-margin-1x oj-lg-padding-1x oj-md-margin-1x oj-md-padding-1x oj-sm-margin-1x oj-sm-padding-1x">
+                        <svg xmlns="http://www.w3.org/2000/svg" width='0' height="0">
+                            <defs>
+                                <marker id="endMarker" viewBox="0 0 5 5" refX="5" refY="2.5" markerWidth="20"
+                                    markerHeight="20" markerUnits="userSpaceOnUse" orient="auto">
+                                    <path d="M 0 0 L 5 2.5 L 0 5 z" fill="#a568c1" />
+                                </marker>
+                            </defs>
+                            <defs>
+                                <marker id="endMarkerSelected" viewBox="0 0 5 5" refX="5" refY="2.5" markerWidth="20"
+                                    markerHeight="7" markerUnits="userSpaceOnUse" orient="auto">
+                                    <path d="M 0 0 L 5 2.5 L 0 5 z" fill="#a568c1" />
+                                </marker>
+                            </defs>
+                        </svg>
+
+                        <oj-diagram id='diagram-container' animation-on-data-change='auto' animation-on-display='auto'
+                            node-data='[[nodeDataProvider]]' link-data='[[linkDataProvider]]' layout='[[layoutFunc]]'
+                            max-zoom='1.5' promoted-link-behavior='full' node-content.renderer='[[nodeRendererFunc]]'
+                            node-content.selection-renderer='[[nodeRendererFunc]]'
+                            node-content.hover-renderer='[[nodeRendererFunc]]'
+                            link-content.renderer='[[linkRendererFunc]]'
+                            link-content.selection-renderer='[[linkRendererFunc]]'
+                            link-content.hover-renderer='[[linkRendererFunc]]' selection='{{selectedNodesValue}}'
+                            selection-mode='[[selectionValue]]' expanded = '{{expandedNodes}}' >
+                            <template slot="nodeTemplate" data-oj-as="node">
+                                <oj-diagram-node label='[[node.data.id]]'
+                                    short-desc='[[node.data.id]]' label-style='{"font-size": "20px"}' >
+                                </oj-diagram-node>
+                            </template>
+                            <template slot="linkTemplate" data-oj-as="link">
+                                <oj-diagram-link start-node="[[link.data.start]]" end-node="[[link.data.end]]"
+                                    short-desc='[["Replication flow from  " + link.data.start + " to " + link.data.end]]'>
+                                </oj-diagram-link>
+                            </template>
+                        </oj-diagram>
+    </div>
+    </div>

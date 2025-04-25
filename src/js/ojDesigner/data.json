@@ -1,0 +1,135 @@
+{
+    "nodesA": [
+     {
+        "id": "Classic Extract",
+        "label": "Classic Extract",
+        "initials": "CE",
+        "anchor": "mauve",
+        "image" : "css/images/ce-icon.png"
+      },
+      {
+        "id": "Parallel Replicat",
+        "label": "Parallel Replicat",
+        "initials": "PR",
+        "anchor": "green",
+        "image" : "css/images/pr-icon.png"
+      },
+      {
+        "id": "Parallel Integrated Replicat",
+        "label": "Parallel Integrated Replicat",
+        "initials": "PIR",
+        "anchor": "green",
+        "image" : "css/images/pir-icon.png"
+      },
+      {
+        "id": "Integrated Replicat",
+        "label": "Integrated Replicat",
+        "initials": "IR",
+        "anchor": "green",
+        "image" : "css/images/ir-icon.png"
+      },
+      {
+        "id": "Coordinated Replicat",
+        "label": "Coordinated Replicat",
+        "initials": "COR",
+        "anchor": "green",
+        "image" : "css/images/cr-icon.png"
+      }
+    ],
+"nodesB": [
+  {
+    "id": "Source Deployment",
+    "label": "Source Deployment",
+    "initials": "SD",
+    "x": 50,
+    "y": 120,
+    "anchor": "blue",
+    "image" : "css/images/sd-icon.png"
+  },
+  {
+    "id": "Source CredentialStore",
+    "label": "Source CredentialStore",
+    "initials": "CS",
+    "x": 50,
+    "y": 300,
+    "anchor": "lilac",
+    "image" : "css/images/source-cs-icon.png"
+  },
+{
+"id": "Integrated Extract",
+"label": "Integrated Extract",
+"initials": "IE",
+"x": 200,
+"y": 205,
+"anchor": "mauve",
+"image" : "css/images/ie-icon.png"
+},
+{
+  "id": "Target Deployment",
+  "label": "Target Deployment",
+  "initials": "TD",
+  "x": 350,
+  "y": 155,
+  "anchor": "blue",
+  "image" : "css/images/td-icon.png"
+},
+{
+  "id": "Extract Pump",
+  "label": "Extract Pump",
+  "initials": "P",
+  "x": 500,
+  "y": 155,
+  "image" : "css/images/extract-pump-icon.png"
+},
+{
+  "id": "Target CredentialStore",
+  "label": "Target CredentialStore",
+  "initials": "CS",
+  "x": 650,
+  "y": 155,
+  "anchor": "lilac",
+  "image" : "css/images/target-cs-icon.png"
+},
+{
+  "id": "Classic Replicat",
+  "label": "Classic Replicat",
+  "initials": "CR",
+  "x": 800,
+  "y": 155,
+  "anchor": "green",
+  "image" : "css/images/clr-icon.png"
+}
+],
+"linksB": [
+  {
+    "id": "L0",
+    "startNode": "Source Deployment",
+    "endNode": "Source CredentialStore"
+  },
+  {
+    "id": "L1",
+    "startNode": "Source CredentialStore",
+    "endNode": "Integrated Extract"
+  },
+  {
+    "id": "L2",
+    "startNode": "Integrated Extract",
+    "endNode": "Target Deployment"
+  },
+  {
+    "id": "L3",
+    "startNode": "Extract Pump",
+    "endNode": "Target CredentialStore"
+  },
+  {
+    "id": "L4",
+    "startNode": "Target CredentialStore",
+    "endNode": "Classic Replicat"
+  },
+  {
+    "id": "L5",
+    "startNode": "Target Deployment",
+    "endNode": "Extract Pump"
+  }
+]
+}

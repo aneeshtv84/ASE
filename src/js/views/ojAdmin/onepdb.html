@@ -1,0 +1,52 @@
+<div class="oj-panel  oj-sm-margin-1x-bottom oj-xl-margin-10x oj-xl-padding-4x oj-lg-margin-7x oj-lg-padding-1x oj-md-margin-4x oj-md-padding-1x oj-sm-margin-1x oj-sm-padding-1x" style="width: 30%;text-align: left">            
+    <div class="oj-panel  oj-sm-margin-1x-bottom oj-xl-margin-10x oj-xl-padding-1x oj-lg-margin-7x oj-lg-padding-1x oj-md-margin-4x oj-md-padding-1x oj-sm-margin-1x oj-sm-padding-1x" >      
+                    <h6>OneP User Details</h6>
+                    </div>
+                    <div class="oj-panel  oj-sm-margin-1x-bottom oj-xl-margin-10x oj-xl-padding-10x oj-lg-margin-7x oj-lg-padding-1x oj-md-margin-4x oj-md-padding-1x oj-sm-margin-1x oj-sm-padding-1x" >
+                        <oj-form-layout id="fl2" readonly="[[isFormReadonly()]]" label-edge="start" label-width="30%" max-columns="1" direction="row">
+                    <oj-label  for="UName" show-required="[[isRequired]]" 
+                              help.source='[[helpSource]]'>UserName
+                    </oj-label>   
+                    <oj-input-text required id="UName"  value="{{uname}}" ></oj-input-text>
+                    <oj-label  for="UPasswd" show-required="[[isRequired]]" 
+                              help.source='[[helpSource]]'>Password</oj-label>   
+                    <oj-input-password required id="UPasswd"  value="{{upasswd}}" ></oj-input-password>      
+
+                    <oj-label  for="ServiceName" show-required="[[isRequired]]" help.definition='[[helpDef]]'
+                               help.source='[[helpSource]]'>Role
+                    </oj-label> 
+                    <oj-select-single  id="Database"
+                        data="[[OneRoleDP]]" 
+                        value="{{currentRole}}">
+                    </oj-select-single >
+                                              
+                        </oj-form-layout>
+        </div>
+        <div class="oj-panel  oj-sm-margin-1x-bottom oj-xl-margin-10x oj-xl-padding-1x oj-lg-margin-7x oj-lg-padding-1x oj-md-margin-4x oj-md-padding-1x oj-sm-margin-1x oj-sm-padding-1x" >
+            <div class="oj-flex-bar">
+                <oj-button id="addUser" class="oj-flex-bar-end oj-button-confirm"  chroming="callToAction"
+                           on-oj-action="[[addUser]]">
+                    Save
+                </oj-button>
+                 <oj-dialog id="addUserDialog" title="Adding OneP User Details" modality="modeless"
+                           style="display:none;width:350px;min-width:240px;max-width:450px;">
+                    <div slot="body">
+                        <oj-progress-bar id="createbar"  class="oj-progress-bar-embedded" value="-1"  >
+                        </oj-progress-bar>
+                    </div>
+                </oj-dialog>
+                            <oj-dialog id="OnePDialog" dialog-title="Add OneP User Details" modality="modeless"
+                       style="display:none;width:350px;min-width:240px;max-width:450px;">
+                <div slot="body">
+                            <oj-bind-text value='[[AddUserMsg]]'></oj-bind-text>
+                </div>
+                <div slot="footer">
+                    <oj-button id="okdelButton"  on-oj-action="[[AddUserMsgOKClose]]">
+                        OK
+                    </oj-button>
+                </div>
+            </oj-dialog> 
+            </div>
+        </div>
+    
+         

@@ -1,0 +1,195 @@
+<div class="oj-panel ">
+    <oj-form-layout id="fl2" class="oj-form-layout" label-edge="start" max-columns="2" direction="row">
+        <oj-label for="Database" show-required="[[isRequired]]" help.definition='[[helpDef]]'
+            help.source='[[helpSource]]'>Database Name
+        </oj-label>
+        <oj-select-single id="Database" label-hint="Choose PDB in CDB mode" data="[[DBDetDP]]" value="{{currentDB}}" on-value-changed="[[valueChangedHandler]]">
+        </oj-select-single>
+        <oj-button disabled="{{ButtonVal}}" id="IRTShootBtn" chroming="callToAction" on-oj-action="[[IRTShoot]]">Get Details
+        </oj-button>
+
+    </oj-form-layout>
+</div>
+<div class="oj-panel io-color oj-margin" style="width:100%;">
+    <h7>Database Details</h7>
+</div>
+          <oj-table id='irdb' aria-label='DB' data='[[IRDBDetDP]]' class="oj-sm-width-full" display='grid' selection-mode='{"row": "single"}'
+            columns='{{IRDBDetcolumnArray}}' >
+     </oj-table>
+  
+     <div class="oj-panel io-color oj-margin" style="width:100%;"> 
+    <h7> Integrated Replicats configured in this database</h77>
+    </div>
+        <oj-table id='irstats' aria-label='IR Stats' data='[[IRStatsDP]]' class="oj-sm-width-full" display='grid'
+            selection-mode='{"row": "single"}' columns='{{IRStatcolumnArray}}' >
+
+        </oj-table>
+
+<div class="oj-panel io-color oj-margin" style="width:100%;"> 
+    <h7> Inbound Server Details</h7>
+    </div>
+        <oj-table id='table' aria-label='All Table' data='[[IRIBProgressDP]]' class="oj-sm-width-full"  display='grid'
+            selection-mode='{"row": "single"}' columns='{{IRInboundcolumnArray}}'>
+
+        </oj-table>
+
+    <div class="oj-panel io-color oj-margin ir-class" style="width:100%;"> 
+    <h7>Apply Flow within the Sub Components <span class="tooltip fa fa-info-circle "><span class="tooltiptext">- Check for the size of Memory being used and allocated. </span></h7>
+    </div>
+        <oj-table id='table' aria-label='All Table' data='[[ApplyFlowDP]]' class="oj-sm-width-full" display='grid'
+            selection-mode='{"row": "single"}' columns='{{ApplyFlowcolumnArray}}'>
+        </oj-table>
+
+    <oj-collapsible id="collapsiblePage" data-oj-binding-provider="none">
+    <h6 slot="header" class="oj-header-border">Apply Network Reciever<span class="tooltip fa fa-info-circle"><span class="tooltiptext">- Database Foregroundprocess of Replicat <BR>- Check for the State <BR>- If Replicat or the ANR is reaching maximum CPU (90-100%) as shown in top, create an additional Replicat process and partition the work between the new process and the bottlenecked Replicat process <BR>- Before dividing the work between multiple Replicat processes, consider the Referential integrity between tables to ensure data integrity, parent and child tables with referential integrity relationships should be processed by the same Replicat process</span></h6>
+        <oj-table id='table' aria-label='All Table' data='[[ApplyRecieverDP]]' class="oj-sm-width-full" display='grid'
+            selection-mode='{"row": "single"}' columns='{{ApplyRecievercolumnArray}}'>
+
+        </oj-table>
+
+ <div class="oj-panel io-color oj-margin ir-class" style="width:100%;"> 
+    <h7>Apply Network Reciever Session Wait Event History for last 30 minutes <span class="tooltip fa fa-info-circle "><span class="tooltiptext">- Based on the ASH Information, general Performance Tuning attempts might be derived</span></h7>
+</div>
+    <oj-table id="table" aria-label="Tasks Table" data="[[ApplyRecieverASHDP]]" class="oj-sm-width-full"  display='grid'
+        selection-mode='{"row": "single"}' columns='{{ApplyRecieverASHcolumnArray}}'
+        class="oj-sm-width-full oj-bg-body">
+    </oj-table>
+</oj-collapsible>
+
+    <oj-collapsible id="collapsiblePage" data-oj-binding-provider="none">
+    <h6 slot="header" class="oj-header-border">Apply Reader <span class=" tooltip fa fa-info-circle "><span class="tooltiptext">- The apply reader is a process which reads (dequeues) messages from the queue, computes message dependencies, and builds transactions.<BR>- It passes the transactions on to the Apply coordinator in commit order for assignment to the apply servers <BR>- Check state of the Apply Reader Process</span></h6>
+        <oj-table id='table' aria-label='All Table' data='[[ApplyReaderDP]]' display='grid'            selection-mode='{"row": "single"}' columns='{{ApplyReadercolumnArray}}' style='width: 100%;'>
+        </oj-table>
+
+        <div class="oj-panel io-color oj-margin ir-class" style="width:100%;"> 
+        <h6 >Apply Reader - Dequeue Information <span class=" tooltip fa fa-info-circle "><span class="tooltiptext"> Check for the DEQUEUED_MESSAGE_CREATE_TIME (creation time at the source database of the last message received) and the latency.</span></h7>
+        </div>
+        <oj-table id='table' aria-label='All Table' data='[[ApplyReaderInfoDP]]' display='grid'
+            selection-mode='{"row": "single"}' columns='{{ApplyReaderInfocolumnArray}}' style='width: 100%;'>
+        </oj-table>
+
+        <div class="oj-panel io-color oj-margin ir-class" style="width:100%;"> 
+        <h6 > Apply Reader - LCR Dependencies <span class=" tooltip fa fa-info-circle "><span class="tooltiptext">- Check for WaterMark Wait dependencies which should be  much smaller than row-level dependencies . <BR>- A high percentage of LCR Dependency reduces the parallelism</span></h7>
+        </div>
+        <oj-table id='table' aria-label='All Table' data='[[ApplyReaderLCRDepDP]]' display='grid'
+            selection-mode='{"row": "single"}' columns='{{ApplyReaderLCRDepcolumnArray}}' style='width: 100%;'>
+        </oj-table>
+
+        <div class="oj-panel io-color oj-margin ir-class" style="width:100%;"> 
+        <h7 >Apply Reader Session Wait Event History for last 30 minutes <span class=" tooltip fa fa-info-circle "><span class="tooltiptext">Based on the ASH Information general Performance Tuning attempts might be derived</span></h7>
+       </div>
+        <oj-table id='table' aria-label='All Table' data='[[ApplyReaderASHDP]]' display='grid'
+            selection-mode='{"row": "single"}' columns='{{ApplyReaderASHcolumnArray}}' style='width: 100%;'>
+        </oj-table>
+        </oj-collapsible>
+
+   <oj-collapsible id="collapsiblePage" data-oj-binding-provider="none">
+    <h6 slot="header" class="oj-header-border">Apply Coordinator</h6>
+    <div class="oj-panel io-color oj-margin ir-class" style="width:100%;"> 
+    <h7>Apply Coordinator- Commit Dependencies <span class=" tooltip fa fa-info-circle "><span class="tooltiptext">A high percentage of Commit Dependency reduces the parallelism</span></h7>
+    </div>
+    <oj-table id='table' aria-label='All Table' data='[[ApplyCoordinatorInfoDP]]' display='grid'
+            selection-mode='{"row": "single"}' columns='{{ApplyCoordinatorInfocolumnArray}}' style='width: 100%;'>
+        </oj-table>
+
+    <div class="oj-panel io-color oj-margin ir-class" style="width:100%;"> 
+    <h7 >Apply Coordinator Statistics <span class=" tooltip fa fa-info-circle "><span class="tooltiptext">Check the State of the Coordinatar Process. <BR>The State should be IDLE or APPLYING, but INITIALIZING, SHUTTING DOWN or ABORTING shows maintainance or incident issues. <BR>- Total number of transactions RECEIVED, ASSIGNED and APPLIED by the apply process since the apply process was last started. <BR>A high difference between Received and Assigned transactions indicates high activity. <BR>- Rollback activity indicates rollbacks related unexpected contention. <BR>- Unassigned completed transaction sshould be 0 or small number</span></h7>
+    </div>
+        <oj-table id='table' aria-label='All Table' data='[[ApplyCoordinatorDP]]' display='grid'
+            selection-mode='{"row": "single"}' columns='{{ApplyCoordinatorcolumnArray}}' style='width: 100%;'>
+
+        </oj-table>
+    </oj-collapsible>
+
+
+<oj-collapsible id="inner1"  expand-area="header"  data-oj-binding-provider="none">
+    <h6 slot="header" class="oj-header-border" >Apply Server </h6>
+    <h6>Apply Server  Transactions<span class=" tooltip fa fa-info-circle "><span class="tooltiptext">Information must be ordered by COMMIT SCN and Dependant COMMIT SCN</span></h6>
+        <oj-table id='table' aria-label='All Table' data='[[ApplyServerTxnDP]]' class="oj-"
+            selection-mode='{"row": "single"}' columns='{{ApplyServerTxncolumnArray}}' style='width: 100%;'>
+        </oj-table>
+
+    <div class="oj-panel io-color oj-margin ir-class" style="width:100%;"> 
+    <h7>Apply Server SQL Statements <span class=" tooltip fa fa-info-circle "><span class="tooltiptext">Current SQLs executed by the Apply Servers derived from GV$GG_APPLY_SERVER,GV$SESSION,GV$SQL</span></h7>
+    </div>
+        <oj-table id='table' aria-label='All Table' data='[[ApplyServerInfoDP]]' display='grid'
+            selection-mode='{"row": "single"}' columns='{{ApplyServerInfocolumnArray}}' style='width: 100%;'>
+
+        </oj-table>
+
+    <div class="oj-panel io-color oj-margin ir-class" style="width:100%;"> 
+    <h7>Apply Server Statistics - Details <span class=" tooltip fa fa-info-circle "><span class="tooltiptext">LCRs and Transactions for the individual Apply Server processes are displayed</span></h7>
+    </div>
+        <oj-table id='table' aria-label='All Table' data='[[ApplyAggStatsDP]]' display='grid'
+            selection-mode='{"row": "single"}' columns='{{ApplyAggStatscolumnArray}}' style='width: 100%;'>
+        </oj-table>
+
+ <div class="oj-panel io-color oj-margin ir-class" style="width:100%;"> 
+    <h7>Apply Server Wait Events <span class=" tooltip fa fa-info-circle "><span class="tooltiptext">Derived from GV$GG_APPLY_SERVER,GV$SESSION_WAIT</span></h7>
+</div>
+        <oj-table id='table' aria-label='All Table' data='[[ApplyWaitsDP]]' display='grid'
+            selection-mode='{"row": "single"}' columns='{{ApplyWaitscolumnArray}}' style='width: 100%;'>
+        </oj-table>
+
+    <div class="oj-panel io-color oj-margin ir-class" style="width:100%;"> 
+    <h7>Apply Server Session Wait Event History for last 30 minutes <span class=" tooltip fa fa-info-circle "><span class="tooltiptext">Based on the ASH Information general Performance Tuning attempts might be derived</span></h7></div>
+    <oj-table id="table" aria-label="Tasks Table" data="[[ApplyServerASHDP]]" display='grid'
+        selection-mode='{"row": "single"}' columns='{{ApplyServerASHcolumnArray}}'
+        class="oj-sm-width-full oj-bg-body">
+    </oj-table>
+
+    <div class="oj-panel io-color oj-margin ir-class" style="width:100%;"> 
+    <h7>Tables doing Full Table Scans while Apply  <span class=" tooltip fa fa-info-circle "><span class="tooltiptext">Check for the DEQUEUED_MESSAGE_CREATE_TIME (creation time at the source database of the last message received) and the latency.</span>
+    </h7>
+    </div>
+        <oj-table id='table' aria-label='All Table' data='[[ApplyServerFTSDP]]' display='grid'
+            selection-mode='{"row": "single"}' columns='{{ApplyServerFTScolumnArray}}' style='width: 100%;'>
+
+        </oj-table>
+</oj-collapsible>
+
+
+<div class="oj-panel io-color oj-margin" style="width:100%;"> 
+    <h77>Integrated Replicat key parameters</h77>
+</div>
+        <oj-table id='table' aria-label='All Table' data='[[IRParamsDP]]' display='grid'
+            selection-mode='{"row": "single"}' columns='{{IRParamscolumnArray}}' style='width: 100%;'>
+
+        </oj-table>
+
+    <div class="oj-panel io-color oj-margin" style="width:100%;"> 
+    <h7>Current Open Transactions</h7>
+    </div>
+        <oj-table id='table' aria-label='All Table' data='[[IROpenDP]]' display='grid'
+            selection-mode='{"row": "single"}' columns='{{IROpencolumnArray}}' style='width: 100%;'>
+
+        </oj-table>
+
+     <div class="oj-panel io-color oj-margin" style="width:100%;"> 
+    <h7>Count of large transactions (LCRs > 10000) </h7>
+    </div>
+        <oj-table id='table' aria-label='All Table' data='[[IROpen10000DP]]' display='grid'
+            selection-mode='{"row": "single"}' columns='{{IROpen10000columnArray}}' style='width: 100%;'>
+
+        </oj-table>
+
+<oj-dialog id="getExtractTshoot" title="Fetching from Database" modality="modeless"
+    cancel-behavior="[[CancelBehaviorOpt]]"
+    style="display:none;width:350px;min-width:240px;max-width:450px">
+    <div slot="body">
+        <oj-progress-bar id="createbar" class="oj-progress-bar-embedded" value="-1" style="">
+        </oj-progress-bar>
+    </div>
+</oj-dialog>
+
+<oj-dialog id="ErrorLoad" dialog-title="Error" modality="modeless"
+style="display:none;width:450px;min-width:450px;max-width:450px;white-space:pre;" cancel-behavior="[[CancelBehaviorOpt]]">
+    <div slot="body">
+        <oj-bind-for-each data="[[OPError]]">
+            <template data-oj-as="error">
+                <oj-bind-text value='[[error.data]]'></oj-bind-text>
+                <br>
+            </template>
+        </oj-bind-for-each>   
+    </div>
+</oj-dialog>

@@ -1,0 +1,83 @@
+<div class="oj-flex">
+    <div class="oj-panel oj-sm-2" >
+        <div class="oj-panel oj-flex-bar">
+            <oj-select-single required id="Database" label-hint="Select Database Alias"  class="oj-form-control-max-width-md" label-edge="inside" data="[[DBDetDP]]" value="{{currentDB}}" >
+            </oj-select-single>
+            <oj-button  class="oj-button-sm oj-flex-bar-end" chroming="solid"
+                on-oj-action='[[clickGetDet]]'>Get Details</oj-button>
+        </div>
+        <div class="oj-panel oj-margin oj-panel-alt1 oj-panel-shadow-lg">
+    <oj-label for="select1">
+        <h6>Table Details </h6>
+    </oj-label>
+    
+    <oj-table id='table' aria-label='All Table' data='[[tableDetailDP]]' display='grid'
+        selection-mode='{"row": "single"}' columns='{{CountDetailcolumnArray}}' style='width: 100%;'>
+    </oj-table>
+    <oj-paging-control id="paging" data="[[tableDetailDP]]" page-size="20"
+    slot="bottom">
+</oj-paging-control>
+</div>
+    </div>
+    <div class="oj-panel oj-sm-10" >
+        <div class="oj-panel oj-flex-bar">
+         <oj-select-many required id="srcschema" label-hint="Choose Schema Name" class="oj-form-control-max-width-md" 
+            label-edge="inside" options="{{schemaListDP}}" value="{{schemaListSelected}}" on-value-changed="[[valueChangedHandler]]">
+        </oj-select-many>
+        <!-- &nbsp;&nbsp;&nbsp;&nbsp;
+        <oj-input-text id="filter" class="oj-form-control-max-width-md" label-hint="Filter" label-edge="inside"
+            placeholder="Filter" on-raw-value-changed="[[handleValueChanged]]" value="{{filter}}" clear-icon="always">
+        </oj-input-text> -->
+        <oj-button disabled="[[buttonVal]]" class="oj-button-sm oj-flex-bar-end" chroming="solid"
+                on-oj-action='[[clickTableGetDetails]]'>Analyze</oj-button>
+                &nbsp;
+        <oj-button disabled="[[buttonValReport]]" class="oj-button-sm oj-flex" chroming="solid"
+                on-oj-action='[[viewReportModal]]'>Summary</oj-button>
+                &nbsp;
+        <oj-button disabled="[[buttonValReport]]" class="oj-button-sm oj-flex" chroming="solid"
+                on-oj-action='[[downloadTableReport]]'>Download Report</oj-button>
+        </div>
+        <!-- <div class="oj-panel oj-margin oj-panel-alt1 oj-panel-shadow-lg">
+        <h6>Column Details </h6>
+        <oj-table id='table' aria-label='All Table' data='[[tableNameDetailsDP]]' display='grid'
+        selection-mode='{"row": "single"}' columns='{{TableDetailcolumnArray}}' style='width: 100%;'>
+    </oj-table>
+    <oj-paging-control id="paging" data="[[tableNameDetailsDP]]" page-size="20"
+    slot="bottom">
+</oj-paging-control>
+        </div> -->
+    </div>
+</div>
+
+    <oj-dialog id="SelectSchemaDialog" title="Fetching Schema Details" modality="modeless"
+    style="display:none;width:350px;min-width:240px;max-width:450px;">
+    <div slot="body">
+        <oj-progress-bar id="createbar" class="oj-progress-bar-embedded" value="-1">
+        </oj-progress-bar>
+    </div>
+</oj-dialog>
+
+
+<oj-dialog id="viewTableModalDlg" title="Table Assessment Report" modality="modeless"
+style="display:none;width:650px;min-width:640px;max-width:650px;" cancel-behavior="[[CancelBehaviorOpt]]">
+<div slot="body">
+    <div class="oj-panel oj-margin oj-panel-alt1 oj-panel-shadow-lg">
+        <h6>PostgreSQL doesn't support keywords such as "window", "offset" as column names </h6>
+        <oj-table id='dbDetListtable' aria-label='All Table' data='[[errorTableNameDetailsDP]]' display='grid'
+        selection-mode='{"row": "single"}' columns='{{TableDetailcolumnArray}}' style='width: 100%;'>
+    </oj-table>
+    <oj-paging-control id="paging" data="[[errorTableNameDetailsDP]]" page-size="20"
+    slot="bottom">
+</oj-paging-control>
+        </div>
+</div>
+<div slot="footer">
+    <oj-button id="okdelButton" chroming='solid'  on-oj-action="[[reportClose]]">
+        Cancel
+    </oj-button>
+    <oj-button id="okdelButton" chroming='solid'  on-oj-action='[[downloadReport]]'>
+        Download
+    </oj-button>
+    </div>
+</oj-dialog>
+

@@ -1,0 +1,205 @@
+<div class="oj-flex">
+    <div class="oj-panel oj-sm-2" >
+        <div class="oj-panel oj-flex-bar">
+            <oj-select-single required id="Database1" label-hint="Select Database Alias"  class="oj-form-control-max-width-md" label-edge="inside" data="[[DBDetDP]]" value="{{currentDB}}" >
+            </oj-select-single>
+            <oj-button  class="oj-button-sm oj-flex-bar-end" chroming="solid"
+                on-oj-action='[[clickViewGetDet]]'>Get Details</oj-button>
+        </div>
+        <div class="oj-panel oj-margin oj-panel-alt1 oj-panel-shadow-lg">
+            <oj-label for="select1">
+                <h6>Procedure Details </h6>
+            </oj-label>
+            
+            <oj-table id='table' aria-label='All Table' data='[[viewDetailDP]]' display='grid'
+                selection-mode='{"row": "single"}' columns='{{CountDetailcolumnArray}}' style='width: 100%;'>
+            </oj-table>
+            <oj-paging-control id="paging" data="[[viewDetailDP]]" page-size="20"
+            slot="bottom">
+        </oj-paging-control>
+        </div>
+    </div>
+
+    <div class="oj-panel oj-sm-8" >
+        <div class="oj-panel oj-flex-bar">
+         <oj-select-many required id="srcschema" label-hint="Choose Schema Name" class="oj-form-control-max-width-md" 
+            label-edge="inside" options="{{schemaListDP}}" value="{{schemaListSelected}}" on-value-changed="[[valueChangedHandler]]">
+        </oj-select-many>
+        <oj-button disabled="[[buttonVal]]" class="oj-button-sm oj-flex-bar-end" chroming="solid"
+        on-oj-action='[[clickViewGetDetails]]'>Get Details</oj-button>&nbsp;&nbsp;
+
+        <oj-button  disabled="[[buttonValAutomate]]" class="oj-button-sm " chroming="solid"
+        on-oj-action='[[automateModal]]'    >Automate</oj-button>&nbsp;&nbsp;
+
+        <oj-button disabled="[[buttonValReport]]"  class="oj-button-sm " chroming="solid"
+        on-oj-action='[[viewReportModal]]'    >Report</oj-button>
+        </div>
+        <div>
+            <oj-progress-bar id="progressBar" value="{{progressValue}}"></oj-progress-bar>
+        </div>
+        <oj-list-view
+        id="listview"
+        aria-label="list to show selection features"
+        class="oj-listview-item-padding-off"
+        gridlines.item="visible"
+        data="[[viewNameDetDP]]"
+        selected="{{selectedView}}"
+        selection-mode="single"
+        selection-required="[[selectedSelectionRequired]]"
+        on-selected-changed="[[getViewText]]"
+        first-selected-item="{{firstSelectedItem}}"
+        scrollPolicyOptions.maxCount="3000" style="height: 800px;overflow-y: scroll;">
+        <template slot="itemTemplate" data-oj-as="item" >
+          <oj-list-item-layout>
+            <span class="oj-typography-body-md oj-text-color-primary">
+              <oj-bind-text value="[[item.item.data.vname]]"></oj-bind-text>
+              <oj-bind-if test="[[item.item.data.output === 'Success']]">
+                <oj-bind-text ><span class="check" style="float:right">&#10004</span></oj-bind-text>
+              </oj-bind-if>
+              <oj-bind-if test="[[item.item.data.output === 'Error']]">
+                <oj-bind-text ><span class="cross" style="float:right">&#10006</span></oj-bind-text>
+              </oj-bind-if>
+              <oj-bind-if test="[[item.item.data.output === 'Not Loaded']]">
+                <oj-bind-text ><span class="cross" style="float:right">Not Loaded</span></oj-bind-text>
+              </oj-bind-if>
+              <!-- <oj-bind-text value="[[item.item.data.output]]"></oj-bind-text> -->
+            </span>
+          </oj-list-item-layout>
+        </template>
+      </oj-list-view>
+      <oj-paging-control
+                id="paging"
+                data="[[viewNameDetDP]]"
+                page-size="20"
+                slot="bottom"></oj-paging-control>
+    </div>
+</div>
+<div class="oj-flex">
+    <div class="oj-panel oj-sm-5" >
+        <div class="oj-panel oj-flex-bar">
+            <oj-text-area id="text-area" value="{{viewText}}" rows="35" style="width: 100%; min-width: 100%" label-hint="Source Procedure Text"></oj-text-area>
+        </div>
+    </div>
+    <div class="oj-panel oj-sm-1" >
+        <div class="oj-panel oj-flex-bar">
+            <oj-form-layout id="fl1" readonly="[[isFormReadonly()]]">
+                <div class="oj-panel io-color demo-center-items">
+                    <h7>Target Deployment</h7>
+                </div>
+                <oj-select-single required id="tgtschema" label-hint="Choose Target Deployment" class="oj-form-control-max-width-md" 
+                    label-edge="inside" data="{{onepDepListDP}}" value="{{TgtOnePDepName}}"
+                    on-value-changed="[[SelectTGTDeployment]]">
+                </oj-select-single>
+                    <oj-select-single required label-hint="Choose Credential Alias" label-edge="inside" class="oj-form-control-max-width-md" 
+                        id="CredentialAlias" data="[[TgtDBDetDP]]" value="{{TGTcurrentPDB}}"
+                        on-value-changed="[[DBTgtSchema]]">
+                    </oj-select-single>
+                    <oj-button disabled="[[buttonVal]]" class="oj-button-sm oj-flex-bar-end" chroming="solid"
+                    on-oj-action='[[clickConvert]]'>Convert</oj-button>
+            </oj-form-layout>
+        </div>
+    </div>
+    <div class="oj-panel oj-sm-5" >
+        <div class="oj-panel io-color demo-center-items">
+            <div class="oj-panel io-color demo-center-items">
+            <h7>Target Database Details</h7>
+        </div>
+
+        <oj-table id='dbTgtDetList' aria-label='All Table' data='[[dbTgtDetListDP]]' display='grid'
+            selection-mode='{"row": "single"}' columns='{{TgtdbDetcolumnArray}}' style='width: 100%;'>
+        </oj-table>
+    </div>
+        <div class="oj-panel oj-flex-bar">
+            <oj-text-area id="text-area" value="{{procConvertedText}}" rows="35" style="width: 100%; min-width: 100%" label-hint="Target Procedure Text"></oj-text-area>
+        </div>
+        <div class="oj-panel oj-flex-bar">
+        <oj-button disabled="[[buttonVal]]" class="oj-button-sm oj-flex-bar-end" chroming="solid"
+        on-oj-action='[[pgSaveView]]'>Save</oj-button>   
+    </div>
+    </div>
+</div>
+
+    <oj-dialog id="SelectSchemaDialog" title="Work in Progress" modality="modeless"
+    style="display:none;width:350px;min-width:240px;max-width:450px;">
+    <div slot="body">
+        <oj-progress-bar id="createbar" class="oj-progress-bar-embedded" value="-1">
+        </oj-progress-bar>
+    </div>
+</oj-dialog>
+
+<oj-dialog id="openDialog" title="Procedure Creation Dialog" modality="modeless"
+style="display:none;width:550px;min-width:550px;max-width:550px;">
+<div slot="body">
+   <oj-bind-text value="{{saveViewMsg}}" ></oj-bind-text>
+</div>
+<div slot="footer">
+    <div class="oj-panel  oj-sm-margin-4x-bottom" style="width: 100%;">
+    <div class="oj-flex-bar">
+        <oj-button id="okdelButton" chroming='borderless' class="oj-flex-bar-start" on-oj-action="[[clickRetryConvert]]">
+            Retry
+        </oj-button>
+        <oj-button id="okdelButton" chroming='solid' class="oj-flex-bar-end" on-oj-action="[[saveOKView]]">
+            OK
+        </oj-button>
+</div>
+    </div>
+    </div>
+</oj-dialog>
+
+<oj-dialog id="autoMateDlg" title="Enter Target Details" modality="modeless"
+style="display:none;width:350px;min-width:240px;max-width:450px;" cancel-behavior="[[CancelBehaviorOpt]]">
+<div slot="body">
+    <div class="oj-panel ">
+        <oj-form-layout id="fl1" readonly="[[isFormReadonly()]]">
+            <div class="oj-panel io-color demo-center-items">
+                <h7>Target Deployment</h7>
+            </div>
+            <oj-select-single required id="tgtschema" label-hint="Choose Target Deployment" class="oj-form-control-max-width" 
+                label-edge="inside" data="{{onepDepListDP}}" value="{{TgtOnePDepName}}"
+                on-value-changed="[[SelectTGTDeployment]]">
+            </oj-select-single>
+                <oj-select-single required label-hint="Choose Credential Alias" label-edge="inside" class="oj-form-control-max-width-md" 
+                    id="CredentialAlias" data="[[TgtDBDetDP]]" value="{{TGTcurrentPDB}}"
+                    on-value-changed="[[DBTgtSchema]]">
+                </oj-select-single>
+        </oj-form-layout>
+    </div>
+</div>
+<div slot="footer">
+    <oj-button id="okdelButton" chroming='solid'  on-oj-action="[[automateClose]]">
+        Cancel
+    </oj-button>
+    <oj-button id="okdelButton" chroming='solid'  on-oj-action='[[automateGetDetails]]'>
+        Automate
+    </oj-button>
+    </div>
+</oj-dialog>
+
+<oj-dialog id="viewReportModalDlg" title="View Deatils" modality="modeless"
+style="display:none;width:650px;min-width:640px;max-width:650px;" cancel-behavior="[[CancelBehaviorOpt]]">
+<div slot="body">
+    <div class="oj-panel ">
+        <oj-table id='dbDetListtable' aria-label='Info' data='[[listFunctionDP]]' display='grid'
+          selection-mode='{"row": "single"}' columns='{{functionColumnArray}}' class="mt-4" style="width:100%">
+      </oj-table>
+      <oj-paging-control
+        id="paging"
+        data="[[listFunctionDP]]"
+        page-size="20"
+        slot="bottom">
+      </oj-paging-control>
+    </div>
+</div>
+<div slot="footer">
+    <oj-button id="okdelButton" chroming='solid'  on-oj-action="[[reportClose]]">
+        Cancel
+    </oj-button>
+    <oj-button id="okdelButton" chroming='solid'  on-oj-action='[[downloadDBAReport]]'>
+        Download
+    </oj-button>
+    <oj-button id="okdelButton" chroming='solid'  >
+        Email
+    </oj-button>
+    </div>
+</oj-dialog>
+

@@ -1,0 +1,469 @@
+  /* This padding is needed to bring the text field below the label, so that the label and the text inside the text field don't overlap. */
+  .oj-masonrylayout-tile-1x1 {
+    margin: 5px;
+    width: calc(1 * 150px + (1 - 1) * 2 * 5px);
+    height: calc(1 * 150px + (1 - 1) * 2 * 5px); }
+  
+  .oj-masonrylayout-tile-1x2 {
+    margin: 5px;
+    width: calc(1 * 150px + (1 - 1) * 2 * 5px);
+    height: calc(2 * 150px + (2 - 1) * 2 * 5px); }
+  
+  .oj-masonrylayout-tile-1x3 {
+    margin: 5px;
+    width: calc(1 * 150px + (1 - 1) * 2 * 5px);
+    height: calc(3 * 150px + (3 - 1) * 2 * 5px); }
+  
+  .oj-masonrylayout-tile-1x4 {
+    margin: 5px;
+    width: calc(1 * 150px + (1 - 1) * 2 * 5px);
+    height: calc(4 * 150px + (4 - 1) * 2 * 5px); }
+  
+  .oj-masonrylayout-tile-2x1 {
+    margin: 5px;
+    width: calc(2 * 150px + (2 - 1) * 2 * 5px);
+    height: calc(1 * 150px + (1 - 1) * 2 * 5px); }
+  
+  .oj-masonrylayout-tile-2x2 {
+    margin: 5px;
+    width: calc(2 * 150px + (2 - 1) * 2 * 5px);
+    height: calc(2 * 150px + (2 - 1) * 2 * 5px); }
+  
+  .oj-masonrylayout-tile-2x3 {
+    margin: 5px;
+    width: calc(2 * 150px + (2 - 1) * 2 * 5px);
+    height: calc(3 * 150px + (3 - 1) * 2 * 5px); }
+  
+  .oj-masonrylayout-tile-2x4 {
+    margin: 5px;
+    width: calc(2 * 150px + (2 - 1) * 2 * 5px);
+    height: calc(4 * 150px + (4 - 1) * 2 * 5px); }
+  
+  .oj-masonrylayout-tile-3x1 {
+    margin: 5px;
+    width: calc(3 * 150px + (3 - 1) * 2 * 5px);
+    height: calc(1 * 150px + (1 - 1) * 2 * 5px); }
+  
+  .oj-masonrylayout-tile-3x2 {
+    margin: 5px;
+    width: calc(3 * 150px + (3 - 1) * 2 * 5px);
+    height: calc(2 * 150px + (2 - 1) * 2 * 5px); }
+  
+  .oj-masonrylayout-tile-3x3 {
+    margin: 5px;
+    width: calc(3 * 150px + (3 - 1) * 2 * 5px);
+    height: calc(3 * 150px + (3 - 1) * 2 * 5px); }
+  
+  .oj-masonrylayout-tile-3x4 {
+    margin: 5px;
+    width: calc(3 * 150px + (3 - 1) * 2 * 5px);
+    height: calc(4 * 150px + (4 - 1) * 2 * 5px); }
+  
+  .oj-masonrylayout-tile-4x1 {
+    margin: 5px;
+    width: calc(4 * 150px + (4 - 1) * 2 * 5px);
+    height: calc(1 * 150px + (1 - 1) * 2 * 5px); }
+  
+  .oj-masonrylayout-tile-4x2 {
+    margin: 5px;
+    width: calc(4 * 150px + (4 - 1) * 2 * 5px);
+    height: calc(2 * 150px + (2 - 1) * 2 * 5px); }
+  
+  .oj-masonrylayout-tile-4x3 {
+    margin: 5px;
+    width: calc(4 * 150px + (4 - 1) * 2 * 5px);
+    height: calc(3 * 150px + (3 - 1) * 2 * 5px); }
+  
+  .oj-masonrylayout-tile-4x4 {
+    margin: 5px;
+    width: calc(4 * 150px + (4 - 1) * 2 * 5px);
+    height: calc(4 * 150px + (4 - 1) * 2 * 5px); }
+  
+  .demo-custom-tile-sizes-1 .oj-masonrylayout-tile-1x1 {
+    margin: 10px;
+    width: calc(1 * 174px + (1 - 1) * 2 * 10px);
+    height: calc(1 * 174px + (1 - 1) * 2 * 10px); }
+  
+  .demo-custom-tile-sizes-1 .oj-masonrylayout-tile-1x2 {
+    margin: 10px;
+    width: calc(1 * 174px + (1 - 1) * 2 * 10px);
+    height: calc(2 * 174px + (2 - 1) * 2 * 10px); }
+  
+  .demo-custom-tile-sizes-1 .oj-masonrylayout-tile-1x3 {
+    margin: 10px;
+    width: calc(1 * 174px + (1 - 1) * 2 * 10px);
+    height: calc(3 * 174px + (3 - 1) * 2 * 10px); }
+  
+  .demo-custom-tile-sizes-1 .oj-masonrylayout-tile-1x4 {
+    margin: 10px;
+    width: calc(1 * 174px + (1 - 1) * 2 * 10px);
+    height: calc(4 * 174px + (4 - 1) * 2 * 10px); }
+  
+  .demo-custom-tile-sizes-1 .oj-masonrylayout-tile-2x1 {
+    margin: 10px;
+    width: calc(2 * 174px + (2 - 1) * 2 * 10px);
+    height: calc(1 * 174px + (1 - 1) * 2 * 10px); }
+  
+  .demo-custom-tile-sizes-1 .oj-masonrylayout-tile-2x2 {
+    margin: 10px;
+    width: calc(2 * 174px + (2 - 1) * 2 * 10px);
+    height: calc(2 * 174px + (2 - 1) * 2 * 10px); }
+  
+  .demo-custom-tile-sizes-1 .oj-masonrylayout-tile-2x3 {
+    margin: 10px;
+    width: calc(2 * 174px + (2 - 1) * 2 * 10px);
+    height: calc(3 * 174px + (3 - 1) * 2 * 10px); }
+  
+  .demo-custom-tile-sizes-1 .oj-masonrylayout-tile-2x4 {
+    margin: 10px;
+    width: calc(2 * 174px + (2 - 1) * 2 * 10px);
+    height: calc(4 * 174px + (4 - 1) * 2 * 10px); }
+  
+  .demo-custom-tile-sizes-1 .oj-masonrylayout-tile-3x1 {
+    margin: 10px;
+    width: calc(3 * 174px + (3 - 1) * 2 * 10px);
+    height: calc(1 * 174px + (1 - 1) * 2 * 10px); }
+  
+  .demo-custom-tile-sizes-1 .oj-masonrylayout-tile-3x2 {
+    margin: 10px;
+    width: calc(3 * 174px + (3 - 1) * 2 * 10px);
+    height: calc(2 * 174px + (2 - 1) * 2 * 10px); }
+  
+  .demo-custom-tile-sizes-1 .oj-masonrylayout-tile-3x3 {
+    margin: 10px;
+    width: calc(3 * 174px + (3 - 1) * 2 * 10px);
+    height: calc(3 * 174px + (3 - 1) * 2 * 10px); }
+  
+  .demo-custom-tile-sizes-1 .oj-masonrylayout-tile-3x4 {
+    margin: 10px;
+    width: calc(3 * 174px + (3 - 1) * 2 * 10px);
+    height: calc(4 * 174px + (4 - 1) * 2 * 10px); }
+  
+  .demo-custom-tile-sizes-1 .oj-masonrylayout-tile-4x1 {
+    margin: 10px;
+    width: calc(4 * 174px + (4 - 1) * 2 * 10px);
+    height: calc(1 * 174px + (1 - 1) * 2 * 10px); }
+  
+  .demo-custom-tile-sizes-1 .oj-masonrylayout-tile-4x2 {
+    margin: 10px;
+    width: calc(4 * 174px + (4 - 1) * 2 * 10px);
+    height: calc(2 * 174px + (2 - 1) * 2 * 10px); }
+  
+  .demo-custom-tile-sizes-1 .oj-masonrylayout-tile-4x3 {
+    margin: 10px;
+    width: calc(4 * 174px + (4 - 1) * 2 * 10px);
+    height: calc(3 * 174px + (3 - 1) * 2 * 10px); }
+  
+  .demo-custom-tile-sizes-1 .oj-masonrylayout-tile-4x4 {
+    margin: 10px;
+    width: calc(4 * 174px + (4 - 1) * 2 * 10px);
+    height: calc(4 * 174px + (4 - 1) * 2 * 10px); }
+  
+  .demo-custom-tile-sizes-2 .oj-masonrylayout-tile-1x1 {
+    margin: 3px;
+    width: calc(1 * 125px + (1 - 1) * 2 * 3px);
+    height: calc(1 * 75px + (1 - 1) * 2 * 3px); }
+  
+  .demo-custom-tile-sizes-2 .oj-masonrylayout-tile-1x2 {
+    margin: 3px;
+    width: calc(1 * 125px + (1 - 1) * 2 * 3px);
+    height: calc(2 * 75px + (2 - 1) * 2 * 3px); }
+  
+  .demo-custom-tile-sizes-2 .oj-masonrylayout-tile-1x3 {
+    margin: 3px;
+    width: calc(1 * 125px + (1 - 1) * 2 * 3px);
+    height: calc(3 * 75px + (3 - 1) * 2 * 3px); }
+  
+  .demo-custom-tile-sizes-2 .oj-masonrylayout-tile-1x4 {
+    margin: 3px;
+    width: calc(1 * 125px + (1 - 1) * 2 * 3px);
+    height: calc(4 * 75px + (4 - 1) * 2 * 3px); }
+  
+  .demo-custom-tile-sizes-2 .oj-masonrylayout-tile-2x1 {
+    margin: 3px;
+    width: calc(2 * 125px + (2 - 1) * 2 * 3px);
+    height: calc(1 * 75px + (1 - 1) * 2 * 3px); }
+  
+  .demo-custom-tile-sizes-2 .oj-masonrylayout-tile-2x2 {
+    margin: 3px;
+    width: calc(2 * 125px + (2 - 1) * 2 * 3px);
+    height: calc(2 * 75px + (2 - 1) * 2 * 3px); }
+  
+  .demo-custom-tile-sizes-2 .oj-masonrylayout-tile-2x3 {
+    margin: 3px;
+    width: calc(2 * 125px + (2 - 1) * 2 * 3px);
+    height: calc(3 * 75px + (3 - 1) * 2 * 3px); }
+  
+  .demo-custom-tile-sizes-2 .oj-masonrylayout-tile-2x4 {
+    margin: 3px;
+    width: calc(2 * 125px + (2 - 1) * 2 * 3px);
+    height: calc(4 * 75px + (4 - 1) * 2 * 3px); }
+  
+  .demo-custom-tile-sizes-2 .oj-masonrylayout-tile-3x1 {
+    margin: 3px;
+    width: calc(3 * 125px + (3 - 1) * 2 * 3px);
+    height: calc(1 * 75px + (1 - 1) * 2 * 3px); }
+  
+  .demo-custom-tile-sizes-2 .oj-masonrylayout-tile-3x2 {
+    margin: 3px;
+    width: calc(3 * 125px + (3 - 1) * 2 * 3px);
+    height: calc(2 * 75px + (2 - 1) * 2 * 3px); }
+  
+  .demo-custom-tile-sizes-2 .oj-masonrylayout-tile-3x3 {
+    margin: 3px;
+    width: calc(3 * 125px + (3 - 1) * 2 * 3px);
+    height: calc(3 * 75px + (3 - 1) * 2 * 3px); }
+  
+  .demo-custom-tile-sizes-2 .oj-masonrylayout-tile-3x4 {
+    margin: 3px;
+    width: calc(3 * 125px + (3 - 1) * 2 * 3px);
+    height: calc(4 * 75px + (4 - 1) * 2 * 3px); }
+  
+  .demo-custom-tile-sizes-2 .oj-masonrylayout-tile-4x1 {
+    margin: 3px;
+    width: calc(4 * 125px + (4 - 1) * 2 * 3px);
+    height: calc(1 * 75px + (1 - 1) * 2 * 3px); }
+  
+  .demo-custom-tile-sizes-2 .oj-masonrylayout-tile-4x2 {
+    margin: 3px;
+    width: calc(4 * 125px + (4 - 1) * 2 * 3px);
+    height: calc(2 * 75px + (2 - 1) * 2 * 3px); }
+  
+  .demo-custom-tile-sizes-2 .oj-masonrylayout-tile-4x3 {
+    margin: 3px;
+    width: calc(4 * 125px + (4 - 1) * 2 * 3px);
+    height: calc(3 * 75px + (3 - 1) * 2 * 3px); }
+  
+  .demo-custom-tile-sizes-2 .oj-masonrylayout-tile-4x4 {
+    margin: 3px;
+    width: calc(4 * 125px + (4 - 1) * 2 * 3px);
+    height: calc(4 * 75px + (4 - 1) * 2 * 3px); }
+  
+  .demo-custom-tile-sizes-3 .oj-masonrylayout-tile-1x1 {
+    margin: 3px;
+    width: calc(1 * 100px + (1 - 1) * 2 * 3px);
+    height: calc(1 * 125px + (1 - 1) * 2 * 3px); }
+  
+  .demo-custom-tile-sizes-3 .oj-masonrylayout-tile-1x2 {
+    margin: 3px;
+    width: calc(1 * 100px + (1 - 1) * 2 * 3px);
+    height: calc(2 * 125px + (2 - 1) * 2 * 3px); }
+  
+  .demo-custom-tile-sizes-3 .oj-masonrylayout-tile-1x3 {
+    margin: 3px;
+    width: calc(1 * 100px + (1 - 1) * 2 * 3px);
+    height: calc(3 * 125px + (3 - 1) * 2 * 3px); }
+  
+  .demo-custom-tile-sizes-3 .oj-masonrylayout-tile-1x4 {
+    margin: 3px;
+    width: calc(1 * 100px + (1 - 1) * 2 * 3px);
+    height: calc(4 * 125px + (4 - 1) * 2 * 3px); }
+  
+  .demo-custom-tile-sizes-3 .oj-masonrylayout-tile-2x1 {
+    margin: 3px;
+    width: calc(2 * 100px + (2 - 1) * 2 * 3px);
+    height: calc(1 * 125px + (1 - 1) * 2 * 3px); }
+  
+  .demo-custom-tile-sizes-3 .oj-masonrylayout-tile-2x2 {
+    margin: 3px;
+    width: calc(2 * 100px + (2 - 1) * 2 * 3px);
+    height: calc(2 * 125px + (2 - 1) * 2 * 3px); }
+  
+  .demo-custom-tile-sizes-3 .oj-masonrylayout-tile-2x3 {
+    margin: 3px;
+    width: calc(2 * 100px + (2 - 1) * 2 * 3px);
+    height: calc(3 * 125px + (3 - 1) * 2 * 3px); }
+  
+  .demo-custom-tile-sizes-3 .oj-masonrylayout-tile-2x4 {
+    margin: 3px;
+    width: calc(2 * 100px + (2 - 1) * 2 * 3px);
+    height: calc(4 * 125px + (4 - 1) * 2 * 3px); }
+  
+  .demo-custom-tile-sizes-3 .oj-masonrylayout-tile-3x1 {
+    margin: 3px;
+    width: calc(3 * 100px + (3 - 1) * 2 * 3px);
+    height: calc(1 * 125px + (1 - 1) * 2 * 3px); }
+  
+  .demo-custom-tile-sizes-3 .oj-masonrylayout-tile-3x2 {
+    margin: 3px;
+    width: calc(3 * 100px + (3 - 1) * 2 * 3px);
+    height: calc(2 * 125px + (2 - 1) * 2 * 3px); }
+  
+  .demo-custom-tile-sizes-3 .oj-masonrylayout-tile-3x3 {
+    margin: 3px;
+    width: calc(3 * 100px + (3 - 1) * 2 * 3px);
+    height: calc(3 * 125px + (3 - 1) * 2 * 3px); }
+  
+  .demo-custom-tile-sizes-3 .oj-masonrylayout-tile-3x4 {
+    margin: 3px;
+    width: calc(3 * 100px + (3 - 1) * 2 * 3px);
+    height: calc(4 * 125px + (4 - 1) * 2 * 3px); }
+  
+  .demo-custom-tile-sizes-3 .oj-masonrylayout-tile-4x1 {
+    margin: 3px;
+    width: calc(4 * 100px + (4 - 1) * 2 * 3px);
+    height: calc(1 * 125px + (1 - 1) * 2 * 3px); }
+  
+  .demo-custom-tile-sizes-3 .oj-masonrylayout-tile-4x2 {
+    margin: 3px;
+    width: calc(4 * 100px + (4 - 1) * 2 * 3px);
+    height: calc(2 * 125px + (2 - 1) * 2 * 3px); }
+  
+  .demo-custom-tile-sizes-3 .oj-masonrylayout-tile-4x3 {
+    margin: 3px;
+    width: calc(4 * 100px + (4 - 1) * 2 * 3px);
+    height: calc(3 * 125px + (3 - 1) * 2 * 3px); }
+  
+  .demo-custom-tile-sizes-3 .oj-masonrylayout-tile-4x4 {
+    margin: 3px;
+    width: calc(4 * 100px + (4 - 1) * 2 * 3px);
+    height: calc(4 * 125px + (4 - 1) * 2 * 3px); }
+  
+  /****** centering *********/
+  /* In order to center masonry layout the width needs 
+     to be restricted to a multiple of the column width
+     (the actual tile width plus the margins). */
+  /* Allow for a maximum of nine columns. */
+  @media (min-width: 180px) {
+    .demo-masonry-layout {
+      width: 160px; } }
+  
+  @media (min-width: 214px) {
+    .demo-masonry-layout.demo-custom-tile-sizes-1 {
+      width: 194px; } }
+  
+  @media (min-width: 151px) {
+    .demo-masonry-layout.demo-custom-tile-sizes-2 {
+      width: 131px; } }
+  
+  @media (min-width: 126px) {
+    .demo-masonry-layout.demo-custom-tile-sizes-3 {
+      width: 106px; } }
+  
+  @media (min-width: 340px) {
+    .demo-masonry-layout {
+      width: 320px; } }
+  
+  @media (min-width: 408px) {
+    .demo-masonry-layout.demo-custom-tile-sizes-1 {
+      width: 388px; } }
+  
+  @media (min-width: 282px) {
+    .demo-masonry-layout.demo-custom-tile-sizes-2 {
+      width: 262px; } }
+  
+  @media (min-width: 232px) {
+    .demo-masonry-layout.demo-custom-tile-sizes-3 {
+      width: 212px; } }
+  
+  @media (min-width: 500px) {
+    .demo-masonry-layout {
+      width: 480px; } }
+  
+  @media (min-width: 602px) {
+    .demo-masonry-layout.demo-custom-tile-sizes-1 {
+      width: 582px; } }
+  
+  @media (min-width: 413px) {
+    .demo-masonry-layout.demo-custom-tile-sizes-2 {
+      width: 393px; } }
+  
+  @media (min-width: 338px) {
+    .demo-masonry-layout.demo-custom-tile-sizes-3 {
+      width: 318px; } }
+  
+  @media (min-width: 660px) {
+    .demo-masonry-layout {
+      width: 640px; } }
+  
+  @media (min-width: 796px) {
+    .demo-masonry-layout.demo-custom-tile-sizes-1 {
+      width: 776px; } }
+  
+  @media (min-width: 544px) {
+    .demo-masonry-layout.demo-custom-tile-sizes-2 {
+      width: 524px; } }
+  
+  @media (min-width: 444px) {
+    .demo-masonry-layout.demo-custom-tile-sizes-3 {
+      width: 424px; } }
+  
+  @media (min-width: 820px) {
+    .demo-masonry-layout {
+      width: 800px; } }
+  
+  @media (min-width: 990px) {
+    .demo-masonry-layout.demo-custom-tile-sizes-1 {
+      width: 970px; } }
+  
+  @media (min-width: 675px) {
+    .demo-masonry-layout.demo-custom-tile-sizes-2 {
+      width: 655px; } }
+  
+  @media (min-width: 550px) {
+    .demo-masonry-layout.demo-custom-tile-sizes-3 {
+      width: 530px; } }
+  
+  @media (min-width: 980px) {
+    .demo-masonry-layout {
+      width: 960px; } }
+  
+  @media (min-width: 1184px) {
+    .demo-masonry-layout.demo-custom-tile-sizes-1 {
+      width: 1164px; } }
+  
+  @media (min-width: 806px) {
+    .demo-masonry-layout.demo-custom-tile-sizes-2 {
+      width: 786px; } }
+  
+  @media (min-width: 656px) {
+    .demo-masonry-layout.demo-custom-tile-sizes-3 {
+      width: 636px; } }
+  
+  @media (min-width: 1140px) {
+    .demo-masonry-layout {
+      width: 1120px; } }
+  
+  @media (min-width: 1378px) {
+    .demo-masonry-layout.demo-custom-tile-sizes-1 {
+      width: 1358px; } }
+  
+  @media (min-width: 937px) {
+    .demo-masonry-layout.demo-custom-tile-sizes-2 {
+      width: 917px; } }
+  
+  @media (min-width: 762px) {
+    .demo-masonry-layout.demo-custom-tile-sizes-3 {
+      width: 742px; } }
+  
+  @media (min-width: 1300px) {
+    .demo-masonry-layout {
+      width: 1280px; } }
+  
+  @media (min-width: 1572px) {
+    .demo-masonry-layout.demo-custom-tile-sizes-1 {
+      width: 1552px; } }
+  
+  @media (min-width: 1068px) {
+    .demo-masonry-layout.demo-custom-tile-sizes-2 {
+      width: 1048px; } }
+  
+  @media (min-width: 868px) {
+    .demo-masonry-layout.demo-custom-tile-sizes-3 {
+      width: 848px; } }
+  
+  @media (min-width: 1460px) {
+    .demo-masonry-layout {
+      width: 1440px; } }
+  
+  @media (min-width: 1766px) {
+    .demo-masonry-layout.demo-custom-tile-sizes-1 {
+      width: 1746px; } }
+  
+  @media (min-width: 1199px) {
+    .demo-masonry-layout.demo-custom-tile-sizes-2 {
+      width: 1179px; } }
+  
+  @media (min-width: 974px) {
+    .demo-masonry-layout.demo-custom-tile-sizes-3 {
+      width: 954px; } }

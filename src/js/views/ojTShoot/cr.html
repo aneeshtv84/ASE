@@ -1,0 +1,91 @@
+
+<div class="oj-panel " >
+  <oj-form-layout id="fl2" class="oj-form-layout"  label-edge="start" max-columns="2" direction="row">
+  <oj-select-single  id="Database"
+                  label-hint="Classic Replicat Name"
+                  data="[[RepDetDP]]"  on-value-changed="[[valueChangedHandler]]"
+                  value="{{repName}}"  >
+  </oj-select-single >
+  <oj-button disabled="{{ButtonVal}}" id="PRTShootBtn" chroming="callToAction"  on-oj-action="[[PRTShoot]]">Get Details
+  </oj-button>
+  
+  </oj-form-layout>
+  </div>
+  <div class="oj-flex">
+                       <div class="oj-panel" style="width:40%;">
+                        <div class="oj-panel io-color oj-margin " >
+                          <h7>Database</h7>  
+                      </div>
+                 
+                  <oj-table id='table' aria-label='All Table'
+                            data='[[DBDetDP]]'
+                            display='grid'
+                            selection-mode='{"row": "single"}' 
+                            columns='{{PRDBDetcolumnArray}}'
+                            style='width: 100%;'>
+              
+                  </oj-table>
+                  </div>
+                  <div class="oj-panel" style="width:60%;">
+                    <div class="oj-panel io-color oj-margin " >
+                      <h7>Database Session Waits</h7>  
+                  </div>
+                      <oj-table id='table' aria-label='All Table'
+                      data='[[PRSessionDP]]'
+                      display='grid'
+                      selection-mode='{"row": "single"}' 
+                      columns='{{PRSessioncolumnArray}}'
+                      style='width: 100%;'>
+                      </oj-table>
+                  </div>
+              </div>
+                  <div class="oj-panel">
+                    <div class="oj-panel io-color oj-margin">
+                    <h7>Running SQL</h7>  
+                  </div>
+                    <oj-table id='table' aria-label='All Table'
+                    data='[[RunningSqlInfoDP]]'
+                    display='grid'
+                    selection-mode='{"row": "single"}' 
+                    columns='{{RunningSqlcolumnArray}}'
+                    style='width: 100%;'>
+                    </oj-table>
+                </div>
+
+                <div class="oj-panel">
+                  <div class="oj-panel io-color oj-margin">
+                  <h7>Active Session History for the last 30 minutes</h7>  
+                </div>
+                  <oj-table id='table' aria-label='All Table'
+                  data='[[ActiveSQLInfoDP]]'
+                  display='grid'
+                  selection-mode='{"row": "single"}' 
+                  columns='{{ActiveSQLcolumnArray}}'
+                  style='width: 100%;'>
+                  </oj-table>
+              </div>
+                  
+                  <div class="oj-panel" style="width:100%;">
+                    <div class="oj-panel io-color oj-margin " >
+                      <h7>Process Stack of the Classic Replicat</h7>  
+                  </div>
+                  <oj-tree-view id="treeview1"
+                  data="[[PstackDataDP]]"
+                  aria-label="Tree View with JSON Data">
+                  <template slot="itemTemplate" data-oj-as="thread">
+                    <span class="oj-treeview-item-icon"></span>
+                    <span class="oj-treeview-item-text">
+                      <oj-bind-text value="[[thread.data.title]]"></oj-bind-text>
+                    </span>
+                  </template>
+                  </oj-tree-view>
+              </div>
+
+              <oj-dialog id="Progress" dialog-title="Working on it..." modality="modeless"
+              cancel-behavior="[[CancelBehaviorOpt]]"
+              style="display:none;width:350px;min-width:240px;max-width:450px;">
+              <div slot="body">
+                  <oj-progress-bar id="createbar" class="oj-progress-bar-embedded" value="-1">
+                  </oj-progress-bar>
+              </div>
+          </oj-dialog>

@@ -1,0 +1,23 @@
+<html lang="en-us" style="height:100%;" dir="ltr">
+    <body class="demo-disable-bg-image">
+
+        <div id="sampleDemo" style="" class="demo-padding demo-container">
+            <div id="componentDemoContent" style="width: 1px; min-width: 100%;">
+
+                <div id="demoContent" >
+                    <oj-buttonset-one id="btnsetid" class="oj-buttonset-width-auto" value="{{currentModule}}">
+                        <oj-option id="sv1" value="alllog">GGS Error Log</oj-option>
+                        <oj-option id="sv2" value="reportfs">Report Files</oj-option>
+                        <oj-option id="sv3" value="discardfs">Discard Files</oj-option>
+                    </oj-buttonset-one>
+
+                    <br>
+                    <br>
+
+                    <oj-module config='[[moduleConfig]]' style="background-color:aliceblue;height:100%;">
+                    </oj-module>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

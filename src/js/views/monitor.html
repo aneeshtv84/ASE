@@ -1,0 +1,88 @@
+<div class="oj-panel demo-centering-container panel_masonary">
+    <oj-button chroming="solid" on-oj-action='[[extRefresh]]'><span slot='startIcon'
+        class="demo-icon-refresh oj-ux-ico-avatar"></span>Extracts</oj-button>
+    <oj-label for="select1"></oj-label>
+    <oj-bind-if test="[[ExtData1().length > 0]]">
+        <oj-bind-for-each data="[[ExtData1]]">
+            <template data-oj-as="Extract">
+                <oj-action-card :id="[[Extract.data.ExtName]]" class="oj-flex-item oj-sm-margin-2x"
+                    on-oj-action="[[actionHandler]]" :style="[[styleExt]]">
+                    <onep-profile-card-layout>
+                        <div
+                            class="oj-text-primary-color onep-profile-card-layout-proc-name oj-typography-subheading-lg">
+                            <oj-bind-text value="[[Extract.data.ExtName]]"></oj-bind-text>
+                        </div>
+                        <div
+                            class="oj-text-primary-color onep-profile-card-layout-proc-name oj-typography-subheading-lg">
+                            <span>Lag (Seconds) : <oj-bind-text value="[[Extract.data.ExtLag]]"></oj-bind-text></span>
+                        </div>
+                        <div
+                            class="oj-text-primary-color onep-profile-card-layout-proc-name oj-typography-subheading-lg">
+                            <span>Checkpoint Lag : <oj-bind-text value="[[Extract.data.ExtChkLag]]"></oj-bind-text>
+                                </span>
+                        </div>
+                    </onep-profile-card-layout>
+                </oj-action-card>
+            </template>
+        </oj-bind-for-each>
+    </oj-bind-if>
+</div>
+
+<div class="oj-panel demo-centering-container panel_masonary">
+    <oj-button chroming="solid" on-oj-action='[[extRefresh]]'><span slot='startIcon'
+            class="demo-icon-refresh oj-ux-ico-avatar"></span>Pumps</oj-button>
+    <oj-label for="select1"></oj-label>
+    <oj-bind-if test="[[PmpData1().length > 0]]">
+        <oj-bind-for-each data="[[PmpData1]]">
+            <template data-oj-as="Pump">
+                <oj-action-card :id="[[Pump.data.PmpName]]" class="oj-flex-item oj-sm-margin-2x"
+                    on-oj-action="[[actionHandler]]" :style="[[stylePmp]]">
+                    <onep-profile-card-layout>
+                        <div
+                            class="oj-text-primary-color onep-profile-card-layout-proc-name oj-typography-subheading-lg">
+                            <oj-bind-text value="[[Pump.data.PmpName]]"></oj-bind-text>
+                        </div>
+                        <div
+                            class="oj-text-primary-color onep-profile-card-layout-proc-name oj-typography-subheading-lg">
+                            <span>Lag (Seconds) : <oj-bind-text value="[[Pump.data.PmpLag]]"></oj-bind-text></span>
+                        </div>
+                        <div
+                            class="oj-text-primary-color onep-profile-card-layout-proc-name oj-typography-subheading-lg">
+                            <span>Checkpoint Lag : <oj-bind-text value="[[Pump.data.PmpChkLag]]"></oj-bind-text></span>
+                        </div>
+                    </onep-profile-card-layout>
+                </oj-action-card>
+            </template>
+        </oj-bind-for-each>
+    </oj-bind-if>
+</div>
+
+<div class="oj-panel demo-centering-container panel_masonary">
+    <oj-button chroming="solid" on-oj-action='[[extRefresh]]'><span slot='startIcon'
+            class="demo-icon-refresh"></span>Replicats</oj-button>
+    <oj-label for="select1"></oj-label>
+    <oj-bind-if test="[[RepData1().length > 0]]">
+        <oj-bind-for-each data="[[RepData1]]">
+            <template data-oj-as="Replicat">
+                <oj-action-card :id="[[Replicat.data.RepName]]" class="oj-flex-item oj-sm-margin-2x"
+                    on-oj-action="[[actionHandler]]" :style="[[styleRep]]">
+                    <onep-profile-card-layout>
+                        <div
+                            class="oj-text-primary-color onep-profile-card-layout-proc-name oj-typography-subheading-lg">
+                            <oj-bind-text value="[[Replicat.data.RepName]]"></oj-bind-text>
+                        </div>
+                        <div
+                            class="oj-text-primary-color onep-profile-card-layout-proc-name oj-typography-subheading-lg">
+                            <span>Lag (Seconds) : <oj-bind-text value="[[Replicat.data.RepLag]]"></oj-bind-text></span>
+                        </div>
+                        <div
+                            class="oj-text-primary-color onep-profile-card-layout-proc-name oj-typography-subheading-lg">
+                            <span>Checkpoint Lag : <oj-bind-text value="[[Replicat.data.RepChkLag]]"></oj-bind-text>
+                                </span>
+                        </div>
+                    </onep-profile-card-layout>
+                </oj-action-card>
+            </template>
+        </oj-bind-for-each>
+    </oj-bind-if>
+</div>

@@ -1,0 +1,263 @@
+<div id="parentDiv">
+<div class="oj-panel ">
+    <oj-form-layout id="fl2" class="oj-form-layout" label-edge="start" max-columns="2" direction="row">
+        <oj-label for="Database" show-required="[[isRequired]]" help.definition='[[helpDef]]'
+            help.source='[[helpSource]]'>Database Name
+        </oj-label>
+        <oj-select-single id="Database" label-hint="Choose CDB(in CDB Mode)" label-edge="inside" data="[[DBDetDP]]"
+            on-value-changed="[[valueChangedHandler]]" value="{{currentDB}}">
+        </oj-select-single>
+        <oj-button disabled="{{ButtonVal}}" id="IETShootBtn" chroming="callToAction" on-oj-action="[[IETShoot]]">Get
+            Details
+        </oj-button>
+
+    </oj-form-layout>
+</div>
+
+<div class="oj-panel">
+    <div class="oj-panel io-color oj-margin" style="width:8%;">
+        <h7>Database Details</h7>
+    </div>
+    <oj-table id='table' aria-label='All Table' data='[[IEDBDetDP]]' display='grid' selection-mode='{"row": "single"}'
+        columns='{{IEDBDetcolumnArray}}' style='width: 100%;'>
+
+    </oj-table>
+</div>
+
+<div class="oj-panel">
+    <div class="oj-panel io-color oj-margin" style="width:9%;">
+        <h7>Capture Processes</h7>
+    </div>
+    <oj-table id='table' aria-label='All Table' data='[[IEStatsDP]]' display='grid' selection-mode='{"row": "single"}'
+        columns='{{IEStatcolumnArray}}' style='width: 100%;'>
+        <template slot="actionTemplate" data-oj-as="cell">
+            <oj-menu-button chroming="borderless" display="icons" data-oj-clickthrough="disabled">Action
+                <oj-menu slot="menu" on-oj-action="[[menuListener]]">
+                    <oj-option value="archlog" disabled="[[cell.row.Status === 'Approved']]">
+                        <span class="oj-ux-ico-check" slot="startIcon"></span>Find Required Archivelog
+                    </oj-option>
+                    <oj-option value="extunreg" disabled="[[cell.row.Status === 'Approved']]">
+                        <span class="oj-ux-ico-check" slot="startIcon"></span>Unregister Extract
+                    </oj-option>
+                </oj-menu>
+            </oj-menu-button>
+        </template>
+    </oj-table>
+</div>
+<div class="oj-panel">
+    <div class="oj-panel io-color oj-margin" style="width:8%;">
+        <h7>Logmnr Details</h7>
+    </div>
+    <oj-table id='table' aria-label='All Table' data='[[IEMemDP]]' display='grid' selection-mode='{"row": "single"}'
+        columns='{{IEMemcolumnArray}}' style='width: 100%;'>
+
+    </oj-table>
+</div>
+
+<div class="oj-panel">
+    <div class="oj-panel io-color oj-margin" style="width:19%;">
+        <h7>Logmnr Reader - Database Session Waits</h7>
+    </div>
+    <oj-table id='table' aria-label='All Table' data='[[IEReaderDP]]' display='grid' selection-mode='{"row": "single"}'
+        columns='{{IEReadercolumnArray}}' style='width: 100%;'>
+
+    </oj-table>
+</div>
+
+<div class="oj-panel">
+    <div class="oj-panel io-color oj-margin" style="width:27%;">
+        <h7>Logmnr Reader - Active Session history for last 30 minutes</h7>
+    </div>
+    <oj-table id='table' aria-label='All Table' data='[[IEReaderASHDP]]' display='grid'
+        selection-mode='{"row": "single"}' columns='{{IEReaderASHcolumnArray}}' style='width: 100%;'>
+
+    </oj-table>
+</div>
+
+<div class="oj-panel">
+    <div class="oj-panel io-color oj-margin" style="width:19%;">
+        <h7>Logmnr Merger - Database Session Waits</h7>
+    </div>
+    <oj-table id='table' aria-label='All Table' data='[[IEMergerDP]]' display='grid' selection-mode='{"row": "single"}'
+        columns='{{IEMergercolumnArray}}' style='width: 100%;'>
+
+    </oj-table>
+</div>
+
+<div class="oj-panel">
+    <div class="oj-panel io-color oj-margin" style="width:19%;">
+        <h7>Logmnr Preparer - Database Session Waits</h7>
+    </div>
+    <oj-table id='table' aria-label='All Table' data='[[IEPreparerDP]]' display='grid'
+        selection-mode='{"row": "single"}' columns='{{IEPreparercolumnArray}}' style='width: 100%;'>
+
+    </oj-table>
+</div>
+<div class="oj-panel">
+    <div class="oj-panel io-color oj-margin" style="width:20%;">
+        <h7>Logmnr Builder - Database Session Waits</h7>
+    </div>
+    <oj-table id='table' aria-label='All Table' data='[[IEBuilderDP]]' display='grid' selection-mode='{"row": "single"}'
+        columns='{{IEBuildercolumnArray}}' style='width: 100%;'>
+
+    </oj-table>
+</div>
+
+<div class="oj-panel">
+    <div class="oj-panel io-color oj-margin" style="width:10%;">
+        <h7>Logmnr Parameters</h7>
+    </div>
+    <oj-table id='table' aria-label='All Table' data='[[IEParamsDP]]' display='grid' selection-mode='{"row": "single"}'
+        columns='{{IEParamscolumnArray}}' style='width: 100%;'>
+
+    </oj-table>
+</div>
+<div class="oj-panel">
+    <div class="oj-panel io-color oj-margin" style="width:15%;">
+        <h7>Streams Pool Usage by Instance</h7>
+    </div>
+    <oj-table id='table1' aria-label='All Table' data='[[IEStreamsDP]]' display='grid'
+        selection-mode='{"row": "single"}' columns='{{IEStreamscolumnArray}}' style='width: 100%;'>
+
+    </oj-table>
+</div>
+<div class="oj-panel">
+    <div class="oj-panel io-color oj-margin" style="width:20%;">
+        <h7>Streams Pool Statistics for capture session</h7>
+    </div>
+    <oj-table id='table1' aria-label='All Table' data='[[IEStreamsStatsDP]]' display='grid'
+        selection-mode='{"row": "single"}' columns='{{IEStreamsStatscolumnArray}}' style='width: 100%;'>
+
+    </oj-table>
+</div>
+
+<div class="oj-panel">
+    <div class="oj-panel io-color oj-margin" style="width:18%;">
+        <h7>Memory Used by Logminer Sessions</h7>
+    </div>
+    <oj-table id='table1' aria-label='All Table' data='[[IELogmnrMemDP]]' display='grid'
+        selection-mode='{"row": "single"}' columns='{{IELogmnrMemcolumnArray}}' style='width: 100%;'>
+
+    </oj-table>
+</div>
+
+<div class="oj-panel">
+    <div class="oj-panel io-color oj-margin" style="width:18%;">
+        <h7>Logminer Statistics</h7>
+    </div>
+    <oj-table id='table1' aria-label='All Table' data='[[LogmnrStatsDP]]' display='grid'
+        selection-mode='{"row": "single"}' columns='{{LogmnrStatscolumnArray}}' style='width: 100%;'>
+
+    </oj-table>
+</div>
+
+<div class="oj-panel">
+    <div class="oj-panel io-color oj-margin" style="width:30%;">
+        <h7>Current Database transactions open for more than 20 minutes</h7>
+    </div>
+
+    <oj-table id='table1' aria-label='All Table' data='[[IELongRunDP]]' display='grid'
+        selection-mode='{"row": "single"}' columns='{{IELongRuncolumnArray}}' style='width: 100%;'>
+
+    </oj-table>
+</div>
+
+
+
+<oj-dialog id="getExtractTshoot" title="Fetching from Database" modality="modeless"
+    cancel-behavior="[[CancelBehaviorOpt]]" style="display:none;width:350px;min-width:240px;max-width:450px;">
+    <div slot="body">
+        <oj-progress-bar id="createbar" class="oj-progress-bar-embedded" value="-1">
+        </oj-progress-bar>
+    </div>
+</oj-dialog>
+
+<oj-dialog id="TimeoutManage" dialog-title="There is a technical issue. Please try again later" modality="modeless"
+style="display:none;width:350px;min-width:240px;max-width:450px;" cancel-behavior="[[CancelBehaviorOpt]]">
+    <div slot="body">
+    </div>
+</oj-dialog>
+
+
+<oj-dialog id="ViewReqArchLog" dialog-title="Required ArchiveLog Details" modality="modeless"
+    cancel-behavior="[[CancelBehaviorOpt]]" style="display:none;width:1500px;min-width:1500px;max-width:1500px;">
+    <div slot="body">
+        <div class="oj-panel oj-margin ">
+            <oj-table id='reqarchlog' aria-label='Required ArchiveLog Details' data='[[ReqArchLogDP]]' display='grid'
+                selection-mode='{"row": "single"}' columns='{{ReqArchLogcolumnArray}}' style='width: 100%;'>
+            </oj-table>
+        </div>
+    </div>
+</oj-dialog>
+
+<oj-dialog id="ExtLoginDialog" dialog-title="[[DBLoginTitle]]" modality="modeless"
+cancel-behavior="[[CancelBehaviorOpt]]" style="display:none;width:400px;min-width:400px;max-width:400px;">
+<div slot="body">
+    <oj-form-layout id="fl2" readonly="[[isFormReadonly()]]" label-edge="inside" max-columns="1" direction="row">   
+        <oj-combobox-one required  id="ExtCredentialDomain"  label-hint="Credential Domain"
+            options="{{domname1}}" value="{{selectedDomCategory}}"
+            on-oj-value-updated="[[domSelectionChanged]]">
+        </oj-combobox-one>
+        <oj-combobox-one required id="ExtCredentialAlias"   label-hint="Credential Alias"
+        options="[[aliascategories]]" value="{{selectedAliascategory}}">
+        </oj-combobox-one>
+        </oj-form-layout>
+</div>
+<div slot="footer">
+        <oj-button id="extunreg" class="oj-button-confirm" chroming="danger"
+            on-oj-action="[[unregisterExtract]]">
+            Unregister Extract
+        </oj-button>
+</div>
+</oj-dialog>
+
+
+<oj-dialog id="ErrorLoad" dialog-title="Error" modality="modeless"
+style="display:none;width:450px;min-width:450px;max-width:450px;white-space:pre;" cancel-behavior="[[CancelBehaviorOpt]]">
+    <div slot="body">
+        <oj-bind-for-each data="[[OPError]]">
+            <template data-oj-as="error">
+                <oj-bind-text value='[[error.data]]'></oj-bind-text>
+                <br>
+            </template>
+        </oj-bind-for-each>   
+    </div>
+</oj-dialog>
+
+<oj-dialog id="Progress" dialog-title="Working on it..." modality="modeless"
+cancel-behavior="[[CancelBehaviorOpt]]"
+style="display:none;width:350px;min-width:240px;max-width:450px;">
+<div slot="body">
+    <oj-progress-bar id="createbar" class="oj-progress-bar-embedded" value="-1">
+    </oj-progress-bar>
+</div>
+</oj-dialog>
+
+<oj-dialog id="TimeoutManage" dialog-title="There is a technical issue. Please try again later" modality="modeless"
+style="display:none;width:350px;min-width:240px;max-width:450px;" cancel-behavior="[[CancelBehaviorOpt]]">
+<div slot="body">
+</div>
+</oj-dialog>
+
+<oj-dialog id="ViewExtractRptDialog" class="oj-typography-heading-lg oj-text-color-primary" dialog-title="[[delTitle]]" modality="modeless" 
+cancel-behavior="[[CancelBehaviorOpt]]">
+<div slot="body">
+    <oj-bind-for-each data="[[ExtRpt]]">
+        <template data-oj-as="ExtMsg">
+            <p>
+                <span id="results" class="oj-typography-body-lg oj-text-color-primary">
+                    <oj-bind-text value='[[ExtMsg.data]]'></oj-bind-text>
+                </span>
+            </p>
+        </template>
+    </oj-bind-for-each>
+</div>
+<div slot="footer">
+    <oj-button id="okviewExtBtn" chroming="callToAction" on-oj-action="[[ViewExtractRptOKClose]]">
+        OK
+    </oj-button>
+</div>
+</oj-dialog>
+
+
+</div>

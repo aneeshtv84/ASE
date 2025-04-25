@@ -1,0 +1,199 @@
+<div class="oj-flex " style="margin-left :2%;">
+    <div class="oj-panel   oj-sm-margin-1x-bottom oj-xl-margin-1x oj-xl-padding-1x oj-lg-margin-1x oj-lg-padding-1x oj-md-margin-1x oj-md-padding-1x oj-sm-margin-1x oj-sm-padding-1x" style="width: 30%;text-align: left">
+  <div class="oj-flex-item">
+    <oj-form-layout id="fl2" class="oj-form-layout" readonly="[[isFormReadonly()]]" label-edge="start" max-columns="3">
+    <span>%CPU Usage for -</span><oj-bind-text value="{{processName}}"></oj-bind-text>
+    <oj-status-meter-gauge 
+    class="circular-status-meter-large"
+    min="0" max="100" value="{{cpuSysResult}}"
+    start-angle="180"
+    labelled-by="startAngle"
+    angle-extent="180"
+    reference-lines="[[referenceLines]]"
+    orientation="circular" 
+    readonly >
+</oj-status-meter-gauge>
+    </oj-form-layout>
+            <oj-form-layout id="fl2" class="oj-form-layout" readonly="[[isFormReadonly()]]" label-edge="start"
+        max-columns="3">
+      <oj-input-text class='cpu-rem-max-width'  label-hint="CPU User Time" label-edge="inside" value="{{cpu_user}}"></oj-input-text>
+      <oj-input-text class='cpu-rem-max-width'  label-hint="CPU Kernel Time" label-edge="inside" value="{{cpu_kernel}}"></oj-input-text> 
+      <oj-input-text class='cpu-rem-max-width'  label-hint="CPU IOWait Time" label-edge="inside" value="{{cpu_iowait}}"></oj-input-text>
+        </oj-form-layout>
+  </div>
+    </div>
+
+    <div class="oj-panel  oj-sm-margin-1x-bottom oj-xl-margin-1x oj-xl-padding-1x oj-lg-margin-1x oj-lg-padding-1x oj-md-margin-1x oj-md-padding-1x oj-sm-margin-1x oj-sm-padding-1x" style="width: 23%;text-align: left">
+      <span> %Memory Usage for -</span><oj-bind-text value="{{processName}}"></oj-bind-text>
+            <div class="oj-flex">
+                <oj-status-meter-gauge 
+                class="circular-status-meter-large"
+                min="0" max="100" value="{{mem}}"
+                start-angle="180"
+                labelled-by="startAngle"
+                angle-extent="180"
+                reference-lines="[[referenceLines]]"
+                orientation="circular" 
+                readonly >
+            </oj-status-meter-gauge>
+            <div class="oj-panel demo-center-items  oj-sm-margin-1x-bottom oj-xl-margin-1x oj-xl-padding-1x oj-lg-margin-1x oj-lg-padding-1x oj-md-margin-1x oj-md-padding-1x oj-sm-margin-1x oj-sm-padding-1x" style="width: 40%;text-align: center">
+                <oj-form-layout id="fl2" class="oj-form-layout" readonly="[[isFormReadonly()]]" label-edge="start"
+                max-columns="1">
+<oj-input-text class='cpu-rem-max-width'  label-hint="Virtual Memory" label-edge="inside" value="{{vms}}"></oj-input-text>
+<oj-input-text class='cpu-rem-max-width'  label-hint="Resident Set Size" label-edge="inside" value="{{rss}}"></oj-input-text> 
+<oj-input-text class='cpu-rem-max-width'  label-hint="Unique Set Size" label-edge="inside" value="{{uss}}"></oj-input-text>
+  </oj-form-layout>
+            </div>
+            </div>
+  </div>
+
+  <div class="oj-panel  oj-sm-margin-1x-bottom oj-xl-margin-1x oj-xl-padding-1x oj-lg-margin-1x oj-lg-padding-1x oj-md-margin-1x oj-md-padding-1x oj-sm-margin-1x oj-sm-padding-1x" style="width: 43%;text-align: center">
+  <div class="oj-panel demo-center-items io-color oj-sm-margin-1x-bottom oj-xl-margin-2x oj-xl-padding-1x oj-lg-margin-7x oj-lg-padding-2x oj-md-margin-2x oj-md-padding-1x oj-sm-margin-1x oj-sm-padding-1x">
+    <span class="demo-center-items">IO Read for </span><oj-bind-text value="{{processName}}"></oj-bind-text>
+ </div>
+ <oj-form-layout id="fl2" readonly="[[isFormReadonly()]]" max-columns="4">
+<oj-input-text class='io-rem-max-width'  label-hint="IO Read Bytes" label-edge="inside" value="{{read_bytes}}"></oj-input-text>
+<oj-input-text class='io-rem-max-width'  label-hint="IO Read Bytes Delta" label-edge="inside" value="{{delta_read_bytes}}"></oj-input-text>
+<oj-input-text class='io-rem-max-width'  label-hint="IO Read Count" label-edge="inside" value="{{read_count}}"></oj-input-text>
+<oj-input-text class='io-rem-max-width'  label-hint="IO Read Count Delta" label-edge="inside" value="{{delta_read_count}}"></oj-input-text>
+ </oj-form-layout>
+ <div class="oj-panel demo-center-items io-color oj-sm-margin-1x-bottom oj-xl-margin-2x oj-xl-padding-1x oj-lg-margin-2x oj-lg-padding-2x oj-md-margin-2x oj-md-padding-1x oj-sm-margin-1x oj-sm-padding-1x">
+  <span>IO Write for </span><oj-bind-text value="{{processName}}"></oj-bind-text>
+    </div>
+    <oj-form-layout id="fl2" class="oj-form-layout" readonly="[[isFormReadonly()]]" max-columns="4"> 
+<oj-input-text class='io-rem-max-width'  label-hint="IO Write Bytes" label-edge="inside" value="{{write_bytes}}"></oj-input-text> 
+<oj-input-text class='io-rem-max-width'  label-hint="IO Write Bytes Delta" label-edge="inside" value="{{delta_write_bytes}}"></oj-input-text> 
+
+<oj-input-text class='io-rem-max-width'  label-hint="IO Write Count" label-edge="inside" value="{{write_count}}"></oj-input-text>
+<oj-input-text class='io-rem-max-width'  label-hint="IO Write Count Delta" label-edge="inside" value="{{delta_write_count}}"></oj-input-text>
+  </oj-form-layout>
+  </div>
+</div>
+  </div>
+  
+  <div class="oj-flex"  style="margin-left :2%;">
+  <div class="oj-panel  oj-sm-margin-1x-bottom oj-xl-margin-1x oj-xl-padding-1x oj-lg-margin-1x oj-lg-padding-1x oj-md-margin-1x oj-md-padding-1x oj-sm-margin-1x oj-sm-padding-1x" style="width: 48%;text-align: left">
+    <div class="oj-panel io-color demo-center-items oj-sm-margin-1x-bottom oj-xl-margin-1x  oj-sm-padding-1x " >
+      <span>Memory Usage in Bytes for </span><oj-bind-text value="{{processName}}"></oj-bind-text>
+    </div>
+    <div id='chart-container2'>
+    <oj-chart 
+        id="areaChart2" 
+        type="line" 
+        orientation="[[orientationValue]]" 
+        stack="[[stackValue]]"
+        data="[[MemoryDP]]"
+        animation-on-display="auto"
+        animation-on-data-change="auto" 
+        style-defaults.line-type="[[lineTypeValue]]"
+        style-defaults.marker-displayed="on"
+        hide-and-show-behavior="withoutRescale"
+        hidden-categories="{{hiddenCategories}}"
+        hover-behavior="dim"
+        legend.position="top"
+        y-axis="[[yAxisMem]]"
+        x-axis="[[xAxisMem]]">
+        <template slot="itemTemplate" data-oj-as="item">
+            <oj-chart-item 
+                value="[[item.data.value]]"
+                group-id="[[ [item.data.quarter] ]]"
+                series-id="[[item.data.series]]">
+            </oj-chart-item>
+        </template>
+    </oj-chart>
+  </div>  
+  </div>
+  <div class="oj-panel oj-sm-margin-1x-bottom oj-xl-margin-1x oj-xl-padding-1x oj-lg-margin-1x oj-lg-padding-1x oj-md-margin-1x oj-md-padding-1x oj-sm-margin-1x oj-sm-padding-1x" style="width: 48.5%;text-align: left">
+    <div class="oj-panel io-color demo-center-items oj-sm-margin-1x-bottom oj-xl-margin-1x  oj-sm-padding-1x " >
+      <span>Threadwise CPU Usage for </span><oj-bind-text value="{{processName}}"></oj-bind-text>
+    </div>
+    <div id='chart-container3'>
+      <oj-chart 
+          id="areaChart3" 
+          type="line" 
+          orientation="[[orientationValue]]" 
+          stack="[[stackValue]]"
+          data="[[CPUDP]]"
+          animation-on-display="auto"
+          animation-on-data-change="auto" 
+          style-defaults.marker-displayed="on"
+          hide-and-show-behavior="withRescale"
+          hidden-categories="{{hiddenCategories}}"
+          hover-behavior="dim"
+          y-axis="[[yAxisCPU]]"
+          x-axis="[[xAxisMem]]">
+          <template slot="itemTemplate" data-oj-as="item">
+              <oj-chart-item 
+                  value="[[item.data.value]]"
+                  group-id="[[ [item.data.group] ]]"
+                  series-id="[[item.data.series]]">
+              </oj-chart-item>
+          </template>
+      </oj-chart>
+    </div>  
+  </div>
+  
+  <div class="oj-panel  oj-sm-margin-1x-bottom oj-xl-margin-1x oj-xl-padding-1x oj-lg-margin-1x oj-lg-padding-1x oj-md-margin-1x oj-md-padding-1x oj-sm-margin-1x oj-sm-padding-1x" style="width: 48%;text-align: left">
+    <div class="oj-panel io-color demo-center-items oj-sm-margin-1x-bottom oj-xl-margin-1x  oj-sm-padding-1x " >
+      <span>Disk IO Bytes for </span><oj-bind-text value="{{processName}}"></oj-bind-text>
+    </div>
+    <div id='chart-container3'>
+      <oj-chart 
+          id="areaChart3" 
+          type="line" 
+          orientation="[[orientationValue]]" 
+          stack="[[stackValue]]"
+          data="[[IODP]]"
+          animation-on-display="auto"
+          animation-on-data-change="auto" 
+          style-defaults.line-type="[[lineTypeValue]]"
+          style-defaults.marker-displayed="on"
+          hide-and-show-behavior="withRescale"
+          hidden-categories="{{hiddenCategories}}"
+          hover-behavior="dim"
+          y-axis="[[yAxisDisk]]"
+          x-axis="[[xAxisMem]]">
+          <template slot="itemTemplate" data-oj-as="item">
+              <oj-chart-item 
+                  value="[[item.data.value]]"
+                  group-id="[[ [item.data.group] ]]"
+                  series-id="[[item.data.series]]">
+              </oj-chart-item>
+          </template>
+          <template slot="seriesTemplate" data-oj-as="series">
+          </template>
+      </oj-chart>
+    </div>
+  </div>
+    <div class="oj-panel oj-sm-margin-1x-bottom oj-xl-margin-1x oj-xl-padding-1x oj-lg-margin-1x oj-lg-padding-1x oj-md-margin-1x oj-md-padding-1x oj-sm-margin-1x oj-sm-padding-1x" style="width: 48.5%;text-align: left">
+    <div class="oj-panel io-color demo-center-items oj-sm-margin-1x-bottom oj-xl-margin-5x  oj-sm-padding-1x " >
+     <span>Disk IO Count  for </span><oj-bind-text value="{{processName}}"></oj-bind-text>
+    </div>
+      <oj-chart 
+      id="areaChart3" 
+      type="line" 
+      orientation="[[orientationValue]]" 
+      stack="[[stackValue]]"
+      data="[[IOCountDP]]"
+      animation-on-display="auto"
+      animation-on-data-change="auto" 
+      style-defaults.line-type="[[lineTypeValue]]"
+      style-defaults.marker-displayed="on"
+      hide-and-show-behavior="withRescale"
+      hidden-categories="{{hiddenCategories}}"
+      hover-behavior="dim"
+      y-axis="[[yAxisDiskCount]]"
+      x-axis="[[xAxisMem]]">
+      <template slot="itemTemplate" data-oj-as="item">
+          <oj-chart-item 
+              value="[[item.data.value]]"
+              group-id="[[ [item.data.group] ]]"
+              series-id="[[item.data.series]]">
+          </oj-chart-item>
+      </template>
+      <template slot="seriesTemplate" data-oj-as="series">
+      </template>
+  </oj-chart>
+    </div>  
+  </div>
+  </div>

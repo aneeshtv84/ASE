@@ -1,0 +1,89 @@
+
+<div class="oj-flex">  
+    <div  class="oj-sm-2"></div>
+
+    <div class="oj-panel oj-flex-item  oj-sm-margin-2x-bottom oj-xl-margin-2x oj-xl-padding-10x oj-lg-margin-2x oj-lg-padding-7x oj-md-margin-2x oj-md-padding-4x oj-sm-margin-1x oj-sm-padding-1x oj-sm-6  myClass">
+            
+        <div class="oj-panel io-color demo-center-items">
+            <h7 >Set Up Zone</h7>
+        </div></br>
+
+
+        <div id="" >
+
+            <div  class="oj-panel oj-flex-item  oj-sm-margin-2x-bottom oj-xl-margin-2x oj-xl-padding-10x oj-lg-padding-7x oj-md-padding-4x  oj-sm-padding-1x oj-sm-12  myClass">
+                <oj-select-single required id="tgtschema" label-hint="Choose Target Deployment" class="mt-2" 
+                    label-edge="inside" data="{{onepDepListDP}}" value="{{TgtOnePDepName}}"
+                    on-value-changed="[[SelectTGTDeployment]]">
+                </oj-select-single><br>
+                <oj-select-single required id="Database1" label-hint="Object Type"  class="mt-2" label-edge="inside" data="[[objectDetDP]]" value="{{currentObject}}" on-value-changed="[[getZoneList]]" >
+                </oj-select-single><br>
+                <oj-select-single required id="Database1" label-hint="Select Zone"  class="mt-2" label-edge="inside" data="[[zoneDetDP]]" value="{{currentZone}}" on-value-changed="[[zoneInfoChange]]">
+                </oj-select-single>
+                <oj-text-area id="text-area" class="mt-2"  value="{{zoneFunctions}}"  rows="10"  label-hint="Include Procedures by comma seperated"></oj-text-area>
+                <div class="mt-2 ">
+                    <oj-button chroming='solid'   on-oj-action="[[addZoneModal]]" >
+                        Add New Zone
+                    </oj-button>
+                    <oj-button chroming='solid'   on-oj-action="[[updateZone]]"  >
+                        Save
+                    </oj-button>
+                </div>
+            </div>
+
+        </div>
+                                                        
+     </div>
+                        
+ </div>
+
+ <oj-dialog id="LampDialog" dialog-title="Working on it..." modality="modeless"
+    style="display:none;width:350px;min-width:240px;max-width:450px;" cancel-behavior="[[CancelBehaviorOpt]]">
+    <div slot="body">
+        <oj-progress-bar id="createbar" class="oj-progress-bar-embedded" value="-1">
+        </oj-progress-bar>
+    </div>
+</oj-dialog>
+
+<oj-dialog id="addZoneDlg" title="View Deatils" modality="modeless"
+style="display:none;width:650px;min-width:640px;max-width:650px;" cancel-behavior="[[CancelBehaviorOpt]]">
+<div slot="body">
+    <div class="oj-panel ">
+        <oj-select-single required id="tgtschema" label-hint="Choose Target Deployment" class="mt-2" 
+                    label-edge="inside" data="{{onepDepListDP}}" value="{{TgtOnePDepName}}"
+                    on-value-changed="[[SelectTGTDeployment]]">
+        </oj-select-single><br>
+        <oj-select-single required id="Database1" label-hint="Object Type"  class="mt-2" label-edge="inside" data="[[objectDetDP]]" value="{{currentObject}}" >
+        </oj-select-single><br>
+        <oj-input-text id="text-area" class="mt-2" label-hint="Enter Zone Name" value="{{zoneName}}"  ></oj-input-text>
+    </div>
+</div>
+<div slot="footer">
+    <oj-button id="okdelButton" chroming='solid'  on-oj-action="[[addZoneModalClose]]">
+        Cancel
+    </oj-button>
+    <oj-button id="okdelButton" chroming='solid' on-oj-action="[[addZone]]" >
+        Add
+    </oj-button>
+    </div>
+</oj-dialog>
+
+
+<oj-dialog id="openDialog" title="Zone Info Dialog" modality="modeless"
+style="display:none;width:550px;min-width:550px;max-width:550px;">
+<div slot="body">
+   <oj-bind-text value="{{saveViewMsg}}" ></oj-bind-text>
+</div>
+<div slot="footer">
+    <div class="oj-panel  oj-sm-margin-4x-bottom" style="width: 100%;">
+    <div class="oj-flex-bar">
+        <oj-button id="okdelButton" chroming='solid' class="oj-flex-bar-end" on-oj-action="[[saveOKView]]">
+            OK
+        </oj-button>
+</div>
+    </div>
+    </div>
+</oj-dialog>
+
+
+                                           

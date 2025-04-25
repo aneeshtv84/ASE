@@ -1,0 +1,167 @@
+
+<div class="oj-flex" style="margin-left :2%;margin-bottom: 1%;margin-right :1%">
+  <div class="oj-panel dashboard_style oj-flex-item oj-sm-margin-1x-bottom oj-xl-margin-1x oj-xl-padding-1x oj-lg-margin-1x oj-lg-padding-1x oj-md-margin-1x oj-md-padding-1x oj-sm-margin-1x oj-sm-padding-1x">
+    <span>Load Average</span>
+    <oj-status-meter-gauge readonly class="circular-status-meter-large" min="0" max="100" value="{{LoadAvg}}"
+      start-angle="180" labelled-by="startAngle" angle-extent="180" reference-lines="[[referenceLines]]"
+      orientation="circular">
+    </oj-status-meter-gauge>
+  </div>
+
+  <div
+    class="oj-panel dashboard_style oj-flex-item oj-sm-margin-1x-bottom oj-xl-margin-1x oj-xl-padding-1x oj-lg-margin-1x oj-lg-padding-1x oj-md-margin-1x oj-md-padding-1x oj-sm-margin-1x oj-sm-padding-1x">
+    <span>%Total CPU User</span>
+    <oj-status-meter-gauge readonly class="circular-status-meter-large" min="0" max="100" value="{{CpuUser}}"
+      start-angle="180" labelled-by="startAngle" angle-extent="180" reference-lines="[[referenceLines]]"
+      orientation="circular">
+    </oj-status-meter-gauge>
+  </div>
+  <div
+    class="oj-panel dashboard_style oj-flex-item oj-sm-margin-1x-bottom oj-xl-margin-1x oj-xl-padding-1x oj-lg-margin-1x oj-lg-padding-1x oj-md-margin-1x oj-md-padding-1x oj-sm-margin-1x oj-sm-padding-1x">
+    <span>%Total CPU Kernel</span>
+    <oj-status-meter-gauge readonly class="circular-status-meter-large" min="0" max="100" value="{{CpuSystem}}"
+      start-angle="180" labelled-by="startAngle" angle-extent="180" reference-lines="[[referenceLines]]"
+      orientation="circular">
+    </oj-status-meter-gauge>
+  </div>
+  <div
+    class="oj-panel dashboard_style oj-flex-item oj-sm-margin-1x-bottom oj-xl-margin-1x oj-xl-padding-1x oj-lg-margin-1x oj-lg-padding-1x oj-md-margin-1x oj-md-padding-1x oj-sm-margin-1x oj-sm-padding-1x memory_usage">
+    <span>Total Memory Usage %</span>
+    <oj-status-meter-gauge readonly class="circular-status-meter-large" min="0" max="100"
+      value="{{Total_System_Memory_Usage}}" start-angle="180" labelled-by="startAngle" angle-extent="180"
+      reference-lines="[[referenceLines]]" orientation="circular">
+    </oj-status-meter-gauge>
+  </div>
+
+  <div class="oj-panel dashboard_style oj-flex-item oj-sm-margin-1x-bottom oj-xl-margin-1x oj-xl-padding-1x oj-lg-margin-1x oj-lg-padding-1x oj-md-margin-1x oj-md-padding-1x oj-sm-margin-1x oj-sm-padding-1x memory_usage">
+    <span>Goldengate Memory Usage %</span>
+    <oj-status-meter-gauge readonly class="circular-status-meter-large" min="0" max="100"
+      value="{{Total_Process_Memory}}" start-angle="180" labelled-by="startAngle" angle-extent="180"
+      reference-lines="[[referenceLines]]" orientation="circular">
+    </oj-status-meter-gauge>
+  </div>
+</div>
+
+<div class="oj-flex" style="margin-left :2%;">
+  <div
+    class="oj-panel  oj-sm-margin-1x-bottom oj-xl-margin-1x oj-xl-padding-1x oj-lg-margin-1x oj-lg-padding-1x oj-md-margin-1x oj-md-padding-1x oj-sm-margin-1x oj-sm-padding-1x"
+    style="width: 49%;">
+    <div class="oj-panel io-color demo-center-items oj-sm-margin-1x-bottom oj-xl-margin-1x  oj-sm-padding-1x ">
+      <span>Process Lag</span>
+    </div>
+    <div id='chart-container'>
+      <oj-chart id="areaChart" type="line" orientation="[[orientationValue]]" stack="[[stackValue]]" data="[[LagDP]]"
+        animation-on-display="auto" animation-on-data-change="auto" style-defaults.line-type="[[lineTypeValue]]"
+        style-defaults.marker-displayed="on" hide-and-show-behavior="withoutRescale"
+        hidden-categories="{{hiddenCategories}}" hover-behavior="dim" y-axis="[[yAxisLag]]" x-axis="[[xAxisMem]]">
+        <template slot="itemTemplate" data-oj-as="item">
+          <oj-chart-item value="[[item.data.lag]]" group-id="[[ [item.data.quarter] ]]"
+            series-id="[[item.data.series]]">
+          </oj-chart-item>
+        </template>
+      </oj-chart>
+    </div>
+  </div>
+  <div
+    class="oj-panel  oj-sm-margin-1x-bottom oj-xl-margin-1x oj-xl-padding-1x oj-lg-margin-1x oj-lg-padding-1x oj-md-margin-1x oj-md-padding-1x oj-sm-margin-1x oj-sm-padding-1x"
+    style="width: 49%;">
+    <div class="oj-panel io-color demo-center-items oj-sm-margin-1x-bottom oj-xl-margin-1x  oj-sm-padding-1x ">
+      <span>Lag at Checkpoint</span>
+    </div>
+    <div id='chart-container1'>
+      <oj-chart id="areaChart1" type="line" orientation="[[orientationValue]]" stack="[[stackValue]]" data="[[LagDP]]"
+        animation-on-display="auto" animation-on-data-change="auto" style-defaults.line-type="[[lineTypeValue]]"
+        style-defaults.marker-displayed="on" hide-and-show-behavior="withoutRescale"
+        hidden-categories="{{hiddenCategories}}" hover-behavior="dim" y-axis="[[yAxisLag]]" x-axis="[[xAxisMem]]">
+        <template slot="itemTemplate" data-oj-as="item">
+          <oj-chart-item value="[[item.data.lagchk]]" group-id="[[ [item.data.quarter] ]]"
+            series-id="[[item.data.series]]">
+          </oj-chart-item>
+        </template>
+      </oj-chart>
+    </div>
+  </div>
+  <div
+    class="oj-panel  oj-sm-margin-1x-bottom oj-xl-margin-1x oj-xl-padding-1x oj-lg-margin-1x oj-lg-padding-1x oj-md-margin-1x oj-md-padding-1x oj-sm-margin-1x oj-sm-padding-1x"
+    style="width: 49%;text-align: left">
+    <div class="oj-panel io-color demo-center-items oj-sm-margin-1x-bottom oj-xl-margin-1x  oj-sm-padding-1x ">
+      <span>Process Memory Usage</span>
+    </div>
+    <div id='chart-container2'>
+      <oj-chart id="areaChart2" type="line" orientation="[[orientationValue]]" stack="[[stackValue]]"
+        data="[[MemoryDP]]" animation-on-display="auto" animation-on-data-change="auto"
+        style-defaults.line-type="[[lineTypeValue]]" style-defaults.marker-displayed="on"
+        hide-and-show-behavior="withoutRescale" hidden-categories="{{hiddenCategories}}" hover-behavior="dim"
+        y-axis="[[yAxisMem]]" x-axis="[[xAxisMem]]">
+        <template slot="itemTemplate" data-oj-as="item">
+          <oj-chart-item value="[[item.data.value]]" group-id="[[ [item.data.quarter] ]]"
+            series-id="[[item.data.series]]">
+          </oj-chart-item>
+        </template>
+      </oj-chart>
+    </div>
+  </div>
+  <div
+    class="oj-panel  oj-sm-margin-1x-bottom oj-xl-margin-1x oj-xl-padding-1x oj-lg-margin-1x oj-lg-padding-1x oj-md-margin-1x oj-md-padding-1x oj-sm-margin-1x oj-sm-padding-1x"
+    style="width: 49%;text-align: left">
+    <div class="oj-panel io-color demo-center-items oj-sm-margin-1x-bottom oj-xl-margin-1x  oj-sm-padding-1x ">
+      <span>Process CPU Usage</span>
+    </div>
+    <div id='chart-container3'>
+      <oj-chart id="areaChart3" type="line" orientation="[[orientationValue]]" stack="[[stackValue]]" data="[[CPUDP]]"
+        animation-on-display="auto" animation-on-data-change="auto" style-defaults.marker-displayed="on"
+        hide-and-show-behavior="withRescale" hidden-categories="{{hiddenCategories}}" hover-behavior="dim"
+        y-axis="[[yAxisCPU]]" x-axis="[[xAxisMem]]">
+        <template slot="itemTemplate" data-oj-as="item">
+          <oj-chart-item value="[[item.data.value]]" group-id="[[ [item.data.group] ]]"
+            series-id="[[item.data.series]]">
+          </oj-chart-item>
+        </template>
+      </oj-chart>
+    </div>
+  </div>
+
+  <div
+    class="oj-panel  oj-sm-margin-1x-bottom oj-xl-margin-1x oj-xl-padding-1x oj-lg-margin-1x oj-lg-padding-1x oj-md-margin-1x oj-md-padding-1x oj-sm-margin-1x oj-sm-padding-1x"
+    style="width: 49%;text-align: left">
+    <div class="oj-panel io-color demo-center-items oj-sm-margin-1x-bottom oj-xl-margin-1x  oj-sm-padding-1x ">
+      <span>Process Disk Read + Write IO Bytes</span>
+    </div>
+    <div id='chart-container3'>
+      <oj-chart id="areaChart3" type="line" orientation="[[orientationValue]]" stack="[[stackValue]]" data="[[IODP]]"
+        animation-on-display="auto" animation-on-data-change="auto" style-defaults.line-type="[[lineTypeValue]]"
+        style-defaults.marker-displayed="on" hide-and-show-behavior="withRescale"
+        hidden-categories="{{hiddenCategories}}" hover-behavior="dim" y-axis="[[yAxisDisk]]" x-axis="[[xAxisMem]]">
+        <template slot="itemTemplate" data-oj-as="item">
+          <oj-chart-item value="[[item.data.diskbytes]]" group-id="[[ [item.data.group] ]]"
+            series-id="[[item.data.series]]">
+          </oj-chart-item>
+        </template>
+        <template slot="seriesTemplate" data-oj-as="series">
+        </template>
+      </oj-chart>
+    </div>
+  </div>
+
+  <div
+    class="oj-panel  oj-sm-margin-1x-bottom oj-xl-margin-1x oj-xl-padding-1x oj-lg-margin-1x oj-lg-padding-1x oj-md-margin-1x oj-md-padding-1x oj-sm-margin-1x oj-sm-padding-1x"
+    style="width: 49%;text-align: left">
+    <div class="oj-panel io-color demo-center-items oj-sm-margin-1x-bottom oj-xl-margin-1x  oj-sm-padding-1x ">
+      <span>Process Disk Read + Write IO Count</span>
+    </div>
+    <div id='chart-container3'>
+      <oj-chart id="areaChart3" type="line" orientation="[[orientationValue]]" stack="[[stackValue]]" data="[[IODP]]"
+        animation-on-display="auto" animation-on-data-change="auto" style-defaults.line-type="[[lineTypeValue]]"
+        style-defaults.marker-displayed="on" hide-and-show-behavior="withRescale"
+        hidden-categories="{{hiddenCategories}}" hover-behavior="dim" y-axis="[[yAxisDiskCount]]" x-axis="[[xAxisMem]]">
+        <template slot="itemTemplate" data-oj-as="item">
+          <oj-chart-item value="[[item.data.diskcount]]" group-id="[[ [item.data.group] ]]"
+            series-id="[[item.data.series]]">
+          </oj-chart-item>
+        </template>
+        <template slot="seriesTemplate" data-oj-as="series">
+        </template>
+      </oj-chart>
+    </div>
+  </div>
+</div>

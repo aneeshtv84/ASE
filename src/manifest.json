@@ -1,0 +1,11 @@
+{
+    "name": "Goldengate OnePlace",
+    "short_name": "Goldengate OnePlace",
+    "start_url": "index.html",
+    "background_color": "#fff",
+    "theme_color": "#0572ce",
+    "display": "standalone",
+    "orientation": "portrait",
+    "gcm_sender_id": "232155109576"
+  }
+  

@@ -1,0 +1,31 @@
+<html lang="en-us" style="height:100%;" dir="ltr">
+  <head>
+  <body class="demo-disable-bg-image">
+    <div id="sampleDemo" style="" class="demo-padding demo-container">
+      <div id="componentDemoContent" style="width: 1px; min-width: 100%;">
+        
+        <div id="moduleDemo">          
+          <oj-buttonset-one class="oj-buttonset-width-auto"  value="{{currentModule}}">
+            <oj-bind-if test="[[onepDepType() === 'oracle']]">
+             <oj-option id="sv5" value="dbdet">Connections</oj-option>
+             </oj-bind-if>
+             <oj-bind-if test="[[onepDepType() === 'bda']]">
+              <oj-option id="sv6" value="rmtInstall_BDA">Remote Provisioning</oj-option>
+              <oj-option id="sv3" value="pfile">Parameter File</oj-option>
+               <oj-option id="sv4" value="chktbl">Goldengate Tables</oj-option>
+               <oj-option id="sv5" value="dbdet">Connections</oj-option>
+               </oj-bind-if>
+          </oj-buttonset-one>
+          
+          <oj-module config='[[moduleConfig]]' animation='[[moduleAnimation]]'>
+          </oj-module>
+        </div>
+
+        
+      </div>
+    </div>
+  </body>
+</html>
+        
+          
+      

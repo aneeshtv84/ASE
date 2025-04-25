@@ -1,0 +1,359 @@
+<div id="sampleDemo" class="demo-padding demo-container">
+
+    <div id='diagram-container '>
+
+            
+        <h6 class="demo-center-items oj-typography-heading-xl" >Hetrogeneous Initial Load Monitor</h6>
+        <div class="oj-flex">
+        <oj-form-layout id="fl2" readonly="[[isFormReadonly()]]" max-columns="2" direction="row"
+        user-assistance-density='compact' >
+        
+        <oj-combobox-one required label-hint="Select the Initial Load Group" label-edge="inside" class='demo-rem-max-width'
+        id="SRCCredentialAlias" options="[[ILjobDataProvider]]" value="{{currentILJOb}}"
+        on-oj-value-updated="[[getILTables]]" class="oj-sm-4">
+        </oj-combobox-one>
+    </oj-form-layout>
+    <span class="oj-sm-9"></span>
+
+    <oj-menu-button id="menuButton">
+        Actions
+        <!-- To handle menu item selection, use an action listener as shown, not a click listener. -->
+        <oj-menu id="myMenu" slot="menu" on-oj-action="[[ILActionItem]]">
+          <oj-option id="startJob" value="start">
+            <span class="fa fa-play-circle bg_green" slot="startIcon"></span>Start Job
+          </oj-option>
+          <oj-option id="divider"></oj-option>
+          <oj-option id="stopJob" value="stop">
+            <span class="fa fa-stop-circle bg_red" slot="startIcon"></span>Stop Job
+          </oj-option>
+          <oj-option id="purgeJob" value="purge">
+            <span class="fa fa-trash bg_red" slot="startIcon"></span>Purge Job
+          </oj-option>
+        </oj-menu>
+      </oj-menu-button>
+</div>
+
+ <!-- strt -->
+ <!-- <div class="oj-sm-padding-10x-bottom">
+    <div class="tabbarcontainer">
+     <oj-tab-bar edge="top"
+        selection="{{selectedItem1}}"
+        data="{{dataProvider}}" id="tabbar1">
+        <template slot="itemTemplate" data-oj-as="item">
+           <li :class="[[{'oj-disabled' : item.data.disabled}]]" :id="[[item.data.id]]">
+              <a href="#">
+                 <oj-bind-text value="[[item.data.name]]"></oj-bind-text>
+              </a>
+           </li>
+        </template>
+       
+     </oj-tab-bar>
+    </div>
+  </div> -->
+  <!-- end -->
+
+<oj-bind-if test="[[NodeData().length > 0]]">
+    <div class="oj-panel demo-centering-container oj-sm-margin-1x-bottom oj-xl-margin-10x oj-xl-padding-1x oj-lg-margin-1x oj-lg-padding-1x oj-md-margin-1x oj-md-padding-1x oj-sm-margin-1x oj-sm-padding-1x">
+        <svg xmlns="http://www.w3.org/2000/svg" width='0' height="0">
+            <defs>
+                <marker id="endMarker" viewBox="0 0 5 5" refX="5" refY="2.5" markerWidth="20"
+                    markerHeight="20" markerUnits="userSpaceOnUse" orient="auto">
+                    <path d="M 0 0 L 5 2.5 L 0 5 z" fill="#a568c1" />
+                </marker>
+            </defs>
+            <defs>
+                <marker id="endMarkerSelected" viewBox="0 0 5 5" refX="5" refY="2.5" markerWidth="20"
+                    markerHeight="7" markerUnits="userSpaceOnUse" orient="auto">
+                    <path d="M 0 0 L 5 2.5 L 0 5 z" fill="#a568c1" />
+                </marker>
+            </defs>
+        </svg>
+
+        <oj-diagram id='init-diagram' animation-on-data-change='auto' animation-on-display='auto'
+            node-data='[[nodeDataProvider]]' link-data='[[linkDataProvider]]' layout='[[layoutFunc]]'
+            max-zoom='1.5' promoted-link-behavior='full' node-content.renderer='[[nodeRendererFunc]]'
+            node-content.selection-renderer='[[nodeRendererFunc]]'
+            node-content.hover-renderer='[[nodeRendererFunc]]'
+            link-content.renderer='[[linkRendererFunc]]'
+            link-content.selection-renderer='[[linkRendererFunc]]'
+            link-content.hover-renderer='[[linkRendererFunc]]' selection='{{selectedNodesValue}}'
+            selection-mode='[[selectionValue]]' expanded='{{expandedNodes}}'>
+            <template slot="nodeTemplate" data-oj-as="node">
+                <oj-diagram-node label='[[node.data.id]]' label-style='{"font-size": "10px"}'
+                    short-desc='[[node.data.id]]'>
+                </oj-diagram-node>
+            </template>
+            <template slot="linkTemplate" data-oj-as="link">
+                <oj-diagram-link start-node="[[link.data.start]]" end-node="[[link.data.end]]"
+                    short-desc='[["Data Load from  " + link.data.start + " to " + link.data.end]]' >
+                </oj-diagram-link>
+            </template>
+            <oj-menu slot='contextMenu' aria-label='Edit' 
+            on-oj-action='[[menuItemAction]]'>
+            <oj-option id="edit" value="edit">
+                <span class="fa fa-pencil" slot="startIcon"></i></span>Edit
+            </oj-option>
+            <oj-option>---------------------------------</oj-option>
+            <oj-option id="view">
+                <span class="fa fa-eye " slot="startIcon"></span>View
+                <oj-menu id="view">
+                   <oj-option id="rpt" value="rpt">
+                        <span class="oj-ux-ico-email-reply" slot="startIcon"></span>View
+                        Report
+                    </oj-option>
+                    <oj-option id="chk" value="chk">
+                        <span class="oj-ux-ico-email-reply-all"
+                            slot="startIcon"></span>View Checkpoint
+                    </oj-option>
+                    <oj-option id="stats" value="stats">
+                        <span class="oj-ux-ico-email-forward"
+                            slot="startIcon"></span>View Stats
+                    </oj-option>
+                    </oj-menu>
+            </oj-option>
+            
+            <oj-option>---------------------------------</oj-option>
+            <oj-option id="startext">
+                <span class="fa fa-play bg_green" slot="startIcon"></span>Start
+                <oj-menu id="start_menu">
+                    <oj-option id="startdef" value="startdef">
+                        <span class="oj-ux-ico-inbox"
+                            slot="startIcon"></span>START
+                    </oj-option>
+                    <oj-option id="nofilterdup" value="nofilterdup">
+                        <span class="oj-ux-ico-inbox"
+                            slot="startIcon"></span>NOFILTERDUPTRANSACTIONS
+                    </oj-option>
+                </oj-menu>
+            </oj-option>
+            <oj-option>---------------------------------</oj-option>
+            <oj-option id="stopext">
+                <span class="fa fa-stop-circle bg_red" slot="startIcon"></span>Stop
+                <oj-menu id="stop_menu">
+                    <oj-option id="stop" value="stop">Stop
+                    </oj-option>
+                    <oj-option id="forcestop" value="stop">Force Stop
+                    </oj-option>
+                    <oj-option id="kill" value="kill">Kill
+                    </oj-option>
+                </oj-menu>
+            </oj-option>
+            <oj-option>---------------------------------</oj-option>
+            <oj-option id="alterext">
+                <span class="fa fa-play bg_green" slot="startIcon"></span>Alter
+                <oj-menu id="start_menu">
+            <oj-option id="begin" value="begin">
+                <span class="oj-ux-ico-archive "
+                    slot="startIcon"></span>BEGIN
+            </oj-option>
+            </oj-menu>
+            </oj-option>
+            <oj-option>---------------------------------</oj-option>
+            <oj-option id="del">
+                <span class="fa fa-trash-o bg_red" slot="startIcon"></span>Delete
+                <oj-menu id="del_menu">
+                    <oj-option id="del" value="del">
+                        <span class="oj-ux-ico-inbox"
+                            slot="startIcon"></span>Delete
+                    </oj-option>
+                </oj-menu>
+            </oj-option>
+        </oj-menu>
+            </oj-diagram>
+    </div>
+
+
+    <div class="oj-panel io-color demo-center-items">
+        <h7>InitialLoad Statistics</h7>
+    </div>
+    <oj-table id='table' aria-label='ILStats Table' data='[[ILStatsDP]]' display='grid' scroll-policy="loadAll"
+        selection-mode='{"row": "single"}' columns='{{ILStatscolumnArray}}' style="height: calc(100vh - 70vh);width: 100%;" >
+    </oj-table>
+</oj-bind-if>
+</div>
+</div>
+<oj-dialog id="ViewExtractRptDialog" dialog-title="[[dialogTitle]]" modality="modeless" 
+cancel-behavior="[[CancelBehaviorOpt]]" >
+<div slot="body">
+<oj-bind-for-each data="[[ExtRpt]]">
+<template data-oj-as="ExtMsg">
+    <p>
+        <span id="results" class="oj-typography-body-lg ">
+            <oj-bind-text value='[[ExtMsg.data]]'></oj-bind-text>
+        </span>
+    </p>
+</template>
+</oj-bind-for-each>
+</div>
+<div slot="footer">
+<oj-button id="okviewExtBtn" chroming="callToAction" on-oj-action="[[ViewExtractRptOKClose]]">
+OK
+</oj-button>
+</div>
+</oj-dialog>
+
+<oj-dialog id="ExtDelDialog" dialog-title="Delete Extract Info" modality="modeless"
+cancel-behavior="[[CancelBehaviorOpt]]" style="display:none;width:800px;min-width:800px;max-width:800px;">
+<div slot="body">
+<oj-bind-for-each data="[[ExtRpt]]">
+<template data-oj-as="ExtMsg">
+<p>
+    <span id="results" class="oj-typography-body-lg ">
+        <oj-bind-text value='[[ExtMsg.data]]'></oj-bind-text>
+    </span>
+</p>
+</template>
+</oj-bind-for-each>
+</div>
+<div slot="footer">
+<oj-button id="okdelExtBtn" chroming="callToAction" on-oj-action="[[DelExtractRptOKClose]]">
+OK
+</oj-button>
+</div>
+</oj-dialog>
+
+<oj-dialog id="RepDelDialog" dialog-title="Delete Replicat Info" modality="modeless"
+cancel-behavior="[[CancelBehaviorOpt]]" style="display:none;width:800px;min-width:800px;max-width:800px;">
+<div slot="body">
+<oj-bind-for-each data="[[ExtRpt]]">
+<template data-oj-as="ExtMsg">
+<p>
+<span id="results" class="oj-typography-body-lg ">
+    <oj-bind-text value='[[ExtMsg.data]]'></oj-bind-text>
+</span>
+</p>
+</template>
+</oj-bind-for-each>
+</div>
+<div slot="footer">
+<oj-button id="okdelRepBtn" chroming="callToAction" on-oj-action="[[DelReplicatRptOKClose]]">
+OK
+</oj-button>
+</div>
+</oj-dialog>
+
+
+<oj-dialog id="ExtLoginDialog" dialog-title="DBLogin Info" modality="modeless"
+cancel-behavior="[[CancelBehaviorOpt]]" style="display:none;width:300px;min-width:300px;max-width:300px;background-color: gainsboro;">
+<div slot="body">
+<oj-form-layout id="fl2" class="oj-form-layout" label-edge="start" max-columns="1">
+<oj-label  for="extdom" >Credential Domain
+</oj-label>
+<oj-combobox-one required id="extdom" style="max-width:18em"  
+options="{{domname1}}" value="{{selectedDomCategory}}" 
+on-oj-value-updated="[[domSelectionChanged]]">
+</oj-combobox-one>
+<oj-label  for="extalias" >Credential Alias</oj-label>
+<oj-combobox-one required  id="extalias" options="[[aliascategories]]"
+value="{{selectedAliascategory}}">
+</oj-combobox-one>
+</oj-form-layout>
+</div>
+<div slot="footer">
+<oj-bind-if test="[[selProcType() === 'Ext' ]]">
+<oj-button id="extdel" class="oj-button-confirm" chroming="callToAction"
+on-oj-action="[[DelExt]]">
+Delete Extract
+</oj-button>
+</oj-bind-if>
+<oj-bind-if test="[[selProcType() === 'Rep' ]]">
+<oj-button id="repdel" class="oj-button-confirm" chroming="callToAction"
+on-oj-action="[[DelRep]]">
+Delete  Replicat
+</oj-button>
+</oj-bind-if>
+</div>
+</oj-dialog>
+
+<oj-dialog id="ReplicatBegin" dialog-title="Replicat Begin" modality="modeless"  class="io-rem-max-width"
+cancel-behavior="[[CancelBehaviorOpt]]" style="display:none;width:550px;min-width:550px;max-width:550px;">
+<div slot="body">
+<div class="oj-panel  oj-sm-margin-4x-bottom  style="text-align: left">  
+<oj-form-layout id="fl2" readonly="[[isFormReadonly()]]" label-edge="start" max-columns="1" direction="row">   
+    <oj-label for="repcreddombegin" show-required="[[isRequired]]"
+        help.definition='[[helpDef]]' help.source='[[helpSource]]'>Credential Domain
+    </oj-label>
+    <oj-combobox-one required  id="repcreddombegin" 
+        options="{{domname1}}" value="{{selectedDomCategory}}"
+        on-oj-value-updated="[[domSelectionChanged]]">
+    </oj-combobox-one>
+    <oj-label for="RepCredentialAliaBegin" show-required="[[isRequired]]"
+        help.definition='[[helpDef]]' help.source='[[helpSource]]'>Credential Alias
+    </oj-label>
+    <oj-combobox-one required  id="RepCredentialAliaBegin" options="[[aliascategories]]"
+        value="{{selectedAliascategory}}">
+    </oj-combobox-one>
+
+<oj-label for="startval" show-required="[[isRequired]]" help.definition='[[helpDef]]'
+help.source='[[helpSource]]'>Begin</oj-label>
+<oj-select-single id="startval"
+           data="[[startOptionDP]]" 
+           value="{{currentbeginmode}}">
+</oj-select-single >
+
+<oj-bind-if test="[[currentbeginmode() === 'Time']]">
+<oj-label for="dateTime" show-required="[[isRequired]]" help.definition='[[helpDef]]'
+       help.source='[[helpSource]]'>Begin Time
+</oj-label>
+<oj-input-date-time  id="dateTime" converter=[[secondConverter]] value='{{ctvalue}}'></oj-input-date-time>
+</oj-bind-if>
+
+<oj-bind-if test="[[currentbeginmode() === 'LOC']]">
+<oj-label for="bseqno" show-required="[[isRequired]]" help.definition='[[helpDef]]'
+       help.source='[[helpSource]]'>Trail Sequence Number</oj-label>
+<oj-input-number id="bseqno" value="{{seqnovalue}}"  converter='[[decimalHalfDownConverter]]' min="0" step="0"  label-hint="Trail Seqno"></oj-input-number>
+<oj-label for="brba" show-required="[[isRequired]]" help.definition='[[helpDef]]'
+       help.source='[[helpSource]]'>Trail RBA</oj-label>
+<oj-input-number id="brba" value="{{rbavalue}}"  converter='[[decimalHalfDownConverter]]' min="0" step="0"  label-hint="Trail RBA"></oj-input-number>
+</oj-bind-if>
+</oj-form-layout>      
+</div>
+</div>
+<div slot="footer">
+<oj-button id="okRepButton" chroming="callToAction" on-oj-action="[[AlterReplicatBegin]]">
+Alter 
+</oj-button>
+</div>
+</oj-dialog>
+
+<oj-dialog id="RepProgress" dialog-title="Working on it..." modality="modeless"
+cancel-behavior="[[CancelBehaviorOpt]]"
+style="display:none;width:350px;min-width:240px;max-width:450px;">
+<div slot="body">
+<oj-progress-bar id="createbar" class="oj-progress-bar-embedded" value="-1">
+</oj-progress-bar>
+</div>
+</oj-dialog>
+
+<oj-dialog id="TimeoutMon" dialog-title="There is a technical issue. Please try again later" modality="modeless"
+style="display:none;width:350px;min-width:240px;max-width:450px;" cancel-behavior="[[CancelBehaviorOpt]]">
+<div slot="body">
+
+</div>
+</oj-dialog>
+<oj-dialog id="StopProcess" dialog-title="Stop Process " modality="modeless" style="display:none;width:900px;min-width:900px;max-width:900px;">
+<div slot="body">
+    <span>Are you sure ? </span>
+</div>
+<div slot="footer">
+<oj-button id="okYesButton" chroming="callToAction" on-oj-action="[[stopJobAction]]">
+ Yes 
+</oj-button>
+<oj-button id="okNoButton" chroming="callToAction" on-oj-action="[[CloseOkjob]]">
+No
+</oj-button>
+</div>
+</oj-dialog>
+
+<oj-dialog id="EditDialog"  dialog-title="Edit Parameterfile" modality="modeless"
+cancel-behavior="[[CancelBehaviorOpt]]" style="display:none;width:850px;min-width:850px;max-width:850px;">
+<div slot="body">
+    <oj-text-area class="demo-percentage-width" value="{{ExtRpt}}" raw-value={{PrmWrite}}
+         max-rows="1000" rows="13"></oj-text-area>
+</div>
+<div slot="footer">
+    <oj-button id="saveBtn" chroming="callToAction" on-oj-action="[[savePrm]]">
+        Save
+    </oj-button>
+</div>
+</oj-dialog>

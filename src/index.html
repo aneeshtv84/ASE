@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+
+<html lang="en-us">
+
+<head>
+  <title>1Place Client Console  </title>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="viewport-fit=cover, width=device-width, initial-scale=1">
+  <link rel="icon" href="css/images/favicon.ico" type="image/x-icon" />
+
+
+  <!-- This is the main css file for the default Alta theme -->
+  <!-- injector:theme -->
+  <!-- endinjector -->
+
+  <!-- This contains icon fonts used by the starter template -->
+  <link rel="stylesheet" href="css/demo-alta-site-min.css" type="text/css" />
+
+  <!-- This is where you would add any app specific styling -->
+  <link rel="stylesheet" href="css/app.css" type="text/css" />
+
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+
+</head>
+
+<body class="oj-web-applayout-body">
+  <!-- Template for rendering navigation items -->
+  <script type="text/html" id="navTemplate">
+      <li><a href="#">
+        <span :class="[[$data.detail['iconClass']]]"></span>
+        <oj-bind-text value="[[$data.detail['label']]]"></oj-bind-text>
+      </a></li>
+    </script>
+
+  <div id="globalBody" class="oj-web-applayout-page">
+
+    <header role="banner" class="oj-web-applayout-header">
+      <oj-bind-if test="[[SignIn() === 'Y' ]]">
+        <div class="oj-web-applayout-max-width oj-flex-bar oj-sm-align-items-center">
+          <oj-button display='icons' chroming='borderless' on-oj-action='[[toggleDrawer]]'>
+            <span slot='startIcon' class='oj-fwk-icon-hamburger oj-fwk-icon'> </span>
+            Start Here
+          </oj-button>
+          <div class="oj-flex-bar-middle oj-sm-align-items-center ">
+            <span role="img" class="oj-icon demo-icon-1place" title="1Place" alt="1Place"></span>
+            <h1 style="margin-left: 2%;color:#495671;font-weight: 500;" class="oj-sm-only-hide oj-web-applayout-header-title" title="Application Name">
+              <oj-bind-text value="[[appName]]"></oj-bind-text>
+            </h1>
+          </div>
+
+          <div class="oj-flex-bar-end">
+            <!-- Responsive Toolbar -->
+            <oj-toolbar>
+              <oj-menu-button id="userMenu" display="[[smScreen() ? 'icons' : 'all']]">
+                <span>
+                  <oj-bind-text value="[[onepDepName]]"></oj-bind-text>
+                  <oj-bind-text value="[[username]]"></oj-bind-text>
+                </span>
+                <span slot="endIcon"
+                  :class="[[{'oj-icon demo-appheader-avatar': smScreen(), 'oj-component-icon oj-button-menu-dropdown-icon': !smScreen()}]]"></span>
+                <oj-menu id="menu1" slot="menu" on-oj-action="[[menuItemAction]]" style="display:none">
+                  <oj-option id="seldep" value="seldep">Switch Deployment</oj-option>
+                  <oj-option id="help" value="help">Help</oj-option>
+                  <oj-option id="about" value="about">About</oj-option>
+                  <oj-option id="out" value="out">Sign Out</oj-option>
+                </oj-menu>
+              </oj-menu-button>
+            </oj-toolbar>
+          </div>
+
+        </div>
+        <oj-dialog id="RemoteDeploymentDialog" dialog-title="Remote Deployment" modality="modeless"
+        cancel-behavior="[[CancelBehaviorOpt]]" style="display:none;width:700px;min-width:440px;max-width:650px;background-color:rgb(236, 234, 234)">
+        <div slot="body">
+          <oj-select-single id="schema" label-hint="Choose Deployment Name" label-edge="inside" data="{{onepDepListDP}}"
+            value="{{DepName}}" class="demo-max-width">
+          </oj-select-single>
+        </div>
+        <div slot="footer">
+          <oj-button id="okButton" chroming="callToAction" on-oj-action="[[SwitchDeployment]]">
+            Switch Deployment
+          </oj-button>
+        </div>
+      </oj-dialog>
+
+      <oj-dialog id="abtDialog" dialog-title="About Us" modality="modeless"
+        cancel-behavior="[[CancelBehaviorOpt]]" style="display:none;width:500px;min-width:440px;max-width:650px;background-color:rgb(236, 234, 234)">
+        <div slot="body">
+         <div> <strong> software Version - 21.8.1 </strong></div><br>
+         <div> For more information please visit our website</div><br>
+          <a href="https://1place1cloud.com/" target="_blank">1Place 1Cloud</a>
+        </div>
+        <div slot="footer">
+        </div>
+      </oj-dialog>
+
+      <oj-dialog id="helpDialog" dialog-title="Help" modality="modeless"
+        cancel-behavior="[[CancelBehaviorOpt]]" style="display:none;width:500px;min-width:440px;max-width:650px;background-color:rgb(236, 234, 234)">
+        <div slot="body">
+          <div style="    padding-bottom: 2%;">For more information please watch our video tutorials</div>
+          <oj-list-view id="listView">
+            <ul>
+              <li ><a class="decoration" id="item1" href="https://www.youtube.com/watch?v=d79FOL_EgOs" target="_blank">Remote Provisioning</a></li>
+              <li><a class="decoration" id="item1" href="https://www.youtube.com/watch?v=p1yhMMBqq_s" target="_blank">Credential store</a></li>
+              <li><a class="decoration" id="item1" href="https://www.youtube.com/watch?v=MKgaf6ZKW7k" target="_blank">Supplemental Logging</a></li>
+            </ul>
+          </oj-list-view>
+
+        </div>
+        <div slot="footer">
+        </div>
+      </oj-dialog>
+
+
+      </oj-bind-if>
+
+    </header>
+    <!-- outer offcanvas wrapper -->
+      <div class="oj-offcanvas-outer-wrapper oj-offcanvas-page" style="border: 1px solid #065b85;">
+        <div class="strip" ></div>
+        <!-- start offcanvas -->
+        <div id="drawer" class="oj-contrast-background oj-contrast-marker oj-offcanvas-start oj-offcanvas-page"
+          style="width: 250px;height: 800px;">
+          <div id="drawerContent">
+            <oj-navigation-list id="navList" data="[[navDataProvider]]" drill-mode="sliding"
+              item.renderer="[[KnockoutTemplateUtils.getRenderer('navTemplate', true)]]" selection="{{selection.path}}">
+            </oj-navigation-list>
+
+          </div>
+        </div>
+        <div id="main" class="oj-sm-padding-2x">
+          <oj-module class="oj-web-applayout-page" config="[[moduleAdapter.koObservableConfig]]">
+          </oj-module>
+        </div>
+        <div class="strip" ></div>
+      </div>
+
+  <footer class="oj-web-applayout-footer" role="contentinfo">
+    <div class="oj-web-applayout-footer-item oj-web-applayout-max-width">
+      <ul>
+        <oj-bind-for-each data="[[footerLinksDP]]">
+          <template>
+            <li><a :id="[[$current.data.linkId]]" :href="[[$current.data.linkTarget]]">
+                <oj-bind-text value="[[$current.data.name]]"></oj-bind-text>
+              </a></li>
+          </template>
+        </oj-bind-for-each>
+      </ul>
+    </div>
+    <div class="oj-web-applayout-footer-item oj-web-applayout-max-width oj-text-color-secondary oj-typography-body-sm">
+    </div>
+  </footer>
+</div>
+  <!-- This injects script tags for the main javascript files -->
+	<!-- injector:scripts -->
+	<!-- endinjector -->
+
+</body>
+
+</html>

@@ -1,0 +1,81 @@
+  @import "../../oj/utils/oj.utils.masonrylayout";
+  @import "../../oj/alta/oj.alta.variables";
+  
+  $customWidth1: 174px;
+  $customHeight1: 174px;
+  $customMargin1: 10px;
+  
+  $customWidth2: 125px;
+  $customHeight2: 75px;
+  $customMargin2: 3px;
+  
+  $customWidth3: 100px;
+  $customHeight3: 125px;
+  $customMargin3: 3px;
+  
+  // Create default size tile spans up to 4x4
+  @include oj-masonrylayout-tile-sizes($baseTileWidth: $masonryLayoutTileWidth, $baseTileHeight: $masonryLayoutTileHeight, $margin: $masonryLayoutTileMargin, $maxColSpan: 4, $maxRowSpan: 4);
+  
+  // Create custom size tile spans up to 4x4
+  .demo-custom-tile-sizes-1 {
+    @include oj-masonrylayout-tile-sizes($baseTileWidth: $customWidth1, $baseTileHeight: $customHeight1, $margin: $customMargin1, $maxColSpan: 4, $maxRowSpan: 4);
+  }
+  
+  .demo-custom-tile-sizes-2 {
+    @include oj-masonrylayout-tile-sizes($baseTileWidth: $customWidth2, $baseTileHeight: $customHeight2, $margin: $customMargin2, $maxColSpan: 4, $maxRowSpan: 4);
+  }
+  
+  .demo-custom-tile-sizes-3 {
+    @include oj-masonrylayout-tile-sizes($baseTileWidth: $customWidth3, $baseTileHeight: $customHeight3, $margin: $customMargin3, $maxColSpan: 4, $maxRowSpan: 4);
+  }
+  
+  /****** centering *********/
+  
+  /* In order to center masonry layout the width needs 
+     to be restricted to a multiple of the column width
+     (the actual tile width plus the margins). */
+  
+  $pagePadding: 10px;
+  
+  $defaultColumnWidth: $masonryLayoutTileWidth + (2 * $masonryLayoutTileMargin);
+  
+  $customColumnWidth1: $customWidth1 + (2 * $customMargin1);
+  
+  $customColumnWidth2: $customWidth2 + (2 * $customMargin2);
+  
+  $customColumnWidth3: $customWidth3 + (2 * $customMargin3);
+  
+  /* Allow for a maximum of nine columns. */
+  $counter: 1;
+  @while $counter <= 9 {
+  
+    @media (min-width: ($counter * $defaultColumnWidth) + (2 * $pagePadding))
+    {
+      .demo-masonry-layout {
+        width: $counter * $defaultColumnWidth;
+      }
+    }
+  
+    @media (min-width: ($counter * $customColumnWidth1) + (2 * $pagePadding))
+    {
+      .demo-masonry-layout.demo-custom-tile-sizes-1 {
+        width: $counter * $customColumnWidth1;
+      }
+    }
+  
+    @media (min-width: ($counter * $customColumnWidth2) + (2 * $pagePadding))
+    {
+      .demo-masonry-layout.demo-custom-tile-sizes-2 {
+        width: $counter * $customColumnWidth2;
+      }
+    }
+  
+    @media (min-width: ($counter * $customColumnWidth3) + (2 * $pagePadding))
+    {
+      .demo-masonry-layout.demo-custom-tile-sizes-3 {
+        width: $counter * $customColumnWidth3;
+      }
+    }
+    
+    $counter: $counter + 1;
+  }

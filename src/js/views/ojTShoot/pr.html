@@ -1,0 +1,128 @@
+
+<div class="oj-panel " >
+    <oj-form-layout id="fl2" class="oj-form-layout"  label-edge="start" max-columns="2" direction="row">
+    <oj-select-single  id="Database"
+                    label-hint="Parallel Replicat Name"
+                    data="[[RepDetDP]]" 
+                    value="{{repName}}" on-value-changed="[[valueChangedHandler]]" >
+    </oj-select-single >
+    <oj-button disabled="{{ButtonVal}}" id="PRTShootBtn" chroming="callToAction"  on-oj-action="[[PRTShoot]]">Get Details
+    </oj-button>
+    
+    </oj-form-layout>
+    </div>
+    <div class="oj-flex">
+                         <div class="oj-panel" style="width:40%;">
+                          <div class="oj-panel io-color oj-margin " >
+                            <h7>Database</h7>  
+                        </div>
+                   
+                    <oj-table id='table' aria-label='All Table'
+                              data='[[DBDetDP]]'
+                              display='grid'
+                              selection-mode='{"row": "single"}' 
+                              columns='{{PRDBDetcolumnArray}}'
+                              style='width: 100%;'>
+                
+                    </oj-table>
+                    </div>
+                    <div class="oj-panel" style="width:60%;">
+                      <div class="oj-panel io-color oj-margin " >
+                        <h7>Database Session Waits</h7>  
+                    </div>
+                        <oj-table id='table' aria-label='All Table'
+                        data='[[PRSessionDP]]'
+                        display='grid'
+                        selection-mode='{"row": "single"}' 
+                        columns='{{PRSessioncolumnArray}}'
+                        style='width: 100%;'>
+                        </oj-table>
+                    </div>
+                </div>
+                    <div class="oj-panel">
+                      <div class="oj-panel io-color oj-margin">
+                      <h7>Running Transactions</h7>  
+                    </div>
+                      <oj-table id='table' aria-label='All Table'
+                      data='[[RunningTxnInfoDP]]'
+                      display='grid'
+                      selection-mode='{"row": "single"}' 
+                      columns='{{RunningTxncolumnArray}}'
+                      style='width: 100%;'>
+                      </oj-table>
+                  </div>
+                        <div class="oj-panel ">
+                          <div class="oj-panel io-color oj-margin">
+                            <h7>Wait Dependencies</h7>  
+                          </div>
+                         <oj-radioset class="oj-choice-direction-row"   value="{{currentFormat}}" >
+                            <oj-option id="tab" value="tab">Table</oj-option>
+                            <oj-option id="graph" value="graph">Graph</oj-option>
+                        </oj-radioset>
+                        <oj-bind-if test="[[currentFormat()==='tab']]">
+                          <oj-table id='table' aria-label='All Table'
+                          data='[[LinkDataDP]]'
+                          display='grid'
+                          selection-mode='{"row": "single"}' 
+                          columns='{{WaitTxncolumnArray}}'
+                          style='width: 100%;'>
+                          </oj-table>
+
+                        </oj-bind-if>
+                        <oj-bind-if test="[[currentFormat()==='graph']]">
+                          <br>
+                          <br>
+                          <h7>X is Waiting on Y</h7>
+                        <oj-diagram id='diagram'
+                        node-data = '[[nodeDataProvider]]'
+                        link-data = '[[linkDataProvider]]'
+                        highlight-match = 'any'
+                        highlighted-categories = '{{highlightedCategoriesValue}}'
+                        hover-behavior = '[[hoverBehaviorValue]]'
+                        layout = '[[layoutFunc]]'
+                        link-highlight-mode = 'linkAndNodes'
+                        node-highlight-mode = 'nodeAndLinks'
+                        selection-mode = 'none'
+                        style-defaults = '[[styleDefaults]]'
+                        tooltip.renderer = '[[tooltipFunction]]'
+                        style='max-width:2200px;width:100%;height:1200px;'>
+                        <template slot='nodeTemplate' data-oj-as='node'>
+                          <oj-diagram-node
+                            label='[[node.data.id]]'
+                            label-style='{"font-size": "40px"}'
+                            short-desc='[[node.data.id + ":" + formatDetails(node.data.id)]]'
+                            icon.color='[[colorHandler.getValue(node.data.category)]]'
+                            icon.border-color='[[colorHandler.getValue(node.data.category)]]'
+                            icon.height=20>
+                          </oj-diagram-node>
+                        </template>
+                        <template slot='linkTemplate' data-oj-as='link'>
+                          <oj-diagram-link
+                            start-node='[[link.data.start]]' 
+                            end-node='[[link.data.end]]'
+                            short-desc='[[link.data.id + ":" + formatDetails(link.data.id)]]'
+                            color='[[colorHandler.getValue(link.data.id)]]'
+                            width=1>
+                          </oj-diagram-link>
+                        </template>
+                      </oj-diagram>
+                        </oj-bind-if>
+                    </div>
+
+                    
+                    <div class="oj-panel" style="width:100%;">
+                      <div class="oj-panel io-color oj-margin " >
+                        <h7>Process Stack of the Scheduler</h7>  
+                    </div>
+                    <oj-tree-view id="treeview1"
+                    data="[[PstackDataDP]]"
+                    aria-label="Tree View with JSON Data">
+                    <template slot="itemTemplate" data-oj-as="thread">
+                      <span class="oj-treeview-item-icon"></span>
+                      <span class="oj-treeview-item-text">
+                        <oj-bind-text value="[[thread.data.title]]"></oj-bind-text>
+                      </span>
+                    </template>
+                    </oj-tree-view>
+                </div>
+

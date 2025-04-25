@@ -1,0 +1,205 @@
+<br>
+<br>
+<h6 class="demo-center-items oj-typography-heading-xl">Oracle Goldengate Provisioning</h6>
+  <div class="oj-flex-bar">
+    <div class="oj-flex-bar-start">
+        <oj-button on-click="[[previousStep]]" disabled="[[selectedStepValue() == 'stp1']]">
+            <span slot='startIcon' class='demo-stretched-train-step oj-fwk-icon-back oj-fwk-icon'></span>
+            Back
+        </oj-button>
+    </div>
+    <div class="oj-flex-bar-middle oj-flex">
+        <oj-bind-if test="[[switchValue() === true]]">
+        <oj-train id="train" class="oj-flex-item oj-train-stretch demo-stretched-train"
+            on-selected-step-changed="[[updateLabelText]]" on-oj-before-select="[[validate]]" selected-step="{{selectedStepValue}}" steps="[[stepArray1]]">
+        </oj-train>
+    </oj-bind-if>
+    <oj-bind-if test="[[switchValue() === false]]">
+        <oj-train id="train" class="oj-flex-item oj-train-stretch demo-stretched-train"
+            on-selected-step-changed="[[updateLabelText]]" on-oj-before-select="[[validate]]" selected-step="{{selectedStepValue}}" steps="[[stepArray2]]">
+        </oj-train>
+    </oj-bind-if>
+    </div>
+    <div class="oj-flex-bar-end">
+        <oj-bind-if test="[[switchValue() === true]]">
+        <oj-button on-click="[[nextStep]]" disabled="[[selectedStepValue() == 'stp2']]">
+            <span slot='endIcon' class='demo-stretched-train-step oj-fwk-icon-next oj-fwk-icon'></span>
+            Next
+        </oj-button>
+        </oj-bind-if>
+        <oj-bind-if test="[[switchValue() === false]]">
+            <oj-button on-click="[[nextStep]]" disabled="[[selectedStepValue() == 'stp1']]">
+                <span slot='endIcon' class='demo-stretched-train-step oj-fwk-icon-next oj-fwk-icon'></span>
+                Next
+            </oj-button>
+            </oj-bind-if>
+    </div>
+  </div>
+  <br>
+  <br>
+  
+  <oj-label label-id="grouplabelid">
+    <oj-bind-text value="[[selectedStepFormLabel()]]"></oj-bind-text>
+  </oj-label>
+  
+  <oj-validation-group id="tracker" role="group"  valid="{{groupValid}}" aria-labelledby="grouplabelid">
+    <oj-bind-if test="[[selectedStepValue() === 'stp1']]">
+        <div class="oj-panel  oj-sm-margin-4x-bottom">
+        <div class="oj-flex">
+        <div class="oj-panel oj-flex-item oj-sm-margin-4x-bottom oj-xl-margin-10x oj-xl-padding-10x oj-lg-margin-7x oj-lg-padding-7x oj-md-margin-4x oj-md-padding-4x oj-sm-margin-1x oj-sm-padding-1x">
+                <oj-select-single required id="depname" data="[[onepDepListDP]]"  value="{{onepDepName}}" label-edge="inside" label-hint="Select Deployment Name"
+                on-value-changed="[[SelectDeployment]]" style="width: 20em;" >
+                </oj-select-single>
+                <br>
+                <oj-label-value label-edge="top" label-width="10%">
+                    <oj-label slot="label" for="switch" id="switchlabel">Patching Mode</oj-label>
+                    <oj-switch slot="value" id="switch" value="{{switchValue}}" >
+                    </oj-switch>
+                  </oj-label-value>
+                <oj-bind-if test="[[switchValue() === false]]">
+                    <h6 class="oj-typography-heading-sm">Choose Oracle Goldengate Software </h6>
+            <oj-select-single required disabled="[[softVerDisable]]" id="softDown" data="[[softwareListDP]]"  value="{{softwareVer}}" label-edge="inside" label-hint="Select Version"
+            on-value-changed="[[downloadSoftware]]" style="width: 20em;" >
+            </oj-select-single>
+            </oj-bind-if>
+                <oj-bind-if test="[[switchValue() === true]]">
+                    <h6 class="oj-typography-heading-sm">Upload Patch for Oracle Goldengate</h6>
+                    <oj-file-picker   selection-mode='single' on-oj-select='[[selectListener]]'
+                        on-oj-invalid-select='[[invalidListener]]' aria-label="Upload Goldengate Software">
+                    </oj-file-picker>
+                    </oj-bind-if>
+                    <br>
+                    <br>
+                <h6 class="oj-typography-heading-sm">License - Bring Your Own License</h6>
+                <oj-bind-if test="[[progressValue() > 0]]">
+                <div id="loadingRegion" aria-busy="true" aria-describedby="progressBar">
+                    <oj-bind-text value='{{progressValue}}'></oj-bind-text><span class="oj-bind-text">%</span>
+                    <div class="oj-panel demo-panel-progress">
+                        <oj-progress-bar id='progressBar' class="oj-progress-bar-embedded" value="{{progressValue}}">
+                        </oj-progress-bar>
+                    </div>
+                </div>
+        </oj-bind-if>   
+    </div>        
+                <div class="oj-panel oj-flex-item oj-sm-margin-1x-bottom oj-xl-margin-10x oj-xl-padding-10x oj-lg-margin-7x oj-lg-padding-7x oj-md-margin-4x oj-md-padding-4x oj-sm-margin-1x oj-sm-padding-1x">
+                  <div class="oj-panel" >
+            <h6 class="demo-center-items oj-typography-heading-sm">Deployment Details</h6>
+            </div>
+            <br>
+            <br>
+                 <oj-form-layout id="flDep"  label-edge="inside" max-columns="3" direction="row">
+                  <oj-input-text id="f1" readonly label-hint="Host Name"
+                  value='{{ggDephName}}'></oj-input-text>
+                  <oj-input-text id="f2" readonly label-hint="Operating System Platform"
+                  value='{{ggDepOSPlat}}'></oj-input-text>
+                  <oj-input-text id="f3" readonly label-hint="DB Client Version"
+                  value='{{ggDepDBClientVer}}'></oj-input-text>
+                  <oj-input-text id="f4" readonly label-hint="Goldengate Version"
+                  value='{{ggDepGGVer}}'></oj-input-text>
+                  <oj-input-text id="f5" readonly label-hint="Goldengate Build  for"
+                  value='{{ggDepDBVer}}'></oj-input-text>
+                  <oj-input-text id="f6" readonly label-hint="Goldengate Home Path"
+                  value='{{ggDepGGHome}}'></oj-input-text>
+                  <oj-input-text id="f7" readonly label-hint="Database Client Home Path"
+                  value='{{ggDepDBHome}}'></oj-input-text>
+          </oj-form-layout>
+          </div>
+
+        </div>
+        
+        </div>
+  </oj-bind-if>
+
+
+  <oj-dialog id="downloadSoftwaredialog" title="Installing Oracle Goldengate" modality="modeless" cancel-behavior="[[CancelBehaviorOpt]]"
+style="display:none;width:350px;min-width:240px;max-width:450px;">
+<div slot="body">
+    <oj-progress-bar id="createbar" class="oj-progress-bar-embedded" value="-1">
+    </oj-progress-bar>
+</div>
+</oj-dialog>
+
+
+<oj-dialog id="ggSetup" dialog-title="Oracle Goldengate Install" modality="modeless"
+style="display:none;width:650px;min-width:640px;max-width:650px;">
+<div slot="body">
+<oj-bind-for-each data="[[downloadSoftMsg]]">
+ <template data-oj-as="ggMsg">
+     <br>
+     <oj-bind-text value='[[ggMsg.data]]'></oj-bind-text>
+ </template>
+</oj-bind-for-each>
+</div>
+<div slot="footer">
+<oj-button id="oksetupButton"  on-oj-action="[[ggSetupMsgOKClose]]">
+ OK
+</oj-button>
+</div>
+</oj-dialog>  
+
+
+<oj-dialog id="Timeout" dialog-title="There is a technical issue. Please try again later" modality="modeless"
+style="display:none;width:350px;min-width:240px;max-width:450px;" cancel-behavior="[[CancelBehaviorOpt]]">
+<div slot="body">
+</div>
+</oj-dialog>
+
+        <oj-dialog id="UploadSoftDialog" dialog-title="Upload Sofware" style="display:none;width:350px;min-width:240px;max-width:450px;">
+            <div slot="body">
+                <oj-bind-text value='[[UploadSoftMsg]]'></oj-bind-text>
+            </div>
+            <div slot="footer">
+                <oj-button id="updsoftButton" on-oj-action="[[UploadSoftOKClose]]">
+                    OK
+                </oj-button>
+            </div>
+        </oj-dialog>
+  
+  
+    <oj-bind-if test="[[selectedStepValue() === 'stp2']]">
+  <div class="oj-flex">
+            <div class="oj-panel" style="width: 30%;">
+                <h6>&nbsp;&nbsp;Images</h6>
+  
+                <oj-list-view id="listview" aria-label="list of Softwares" data="[[listSoftDP]]"
+                    selected="{{selectedItems}}" selection-mode="multiple"
+                    selection-required="[[selectedSelectionRequired]]" on-selected-changed="[[handleSelectedChanged]]"
+                    first-selected-item="{{firstSelectedItem}}">
+                    <template slot="itemTemplate" data-oj-as="item">
+                        <li>
+                            <oj-list-item-layout>
+                                    <oj-selector slot="selector"
+                                    selected-keys='{{selectedItems}}'
+                                    selection-mode='multiple'
+                                    row-key='[[item.data.id]]'
+                                    :id="[['listview_checkboxset' + item.data.id]]">
+                                </oj-selector>    
+                                <oj-avatar slot="leading" size="xs" src="[[item.data.image]]"></oj-avatar> 
+                                <span slot="secondary" class="oj-typography-body-sm oj-text-color-secondary fas fa-cloud-upload-alt">
+                                <oj-bind-text value="[[item.data.id]]"></oj-bind-text></span>
+                            </oj-list-item-layout>
+                        </li>
+                    </template>
+                </oj-list-view>
+            </div>
+
+        <oj-dialog id="TimeoutRM" dialog-title="There is a technical issue. Please try again later" modality="modeless"
+        style="display:none;width:350px;min-width:240px;max-width:450px;" cancel-behavior="[[CancelBehaviorOpt]]">
+        <div slot="body">
+        </div>
+        </oj-dialog>
+            <div class="oj-panel demo-panel-progress" style="width: 70%;">
+                <oj-progress-bar class="oj-progress-bar-embedded" value="{{insProgress}}"></oj-progress-bar>
+                <oj-text-area readonly=true id="chatWindow" value="{{runInsLogFile}}" rows="35"
+                    style="width: 100%; min-width: 100%;white-space: pre-wrap">
+                </oj-text-area>
+               </div>
+                    <oj-button disabled="[[insButton]]" id="installBtn" class="oj-flex-bar-end oj-button-confirm"
+                        chroming='solid' on-oj-action="[[installSoftware]]">
+                        Install Software
+                    </oj-button>
+                </div>
+  
+    </oj-bind-if>
+</oj-validation-group>
+

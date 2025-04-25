@@ -1,0 +1,66 @@
+
+           <style>
+            .oj-listview-group-item.oj-sticky {
+ display: none;
+            }
+             </style>
+     
+        <div class="oj-flex">
+             <div class="oj-panel oj-sm-margin-4x-bottom oj-xl-margin-5x " style="width: 20%;"  >
+                 <div class="oj-panel oj-sm-margin-1x-bottom oj-xl-margin-1x oj-flex-bar">
+                     <oj-input-text id="filterDepartId" placeholder="Search..." on-raw-value-changed="[[handleRawValueChanged]]"></oj-input-text>
+                 <oj-button  disabled="[[edBtnstateValue]]" display='icons' on-oj-action='[[editListener]]' chroming='callToAction' class="oj-flex-bar-end">Edit</oj-button> 
+                         </div>
+                       <oj-list-view id="listview" aria-label="sticky group header" class="contacts"
+                       data="[[dataSource]]" item.renderer="[[renderer]]" item.focusable="[[itemOnly]]" drill-mode="none" group-header-position="sticky" selected="{{selectedItems}}"
+                       selection-mode="single"
+                       selection-required="[[selectedSelectionRequired]]"
+                       first-selected-item="{{firstSelectedItem}}" on-selected-changed="[[viewPrm]]"  style="height: 436px;overflow-y: scroll;"> 
+                   </oj-list-view>
+              
+               
+               <script type="text/html" id="group_template">
+                   <li data-bind="attr: {id: id}" >
+                       <span data-bind="text: id" ></span>
+                   </li>
+               </script>
+               
+               <script type="text/html" id="item_template">
+                   <li data-bind="attr: {id: id}">
+                       <span data-bind="text: name"></span>
+                   </li>
+               </script>
+
+             </div>
+             
+
+             <div class="oj-panel oj-sm-margin-1x-bottom oj-xl-margin-5x " style="width: 65%;">
+                 <div class="oj-panel oj-sm-margin-4x-bottom oj-xl-margin-5x oj-flex-bar">
+                 <oj-text-area readonly="[[textstateValue]]" id="chatWindow" slot="value" value="{{prmFileContent}}"   rows="25" style="width: 100%; min-width: 100%">
+                 </oj-text-area>
+             </div>
+                 <div class="oj-panel oj-sm-margin-1x-bottom oj-xl-margin-5x oj-flex-bar">
+                     <oj-button id="confirmBtn" class="oj-flex-bar-start oj-button-cancel "  on-oj-action="[[cancel]]">
+         Cancel
+     </oj-button>
+                     <oj-button disabled="[[saveBtnStateValue]]" id="confirmBtn" class="oj-flex-bar-end oj-button-confirm"  chroming='solid'
+                                on-oj-action="[[saveListener]]">
+                         Save
+                     </oj-button>
+                     
+                              <oj-dialog id="savePrmDialog" dialog-title="Parameter File" modality="modeless"
+                                style="display:none;width:350px;min-width:240px;max-width:450px;">
+                         <div slot="body">
+                             <oj-bind-text value='[[savePrmMsg]]'></oj-bind-text>
+                         </div>
+                         <div slot="footer">
+                             <oj-button id="okdelButton" chroming='solid'  on-oj-action="[[savePrmOKClose]]">
+                                 OK
+                             </oj-button>
+                         </div>
+                     </oj-dialog>  
+
+             </div>
+         </div>
+
+         

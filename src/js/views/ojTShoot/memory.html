@@ -1,0 +1,131 @@
+<h6>Process Memory Utilization</h6>
+<div id='chart-container'>
+    <oj-chart 
+        id="barChart"
+        type="bar" 
+        orientation="[[orientationValue]]"
+        stack="[[stackValue]]"
+        data="[[processDP]]"
+        animation-on-data-change="auto"
+        animation-on-display="auto"
+        legend.rendered="on"
+        y-axis.title="% Memory Utilization"
+        style-defaults.bar-gap-ratio=".20"
+        value-formats.series.tooltip-display="off"
+        value-formats.group.tooltip-label="Process"
+        value-formats.y.converter="[[percentConverter]]"
+        value-formats.y.tooltip-label="Memory Utilization"
+        value-formats.z.scaling="none"
+        value-formats.z.tooltip-label="Memory usage in MB">
+        <template slot='itemTemplate' data-oj-as='item'>
+            <oj-chart-item 
+              y='[[item.data.value]]' 
+              z='[[item.data.uss]]' 
+              label='[[(item.data.value > 0 ? "+" : "") + item.data.value + "%"]]'
+              group-id='[[ [item.data.group] ]]' 
+              series-id='[[item.data.series]]'
+              color='[[colorHandler.getValue(item.index)]]'> 
+            </oj-chart-item>
+        </template>
+    </oj-chart>
+
+    <oj-toolbar
+        aria-controls="barChart"
+        aria-labels="Orienation Control Toolbar">
+         <!-- vertical/horizontal toggle button -->
+        <demo-chart-orientation-control 
+            id="orientationControl" 
+            type="bar" 
+            focus-management="none"
+            orientation="{{orientationValue}}" >
+        </demo-chart-orientation-control>
+    </oj-toolbar>
+</div>  
+<div class="oj-flex">
+<div class="oj-panel" style="width: 50%;">
+<h6>Total Memory Utilization</h6>
+    <oj-chart 
+        id="barChart"
+        type="bar" 
+        orientation="[[orientationValue]]"
+        stack="[[stackValue]]"
+        data="[[totalMemDP]]"
+        animation-on-data-change="auto"
+        animation-on-display="auto"
+        legend.rendered="on"
+        y-axis.title="% Memory Utilization"
+        style-defaults.bar-gap-ratio=".20"
+        value-formats.series.tooltip-display="off"
+        value-formats.group.tooltip-label="Memory in GB"
+        value-formats.y.converter="[[percentConverter]]"
+        value-formats.y.tooltip-label="Memory Utilization"
+        value-formats.z.scaling="none"
+        value-formats.z.tooltip-label="Free Memory in GB">
+        <template slot='itemTemplate' data-oj-as='item'>
+            <oj-chart-item 
+              y='[[item.data.value]]' 
+              z='[[item.data.free]]' 
+              label='[[(item.data.value > 0 ? "+" : "") + item.data.value + "%"]]'
+              group-id='[[ [item.data.group] ]]' 
+              series-id='[[item.data.series]]'
+              color='[[colorHandler.getValue(item.index)]]'> 
+            </oj-chart-item>
+        </template>
+    </oj-chart>
+
+    <oj-toolbar
+        aria-controls="barChart"
+        aria-labels="Orienation Control Toolbar">
+         <!-- vertical/horizontal toggle button -->
+        <demo-chart-orientation-control 
+            id="orientationControl" 
+            type="bar" 
+            focus-management="none"
+            orientation="{{orientationValue}}" >
+        </demo-chart-orientation-control>
+    </oj-toolbar>
+</div>  
+<div class="oj-panel" style="width: 50%;">
+    <h6>Swap Memory Utilization</h6>
+        <oj-chart 
+            id="barChart"
+            type="bar" 
+            orientation="[[orientationValue]]"
+            stack="[[stackValue]]"
+            data="[[totalSwapDP]]"
+            animation-on-data-change="auto"
+            animation-on-display="auto"
+            legend.rendered="on"
+            y-axis.title="% SWAP  Utilization"
+            style-defaults.bar-gap-ratio=".20"
+            value-formats.series.tooltip-display="off"
+            value-formats.group.tooltip-label="Swap in GB"
+            value-formats.y.converter="[[percentConverter]]"
+            value-formats.y.tooltip-label="Swap Utilization"
+            value-formats.z.scaling="none"
+            value-formats.z.tooltip-label="Free Swap in GB">
+            <template slot='itemTemplate' data-oj-as='item'>
+                <oj-chart-item 
+                  y='[[item.data.value]]' 
+                  z='[[item.data.free]]' 
+                  label='[[(item.data.value > 0 ? "+" : "") + item.data.value + "%"]]'
+                  group-id='[[ [item.data.group] ]]' 
+                  series-id='[[item.data.series]]'
+                  color='[[colorHandler.getValue(item.index)]]'> 
+                </oj-chart-item>
+            </template>
+        </oj-chart>
+    
+        <oj-toolbar
+            aria-controls="barChart"
+            aria-labels="Orienation Control Toolbar">
+             <!-- vertical/horizontal toggle button -->
+            <demo-chart-orientation-control 
+                id="orientationControl" 
+                type="bar" 
+                focus-management="none"
+                orientation="{{orientationValue}}" >
+            </demo-chart-orientation-control>
+        </oj-toolbar>
+    </div>
+</div>

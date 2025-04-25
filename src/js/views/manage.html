@@ -1,0 +1,1219 @@
+<div class="oj-panel  demo-centering-container panel_masonary">
+    <oj-bind-if test="[[MgrData1().length > 0]]">
+        <oj-masonry-layout id="masonryLayoutMgr" class="demo-masonry-layout mgr_masonary"
+            data-bind="css: 'demo-custom-tile-sizes-2'" on-oj-before-resize="[[MgrHandleBeforeResize]]"
+            on-oj-resize="[[MgrHandleResize]]">
+            <oj-bind-for-each data="[[MgrData1]]">
+                <template data-oj-as="mgr">
+                    <div :id="[[getMgrTileId(mgr.index)]]" class="oj-panel mgr-tile oj-masonrylayout-tile-1x1"
+                        :style="[[styleMgr]]">
+                        <span :id="[[getMgrLabelId(mgr.index)]]"></span>
+                        <oj-bind-text value="[[mgr.data.MgrName]]"></oj-bind-text>
+                        <oj-bind-if test="[[mgr.data.expanded]]">
+                            <!-- This additional content is only shown when the tile is 
+                                expanded. -->
+                            <div class="oj-panel oj-bg-warning-10 oj-selected  demo-expanded-content">
+                                <oj-menu-button id="mgrMenuButton" chroming="borderless" display="icons">
+                                    <oj-menu id="MgrMenu" slot="menu" on-oj-action="[[menuMgrItemAction]]">
+                                        <oj-option id="mgredit" value="mgredit">
+                                            <span class="fa fa-pencil" slot="startIcon"></i></span>Edit
+                                            Manager
+                                        </oj-option>
+                                        <oj-option>---------------------------------</oj-option>
+                                        <oj-option id="mgrstart" value="mgrstart">
+                                            <span class="fa fa-play bg_green" slot="startIcon"></span>Start
+                                            Manager
+                                        </oj-option>
+                                        <oj-option id="mgrstop" value="mgrstop">
+                                            <span class="fa fa-stop-circle bg_red" slot="startIcon"></span>Stop
+                                            Manager
+                                        </oj-option>
+                                        <oj-option id="mgrrefresh" value="mgrrefresh">
+                                            <span class="fa fa-refresh" slot="startIcon"></span>Refresh
+                                            Manager
+                                        </oj-option>
+                                        <oj-option id="mgrkill" value="mgrkill">
+                                            <span class="fa fa-window-close bg_red" slot="startIcon"></span>Kill
+                                            Manager
+                                        </oj-option>
+                                        <oj-option>---------------------------------</oj-option>
+                                        <oj-option id="startext">
+                                            <span class="fa fa-eye " slot="startIcon"></span>View
+                                            <oj-menu id="view">
+                                                <oj-option id="mgrrpt" value="mgrrpt">
+                                                    <span class="fa fa-file-text-o" slot="startIcon"></span>View Report
+                                                </oj-option>
+                                                <oj-option id="mgrchildstatus" value="mgrchildstatus">
+                                                    <span class="fa fa-file-text-o" slot="startIcon"></span>Child Process Status
+                                                </oj-option>
+                                                <oj-option id="mgrportinfo" value="mgrportinfo">
+                                                    <span class="fa fa-file-text-o" slot="startIcon"></span>Port Info Detail
+                                                </oj-option>
+                                                <oj-option id="mgrpurgeold" value="mgrpurgeold">
+                                                    <span class="fa fa-file-text-o" slot="startIcon"></span>PURGEOLDEXTRACTS 
+                                                </oj-option>
+                                            </oj-menu>
+                                            </oj-option>
+                                    </oj-menu>
+                                </oj-menu-button>
+
+                            </div>
+                        </oj-bind-if>
+
+                        <oj-button chroming="borderless" display="icons" class="oj-panel-resize-button demo-button"
+                            on-oj-action="[[MgrResizeTile]]" :id="[[getMgrButtonId(mgr.index)]]"
+                            :title="[[getMgrButtonLabel(mgr.data)]]" :aria-label="[[getMgrButtonLabel(mgr.data)]]"
+                            :aria-labelledby="[[getMgrButtonLabelledBy(mgr.index)]]">
+                            <span slot="startIcon" :class="[[getMgrButtonIcon(mgr.data)]]">
+                            </span>
+                        </oj-button>
+                    </div>
+                </template>
+            </oj-bind-for-each>
+        </oj-masonry-layout>
+    </oj-bind-if>
+    <oj-dialog id="ViewMgrRptDialog" dialog-title="View Manager Info" modality="modeless"
+        cancel-behavior="[[CancelBehaviorOpt]]">
+        <div slot="body">
+            <oj-bind-for-each data="[[MgrRpt]]">
+                <template data-oj-as="MgrMsg">
+                    <p>
+                        <span id="results" class="oj-typography-body-lg ">
+                            <oj-bind-text value='[[MgrMsg.data]]'></oj-bind-text>
+                        </span>
+                    </p>
+
+                </template>
+            </oj-bind-for-each>
+
+        </div>
+        <div slot="footer">
+            <oj-button id="okviewMgrBtn" chroming="callToAction" on-oj-action="[[ViewMgrRptOKClose]]">
+                OK
+            </oj-button>
+        </div>
+    </oj-dialog>
+
+    <oj-dialog id="EditMgrDialog" dialog-title="Edit Manager" modality="modeless"
+        cancel-behavior="[[CancelBehaviorOpt]]" style="display:none;width:550px;min-width:550px;max-width:550px;">
+        <div slot="body">
+            <oj-text-area class="demo-percentage-width" value="{{mgrPrmRead}}" raw-value={{mgrPrmWrite}}
+                label-hint="Manager Parameterfile" max-rows="1000" rows="13"></oj-text-area>
+        </div>
+        <div slot="footer">
+            <oj-button id="saveMgrBtn" chroming="callToAction" on-oj-action="[[saveMgrPrm]]">
+                Save
+            </oj-button>
+        </div>
+    </oj-dialog>
+
+
+    <oj-dialog id="StopMgrDialog" dialog-title="Stop Manager" modality="modeless"
+        cancel-behavior="[[CancelBehaviorOpt]]" style="display:none;width:550px;min-width:550px;max-width:550px;">
+        <div slot="body">
+            <oj-bind-text class="demo-percentage-width"
+                value="Manager process is required by other GGS processes. Do you want to stop it ? ">
+            </oj-bind-text>
+        </div>
+        <div slot="footer">
+            <oj-button id="stopMgrBtn" chroming="danger" on-oj-action="[[stopMgr]]">
+                Stop
+            </oj-button>
+        </div>
+    </oj-dialog>
+
+    <oj-dialog id="KillMgrDialog" dialog-title="Kill Manager" modality="modeless"
+        cancel-behavior="[[CancelBehaviorOpt]]" style="display:none;width:550px;min-width:550px;max-width:550px;">
+        <div slot="body">
+            <oj-bind-text class="demo-percentage-width"
+                value="Manager process is required by other GGS processes. Do you want to kill it ? ">
+            </oj-bind-text>
+        </div>
+        <div slot="footer">
+            <oj-button id="stopMgrBtn" chroming="danger" on-oj-action="[[killMgr]]">
+                Kill
+            </oj-button>
+        </div>
+    </oj-dialog>
+
+</div>
+
+
+<oj-dialog id="StopAllProcessDialog" dialog-title=[[delTitle]] modality="modeless"
+cancel-behavior="[[CancelBehaviorOpt]]" style="display:none;width:550px;min-width:550px;max-width:550px;">
+<div slot="body">
+    <oj-bind-text class="demo-percentage-width"
+        value="{{stopTextValue}}">
+    </oj-bind-text>
+</div>
+<div slot="footer">
+    <oj-button id="stopAllBtn" chroming="danger" on-oj-action="[[stopAllProc]]">
+        Stop all 
+    </oj-button>
+</div>
+</oj-dialog>
+
+
+<div class="oj-panel  demo-centering-container panel_masonary">
+    <h6></h6>
+    <oj-menu-button chroming="outlined" id="extMainMenuButton">
+        <span slot='startIcon' class="oj-ux-ico-settings"></span>
+        Primary Extracts Action
+        <!-- To handle menu item selection, use an action listener as shown, not a click listener. -->
+         <oj-menu id="extMainMenu" slot="menu" on-oj-action="[[menuExtractItemAction]]">
+            <oj-option id="addext" value="addext">
+                <span class="fa fa-plus-circle" slot="startIcon"></span>Add Extract
+            </oj-option>
+            <oj-option id="stopallext" value="stopallext">
+                <span class="fa fa-stop-circle bg_red" slot="startIcon"></span>Stop All Extracts
+            </oj-option>
+            <oj-option id="startallext" value="startallext">
+                <span class="fa fa-play bg_green" slot="startIcon"></span>Start All Extracts
+            </oj-option>
+            </oj-menu>
+      </oj-menu-button>
+    <oj-label for="select1">
+    </oj-label>
+    <oj-bind-if test="[[ExtData1().length > 0]]">
+        <oj-masonry-layout id="masonryLayout" class="demo-masonry-layout process_masonary"
+            on-oj-before-resize="[[ExtHandleBeforeResize]]" on-oj-resize="[[ExtHandleResize]]">
+            <oj-bind-for-each data="[[ExtData1]]">
+                <template data-oj-as="Extract">
+                    <div :id="[[getExtTileId(Extract.index)]]" class="oj-panel ext-tile oj-masonrylayout-tile-1x1"
+                        :style="[[styleExt]]">
+                        <span :id="[[getExtLabelId(Extract.index)]]"></span>
+                        <oj-bind-text value="[[Extract.data.ExtName]]"></oj-bind-text>
+                        <oj-bind-if test="[[Extract.data.expanded]]">
+                            <!-- This additional content is only shown when the tile is 
+                                expanded. -->
+                            <div class="oj-panel oj-bg-warning-10 oj-selected oj-panel-shadow-lg demo-expanded-content">
+                                <oj-menu-button id="extMenuButton" chroming="borderless" display="icons">
+                                    <oj-menu id="extMenu" slot="menu" on-oj-action="[[menuItemAction]]">
+                                        <oj-option id="startext">
+                                            <span class="fa fa-eye " slot="startIcon"></span>View
+                                            <oj-menu id="view">
+                                                <oj-option id="extrpt" value="extrpt">
+                                                    <span class="oj-ux-ico-email-reply" slot="startIcon"></span>View
+                                                    Report
+                                                </oj-option>
+                                                <oj-option id="extchk" value="extchk">
+                                                    <span class="oj-ux-ico-email-reply-all" slot="startIcon"></span>View
+                                                    Checkpoint
+                                                </oj-option>
+                                                <oj-option id="extstats" value="extstats">
+                                                    <span class="oj-ux-ico-email-forward" slot="startIcon"></span>View
+                                                    Stats
+                                                </oj-option>
+                                            </oj-menu>
+                                        </oj-option>
+                                        <oj-option>---------------------------------</oj-option>
+                                        <oj-option id="extadd">
+                                            <span class="fa fa-plus-circle" slot="startIcon"></span>Add
+                                            <oj-menu id="extadd">
+                                                <oj-option id="exttrailadd" value="exttrailadd">
+                                                    <span class="oj-ux-ico-email-reply" slot="startIcon"></span>Add
+                                                    Exttrail
+                                                </oj-option>
+                                            </oj-menu>
+                                        </oj-option>
+                                        <oj-option>---------------------------------</oj-option>
+                                        <oj-option id="startext">
+                                            <span class="fa fa-play bg_green" slot="startIcon"></span>Start
+                                            <oj-menu id="start_menu">
+                                                <oj-option id="extstartdef" value="extstartdef">
+                                                    <span class="oj-ux-ico-inbox" slot="startIcon"></span>START
+                                                </oj-option>
+                                                <oj-option id="extatcsn" value="extatcsn">
+                                                    <span class="oj-ux-ico-inbox" slot="startIcon"></span>ATCSN
+                                                </oj-option>
+                                                <oj-option id="extaftercsn" value="extaftercsn">
+                                                    <span class="oj-ux-ico-archive " slot="startIcon"></span>AFTERCSN
+                                                </oj-option>
+                                            </oj-menu>
+                                        </oj-option>
+                                        <oj-option id="stopext">
+                                            <span class="fa fa-stop-circle-o bg_red" slot="startIcon"></span>Stop
+                                            <oj-menu id="stop menu">
+                                                <oj-option id="extstop" value="extstop">
+                                                    <span class="oj-ux-ico-inbox" slot="startIcon"></span>STOP
+                                                </oj-option>
+                                                <oj-option id="extforcestop" value="extforcestop">
+                                                    <span class="oj-ux-ico-inbox" slot="startIcon"></span>FORCE STOP
+                                                </oj-option>
+                                                <oj-option id="extkill" value="extkill">
+                                                    <span class="oj-ux-ico-archive " slot="startIcon"></span>KILL
+                                                </oj-option>
+                                            </oj-menu>
+                                        </oj-option>
+                                        <oj-option id="alter">
+                                            <span class="fa fa-pencil-square-o " slot="startIcon"></span>Alter
+                                            <oj-menu id="zoom_menu">
+                                                <oj-option id="upgie" value="upgie">
+                                                    <span class="oj-ux-ico-inbox" slot="startIcon"></span>UPGRADE
+                                                    INTEGRATED TRANLOG
+                                                </oj-option>
+                                                <oj-option id="dwnie" value="dwnie">
+                                                    <span class="oj-ux-ico-inbox" slot="startIcon"></span>DOWNGRADE
+                                                    INTEGRATED TRANLOG
+                                                </oj-option>
+                                                <oj-option id="extetroll" value="extetroll">
+                                                    <span class="oj-ux-ico-archive " slot="startIcon"></span>ETROLLOVER
+                                                </oj-option>
+                                                <oj-option id="extbegin" value="extbegin">
+                                                    <span class="oj-ux-ico-archive " slot="startIcon"></span>BEGIN
+                                                </oj-option>
+                                            </oj-menu>
+                                        </oj-option>
+                                        <oj-option id="send">
+                                            <span class="fa fa-share-square-o " slot="startIcon"></span>Send
+                                            <oj-menu id="send_menu">
+                                                <oj-option id="cachemgr" value="cachemgr">
+                                                    <span class="oj-ux-ico-inbox" slot="startIcon"></span>CACHE STATS
+                                                </oj-option>
+                                                <oj-option id="exrshowtrans" value="extshowtrans">
+                                                    <span class="oj-ux-ico-inbox" slot="startIcon"></span>SHOWTRANS
+                                                </oj-option>
+                                                <oj-option id="extstatus" value="extstatus">
+                                                    <span class="oj-ux-ico-archive " slot="startIcon"></span>STATUS
+                                                </oj-option>
+                                            </oj-menu>
+                                        </oj-option>
+                                        <oj-option>---------------------------------</oj-option>
+                                        <oj-option id="DELETE">
+                                            <span class="fa fa-trash-o bg_red" slot="startIcon"></span>Delete
+                                            <oj-menu id="zoom_menu">
+                                                <oj-option id="exttraildel" value="exttraildel">
+                                                    <span class="oj-ux-ico-email-reply" slot="startIcon"></span>Delete
+                                                    Extract Trail
+                                                </oj-option>
+                                                <oj-option id="extdel" value="extdel">
+                                                    <span class="oj-ux-ico-email-reply" slot="startIcon"></span>Delete
+                                                    Extract
+                                                </oj-option>
+                                            </oj-menu>
+                                        </oj-option>
+                                        <oj-option>---------------------------------</oj-option>
+                                        <oj-option id="extreg">
+                                            <span class="fa fa-plus-circle " slot="startIcon"></span>Unregister
+                                            <oj-menu id="extreg">
+                                                <oj-option id="extunreg" value="extunreg">
+                                                    <span class="oj-ux-ico-email-reply"
+                                                        slot="startIcon"></span>Unregister Extract
+                                                </oj-option>
+                                            </oj-menu>
+                                        </oj-option>
+                                    </oj-menu>
+                                </oj-menu-button>
+
+                            </div>
+                        </oj-bind-if>
+
+                        <oj-button chroming="borderless" display="icons" class="oj-panel-resize-button demo-button"
+                            on-oj-action="[[ExtResizeTile]]" :id="[[getExtButtonId(Extract.index)]]"
+                            :title="[[getExtButtonLabel(Extract.data)]]"
+                            :aria-label="[[getExtButtonLabel(Extract.data)]]"
+                            :aria-labelledby="[[getExtButtonLabelledBy(Extract.index)]]">
+                            <span slot="startIcon" :class="[[getExtButtonIcon(Extract.data)]]">
+                            </span>
+                        </oj-button>
+                    </div>
+                </template>
+            </oj-bind-for-each>
+        </oj-masonry-layout>
+
+    </oj-bind-if>
+
+    <oj-dialog id="ViewExtractRptDialog" class="oj-typography-heading-lg oj-text-color-primary"
+        dialog-title="[[delTitle]]" modality="modeless" cancel-behavior="[[CancelBehaviorOpt]]">
+        <div slot="body">
+            <oj-bind-for-each data="[[ExtRpt]]">
+                <template data-oj-as="ExtMsg">
+                    <p>
+                        <span id="results" class="oj-typography-body-lg oj-text-color-primary">
+                            <oj-bind-text value='[[ExtMsg.data]]'></oj-bind-text>
+                        </span>
+                    </p>
+                </template>
+            </oj-bind-for-each>
+        </div>
+        <div slot="footer">
+            <oj-button id="okviewExtBtn" chroming="callToAction" on-oj-action="[[ViewExtractRptOKClose]]">
+                OK
+            </oj-button>
+        </div>
+    </oj-dialog>
+
+    <oj-dialog id="ViewExtractStatDialog" class="oj-typography-heading-lg oj-text-color-primary"
+        dialog-title="[[delTitle]]" modality="modeless" cancel-behavior="[[CancelBehaviorOpt]]">
+        <div slot="body">
+            <oj-table id='statsTable' aria-label='Extract Statistics' data='[[extStatsDP]]' display='grid' class="oj-bg-neutral-0  oj-sm-padding-4x-horizontal oj-sm-padding-8x-vertical"
+            columns='{{extStatscolumnArray}}' style='width: 100%;'>
+        </oj-table>
+        <oj-paging-control id="paging" data="[[extStatsDP]]" page-size="10" slot="bottom">
+        </oj-paging-control>
+
+        </div>
+        <div slot="footer">
+            <div class="oj-panel  oj-sm-margin-1x-bottom oj-xl-margin-10x oj-xl-padding-2x oj-lg-margin-7x oj-lg-padding-4x oj-md-margin-4x oj-md-padding-2x oj-sm-margin-1x oj-sm-padding-1x">
+            <oj-button id="okviewExtBtn" chroming="callToAction" on-oj-action="[[ViewExtractStatRefresh]]">
+                Refresh
+            </oj-button>
+            </div>
+        </div>
+    </oj-dialog>
+
+
+    <oj-dialog id="AddExtTrailDialog" dialog-title=[[delTitle]] modality="modeless"
+        cancel-behavior="[[CancelBehaviorOpt]]" style="display:none;width:550px;min-width:550px;max-width:550px;">
+        <div slot="body">
+            <oj-validation-group id="AddExtTrailDialogFOrm" role="group" valid="{{groupValid}}" aria-labelledby="grouplabelid">
+                <oj-form-layout id="AddExtTrailDialogFOrm" readonly="[[isFormReadonly()]]" label-edge="start"
+                    max-columns="1" direction="row">
+            <div
+                class="oj-panel  oj-sm-margin-1x-bottom oj-xl-margin-10x oj-xl-padding-2x oj-lg-margin-7x oj-lg-padding-4x oj-md-margin-4x oj-md-padding-2x oj-sm-margin-1x oj-sm-padding-1x">
+                <oj-input-text required label-hint="Extract Trail" label-edge="inside" value="{{addExtTrailName}}">
+                </oj-input-text>
+            </div>
+            <div
+                class="oj-panel  oj-sm-margin-1x-bottom oj-xl-margin-10x oj-xl-padding-2x oj-lg-margin-7x oj-lg-padding-2x oj-md-margin-4x oj-md-padding-2x oj-sm-margin-1x oj-sm-padding-1x">
+                <oj-radioset required labelled-by="mainlabelid" class="oj-choice-direction-row" value="{{addExtTrailType}}">
+                    <oj-option value="exttrail">exttrail</oj-option>
+                    <oj-option value="rmttrail">rmttrail</oj-option>
+                </oj-radioset>
+            </div>
+            <div
+                class="oj-panel  oj-sm-margin-1x-bottom oj-xl-margin-10x oj-xl-padding-2x oj-lg-margin-7x oj-lg-padding-4x oj-md-margin-4x oj-md-padding-2x oj-sm-margin-1x oj-sm-padding-1x">
+                <oj-input-text required label-hint="Extract Trail Size in Megabytes" label-edge="inside"
+                    value="{{addExtTrailSize}}"></oj-input-text>
+            </div>
+        </oj-form-layout>
+    </oj-validation-group>
+        </div>
+        <div slot="footer">
+            <oj-button id="okaddExtTrail" chroming="callToAction" on-oj-action="[[AddExtTrail]]">
+                Add
+            </oj-button>
+        </div>
+    </oj-dialog>
+
+
+    <oj-dialog id="AddRmtTrailDialog" dialog-title=[[delTitle]] modality="modeless"
+        cancel-behavior="[[CancelBehaviorOpt]]" style="display:none;width:550px;min-width:550px;max-width:550px;">
+        <div slot="body">
+            <oj-validation-group id="AddRmtTrailDialogForm" role="group" valid="{{groupValid}}" aria-labelledby="grouplabelid">
+                <oj-form-layout id="AddRmtTrailDialogForm" readonly="[[isFormReadonly()]]" label-edge="start"
+                    max-columns="1" direction="row">  
+            <div
+                class="oj-panel  oj-sm-margin-1x-bottom oj-xl-margin-10x oj-xl-padding-2x oj-lg-margin-7x oj-lg-padding-4x oj-md-margin-4x oj-md-padding-2x oj-sm-margin-1x oj-sm-padding-1x">
+                <oj-input-text required label-hint="Extract Trail" label-edge="inside" value="{{addRmtTrailName}}">
+                </oj-input-text>
+            </div>
+            <div
+                class="oj-panel  oj-sm-margin-1x-bottom oj-xl-margin-10x oj-xl-padding-2x oj-lg-margin-7x oj-lg-padding-2x oj-md-margin-4x oj-md-padding-2x oj-sm-margin-1x oj-sm-padding-1x">
+                <oj-radioset labelled-by="addRmtTrailType" class="oj-choice-direction-row" value="{{addRmtTrailType}}">
+                    <oj-option value="rmttrail">rmttrail</oj-option>
+                    <oj-option value="exttrail">exttrail</oj-option>
+                </oj-radioset>
+            </div>
+            <div
+                class="oj-panel  oj-sm-margin-1x-bottom oj-xl-margin-10x oj-xl-padding-2x oj-lg-margin-7x oj-lg-padding-4x oj-md-margin-4x oj-md-padding-2x oj-sm-margin-1x oj-sm-padding-1x">
+                <oj-input-text required label-hint="Extract Trail Size in Megabytes" label-edge="inside"
+                    value="{{addRmtTrailSize}}"></oj-input-text>
+            </div>
+        </oj-form-layout>
+    </oj-validation-group>
+        </div>
+        <div slot="footer">
+            <oj-button id="okaddRmtTrail" chroming="callToAction" on-oj-action="[[AddRmtTrail]]">
+                Add
+            </oj-button>
+        </div>
+    </oj-dialog>
+
+    <oj-dialog id="ViewExtOpenTransDialog" dialog-title="[[delTitle]]" modality="modeless"
+        cancel-behavior="[[CancelBehaviorOpt]]" style="display:none;width:1500px;min-width:1500px;max-width:1500px;">
+        <div slot="body">
+            <div class="oj-panel oj-margin ">
+                <oj-table id='showtrans' aria-label='Current Open Transactions' data='[[showTransDP]]' display='grid'
+                    selection-mode='{"row": "single"}' columns='{{showTranscolumnArray}}' style='width: 100%;'>
+                    <template slot="actionTemplate" data-oj-as="cell">
+                        <oj-menu-button chroming="borderless" display='icons' on-oj-action="[[actionListener]]">Action
+                            <oj-menu slot="menu" on-oj-action="[[menuListener]]">
+                                <oj-option value="skiptrans" disabled="[[cell.row.Status === 'extskiptrans']]">
+                                    <span class="oj-ux-ico-check" slot="startIcon"></span>Skip Transaction
+                                </oj-option>
+                            </oj-menu>
+                        </oj-menu-button>
+                    </template>
+                </oj-table>
+            </div>
+        </div>
+        <div slot="footer">
+            <oj-button id="okviewExtBtn" chroming="callToAction" on-oj-action="[[ViewExtOpenTransrefresh]]">
+                Refresh
+            </oj-button>
+        </div>
+    </oj-dialog>
+
+    <oj-dialog id="startExtractDiaglog" dialog-title="Starting Extract" modality="modeless"
+        cancel-behavior="[[CancelBehaviorOpt]]" style="display:none;width:350px;min-width:240px;max-width:450px;">
+        <div slot="body">
+            <oj-progress-bar id="createbar" class="oj-progress-bar-embedded" value="-1">
+            </oj-progress-bar>
+        </div>
+    </oj-dialog>
+
+    <oj-dialog id="FetchOpenTrans" dialog-title="Fecthing Open Transactions" modality="modeless"
+        cancel-behavior="[[CancelBehaviorOpt]]" style="display:none;width:350px;min-width:240px;max-width:450px;">
+        <div slot="body">
+            <oj-progress-bar id="createbar" class="oj-progress-bar-embedded" value="-1">
+            </oj-progress-bar>
+        </div>
+    </oj-dialog>
+
+    <oj-dialog id="GettingTrailName" dialog-title="Fecthing Details" modality="modeless"
+        cancel-behavior="[[CancelBehaviorOpt]]" style="display:none;width:150px;min-width:240px;max-width:250px;">
+        <div slot="body">
+            <oj-progress-bar id="createbar" class="oj-progress-bar-embedded" value="-1">
+            </oj-progress-bar>
+        </div>
+    </oj-dialog>
+
+    <oj-dialog id="TrailForDelete" dialog-title="[[delTitle]]" modality="modeless"
+        cancel-behavior="[[CancelBehaviorOpt]]" style="display:none;width:530px;min-width:530px;max-width:530px;">
+        <div slot="body">
+            <oj-bind-for-each data="[[ExtRpt]]">
+                <template data-oj-as="ExtMsg">
+                    <p>
+                        <span id="results" class="oj-typography-body-lg ">
+                            <oj-bind-text value='[[ExtMsg.data]]'></oj-bind-text>
+                        </span>
+                    </p>
+
+                </template>
+            </oj-bind-for-each>
+
+        </div>
+        <div slot="footer">
+            <oj-bind-if test="[[ExtRpt() != 'No Trails available to delete' ]]">
+                <oj-button id="okdeleteTrailExtBtn" chroming="danger" on-oj-action="[[DeleteTrailOKClose]]">
+                    Yes
+                </oj-button>
+            </oj-bind-if>
+        </div>
+    </oj-dialog>
+
+    <oj-dialog id="DeleteTrail" dialog-title="Trail Deleted" modality="modeless" cancel-behavior="[[CancelBehaviorOpt]]"
+        style="display:none;width:530px;min-width:530px;max-width:530px;">
+        <div slot="body">
+            <oj-bind-for-each data="[[ExtRpt]]">
+                <template data-oj-as="ExtMsg">
+                    <p>
+                        <span id="results" class="oj-typography-body-lg ">
+                            <oj-bind-text value='[[ExtMsg.data]]'></oj-bind-text>
+                        </span>
+                    </p>
+
+                </template>
+            </oj-bind-for-each>
+
+        </div>
+        <div slot="footer">
+            <oj-button id="okdeleteTrailExtBtn" chroming="danger" on-oj-action="[[TrailOKClose]]">
+                OK
+            </oj-button>
+        </div>
+    </oj-dialog>
+
+
+    <oj-dialog id="ViewExtTransSkipRpt" dialog-title="Skip Transaction Info" modality="modeless"
+        cancel-behavior="[[CancelBehaviorOpt]]" style="display:none;width:1150px;min-width:1150px;max-width:1150px;">
+        <div slot="body">
+            <oj-bind-for-each data="[[ExtRpt]]">
+                <template data-oj-as="ExtMsg">
+                    <p>
+                        <span id="results" class="oj-typography-body-lg ">
+                            <oj-bind-text value='[[ExtMsg.data]]'></oj-bind-text>
+                        </span>
+                    </p>
+
+                </template>
+            </oj-bind-for-each>
+
+        </div>
+        <div slot="footer">
+            <oj-button id="okviewExtBtn" chroming="callToAction" on-oj-action="[[ViewExtTransSkipRptOKClose]]">
+                OK
+            </oj-button>
+        </div>
+    </oj-dialog>
+
+
+    <oj-dialog id="ExtractATCSNDialog" dialog-title="Enter CSN" modality="modeless"
+        cancel-behavior="[[CancelBehaviorOpt]]" style="display:none;width:300px;min-width:300px;max-width:300px;">
+        <div slot="body">
+            <oj-validation-group id="ExtractATCSNDialogForm" role="group" valid="{{groupValid}}" aria-labelledby="grouplabelid">
+                <oj-form-layout id="ExtractATCSNDialogForm" readonly="[[isFormReadonly()]]" label-edge="start"
+                    max-columns="1" direction="row">
+            <oj-input-number required id="ExtATCSN" value='{{ExtATCSN}}' converter='[[decimalHalfDownConverter]]' step=0>
+            </oj-input-number>
+        </oj-form-layout>
+    </oj-validation-group>
+        </div>
+        <div slot="footer">
+            <oj-button id="okatcsnButton" class="oj-button-confirm" chroming="callToAction"
+                on-oj-action="[[ExtStartATCSN]]">
+                Start Extract
+            </oj-button>
+        </div>
+    </oj-dialog>
+
+    <oj-dialog id="ExtractAFTERCSNDialog" dialog-title="Enter CSN" modality="modeless"
+        cancel-behavior="[[CancelBehaviorOpt]]" style="display:none;width:300px;min-width:300px;max-width:300px;">
+        <div slot="body">
+            <oj-validation-group id="ExtractAFTERCSNDialogForm" role="group" valid="{{groupValid}}" aria-labelledby="grouplabelid">
+                <oj-form-layout id="ExtractAFTERCSNDialogForm" readonly="[[isFormReadonly()]]" label-edge="start"
+                    max-columns="1" direction="row">
+            <oj-input-number required id="ExtAFTERCSN" value='{{ExtAFTERCSN}}' converter='[[decimalHalfDownConverter]]' step=0>
+            </oj-input-number>
+        </oj-form-layout>
+    </oj-validation-group>
+        </div>
+        <div slot="footer">
+            <oj-button id="okaftercsnButton" class="oj-button-confirm" chroming="callToAction"
+                on-oj-action="[[ExtStartAFTERCSN]]">
+                Start Extract
+            </oj-button>
+        </div>
+    </oj-dialog>
+
+    <oj-dialog id="UpgExtractDialog" dialog-title="Upgrading Extract to Integrated" modality="modeless"
+        cancel-behavior="[[CancelBehaviorOpt]]" style="display:none;width:350px;min-width:240px;max-width:450px;">
+        <div slot="body">
+            <oj-progress-bar id="createbar" class="oj-progress-bar-embedded" value="-1">
+            </oj-progress-bar>
+        </div>
+    </oj-dialog>
+
+    <oj-dialog id="ExtLoginDialog" dialog-title="[[DBLoginTitle]]" modality="modeless"
+        cancel-behavior="[[CancelBehaviorOpt]]" style="display:none;width:400px;min-width:400px;max-width:400px;">
+        <div slot="body">
+            <oj-validation-group id="ExtLoginDialogForm" role="group" valid="{{groupValid}}" aria-labelledby="grouplabelid">
+                <oj-form-layout id="ExtLoginDialogForm" readonly="[[isFormReadonly()]]" label-edge="start"
+                    max-columns="1" direction="row">
+                <oj-select-single required id="ExtCredentialDomain" label-hint="Credential Domain" data="[[domname1DP]]"
+                    value="{{selectedDomCategory}}" on-value-changed="[[domSelectionChanged]]">
+                </oj-select-single>
+                <oj-select-single required id="ExtCredentialAlias" label-hint="Credential Alias"
+                    data="[[aliascategoriesDP]]" value="{{selectedAliascategory}}">
+                </oj-select-single>
+            </oj-form-layout>
+        </oj-validation-group>
+        </div>
+        <div slot="footer">
+            <oj-bind-if test="[[selectedMenuItem() == 'upgie' ]]">
+                <oj-button id="extUpgtoIE" class="oj-button-confirm" chroming="callToAction"
+                    on-oj-action="[[ExtUpgTOIE]]">
+                    Start Upgrade
+                </oj-button>
+            </oj-bind-if>
+            <oj-bind-if test="[[selectedMenuItem() == 'dwnie' ]]">
+                <oj-button id="extDwntoCE" class="oj-button-confirm" chroming="callToAction"
+                    on-oj-action="[[ExtDwnTOCE]]">
+                    Start Downgrade
+                </oj-button>
+            </oj-bind-if>
+            <oj-bind-if test="[[selectedMenuItem() == 'extdel' ]]">
+                <oj-button id="extdel" class="oj-button-confirm" chroming="danger" on-oj-action="[[DelExt]]">
+                    Delete Extract
+                </oj-button>
+            </oj-bind-if>
+            <oj-bind-if test="[[selectedMenuItem() == 'extunreg' ]]">
+                <oj-button id="extunreg" class="oj-button-confirm" chroming="danger"
+                    on-oj-action="[[unregisterExtract]]">
+                    Unregister Extract
+                </oj-button>
+            </oj-bind-if>
+        </div>
+    </oj-dialog>
+</div>
+
+<div class="oj-panel  demo-centering-container panel_masonary">
+    <oj-menu-button chroming="outlined" id="pmpMainMenuButton">
+        <span slot='startIcon' class="oj-ux-ico-settings"></span>
+        Extract Pumps Action
+        <!-- To handle menu item selection, use an action listener as shown, not a click listener. -->
+        <oj-menu id="pmpMainMenu" slot="menu" on-oj-action="[[menuPumpItemAction]]">
+            <oj-option id="addpmp" value="addpmp">
+                <span class="fa fa-plus-circle" slot="startIcon"></span>Add Pump
+            </oj-option>
+            <oj-option id="stopallpmp" value="stopallpmp">
+                <span class="fa fa-stop-circle bg_red" slot="startIcon"></span>Stop All Pumps
+            </oj-option>
+            <oj-option id="startallpmp" value="startallpmp">
+                <span class="fa fa-play bg_green" slot="startIcon"></span>Start All Pumps
+            </oj-option>
+            </oj-menu>
+      </oj-menu-button>
+    <oj-label for="select3">
+    </oj-label>
+    <oj-bind-if test="[[PmpData1().length > 0]]">
+        <oj-masonry-layout id="masonryLayout" class="demo-masonry-layout process_masonary"
+            on-oj-before-resize="[[PmpHandleBeforeResize]]" on-oj-resize="[[PmpHandleResize]]">
+            <oj-bind-for-each data="[[PmpData1]]">
+                <template data-oj-as="Pump">
+                    <div :id="[[getPmpTileId(Pump.index)]]" class="oj-panel pmp-tile oj-masonrylayout-tile-1x1"
+                        :style="[[stylePmp]]">
+                        <span :id="[[getPmpLabelId(Pump.index)]]"></span>
+                        <oj-bind-text value="[[Pump.data.PmpName]]"></oj-bind-text>
+                        <oj-bind-if test="[[Pump.data.expanded]]">
+                            <!-- This additional content is only shown when the tile is 
+                                expanded. -->
+                            <div class="oj-panel oj-bg-warning-10 oj-selected oj-panel-shadow-lg demo-expanded-content">
+                                <oj-menu-button id="menuButton" chroming="borderless" display="icons">
+                                    <oj-menu id="myMenu" slot="menu" on-oj-action="[[menuPmpItemAction]]">
+                                        <oj-option id="pmpview">
+                                            <span class="fa fa-eye " slot="startIcon"></span>View
+                                           <oj-menu id="pmpviewmenu">
+                                            <oj-option id="extrpt" value="extrpt">
+                                                <span class="fa fa-file-text-o" slot="startIcon"></span>View
+                                                Report
+                                            </oj-option>
+                                            <oj-option id="extchk" value="extchk">
+                                                <span class="fa fa-flag-checkered" slot="startIcon"></span>View Checkpoint
+                                            </oj-option>
+                                            <oj-option id="extstats" value="extstats">
+                                                <span class="fa fa-bar-chart" slot="startIcon"></span>View Stats
+                                            </oj-option>
+                                            </oj-menu>
+                                        </oj-option>
+                                        <oj-option>---------------------------------</oj-option>
+                                        <oj-option id="startpmp">
+                                            <span class="fa fa-play bg_green" slot="startIcon"></span>Start
+                                            <oj-menu id="start_menu">
+                                                <oj-option id="extstartdef" value="extstartdef">
+                                                    <span class="oj-ux-ico-inbox" slot="startIcon"></span>START
+                                                </oj-option>
+                                                <oj-option id="extatcsn" value="extatcsn">
+                                                    <span class="oj-ux-ico-inbox" slot="startIcon"></span>ATCSN
+                                                </oj-option>
+                                                <oj-option id="extaftercsn" value="extaftercsn">
+                                                    <span class="oj-ux-ico-archive " slot="startIcon"></span>AFTERCSN
+                                                </oj-option>
+                                            </oj-menu>
+                                        </oj-option>
+                                        <oj-option id="stoppmp">
+                                            <span class="fa fa-stop-circle-o bg_red " slot="startIcon"></span>Stop
+                                            <oj-menu id="stop menu">
+                                                <oj-option id="extstop" value="extstop">
+                                                    <span class="oj-ux-ico-inbox" slot="startIcon"></span>STOP
+                                                </oj-option>
+                                                <oj-option id="extforcestop" value="extforcestop">
+                                                    <span class="oj-ux-ico-inbox" slot="startIcon"></span>FORCE STOP
+                                                </oj-option>
+                                                <oj-option id="extkill" value="extkill">
+                                                    <span class="oj-ux-ico-archive " slot="startIcon"></span>KILL
+                                                </oj-option>
+                                            </oj-menu>
+                                        </oj-option>
+                                        <oj-option id="alter">
+                                            <span class="fa fa-pencil-square-o" slot="startIcon"></span>Alter
+                                            <oj-menu id="zoom_menu">
+                                                <oj-option id="extetroll" value="extetroll">
+                                                    <span class="oj-ux-ico-archive " slot="startIcon"></span>ETROLLOVER
+                                                </oj-option>
+                                                <oj-option id="extbegin" value="extbegin">
+                                                    <span class="oj-ux-ico-inbox " slot="startIcon"></span>EXTSEQNO & EXTRBA
+                                                </oj-option>
+                                            </oj-menu>
+                                        </oj-option>
+                                        <oj-option id="send">
+                                            <span class="fa fa-share-square-o " slot="startIcon"></span>Send
+                                            <oj-menu id="send_menu">
+                                                <oj-option id="extstatus" value="extstatus">
+                                                    <span class="oj-ux-ico-archive " slot="startIcon"></span>STATUS
+                                                </oj-option>
+                                            </oj-menu>
+                                        </oj-option>
+                                        <oj-option>---------------------------------</oj-option>
+                                        <oj-option id="exttrailadd" value="exttrailadd">
+                                            <span class="fa fa-plus-circle" slot="startIcon"></span>Add Remote Trail
+                                        </oj-option>
+                                        <oj-option>---------------------------------</oj-option>
+                                        <oj-option id="DELETE">
+                                            <span class="fa fa-trash-o bg_red" slot="startIcon"></span>Delete
+                                            <oj-menu id="zoom_menu">
+                                            <oj-option id="pmpdel" value="pmpdel">
+                                                <span class="fa fa-trash-o bg_red" slot="startIcon"></span>Delete Pump
+                                            </oj-option>
+                                            <oj-option id="extdelrmt" value="extdelrmt">
+                                                <span class="fa fa-trash-o bg_red" slot="startIcon"></span>Delete Remote
+                                                Trail
+                                            </oj-option>
+                                            </oj-menu>
+                                    </oj-menu>
+                                </oj-menu-button>
+
+                            </div>
+                        </oj-bind-if>
+
+                        <oj-button chroming="borderless" display="icons" class="oj-panel-resize-button demo-button"
+                            on-oj-action="[[PmpResizeTile]]" :id="[[getPmpButtonId(Pump.index)]]"
+                            :title="[[getPmpButtonLabel(Pump.data)]]" :aria-label="[[getPmpButtonLabel(Pump.data)]]"
+                            :aria-labelledby="[[getPmpButtonLabelledBy(Pump.index)]]">
+                            <span slot="startIcon" :class="[[getPmpButtonIcon(Pump.data)]]">
+                            </span>
+                        </oj-button>
+                    </div>
+                </template>
+            </oj-bind-for-each>
+        </oj-masonry-layout>
+
+    </oj-bind-if>
+
+    <oj-dialog id=ViewPumpRptDialog dialog-title="[[delTitle]]" modality="modeless"
+        cancel-behavior="[[CancelBehaviorOpt]]">
+        <div slot="body">
+            <oj-bind-for-each data="[[PmpRpt]]">
+                <template data-oj-as="PmpMsg">
+                    <p>
+                        <span id="results" class="oj-typography-body-lg ">
+                            <oj-bind-text value='[[PmpMsg.data]]'></oj-bind-text>
+                        </span>
+                    </p>
+
+                </template>
+            </oj-bind-for-each>
+
+        </div>
+        <div slot="footer">
+            <oj-button id="okviewPmpBtn" chroming="callToAction" on-oj-action="[[ViewPumpRptOKClose]]">
+                OK
+            </oj-button>
+        </div>
+    </oj-dialog>
+
+    <oj-dialog id="DeleteConfirm" dialog-title="[[delTitle]]" modality="modeless"
+        cancel-behavior="[[CancelBehaviorOpt]]" style="display:none;width:350px;min-width:350px;max-width:350px;">
+        <div slot="footer">
+            <oj-bind-if test="[[selectedPmpMenuItem() === 'extdelrmt' ]]">
+                <oj-button id="okdelrmt" chroming="danger" on-oj-action="[[DeleteRMTOKClose]]">
+                    Yes
+                </oj-button>
+            </oj-bind-if>
+            <oj-bind-if test="[[selectedPmpMenuItem() === 'pmpdel' ]]">
+                <oj-button id="okdelpmp" chroming="danger" on-oj-action="[[DelPmp]]">
+                    Yes
+                </oj-button>
+            </oj-bind-if>
+
+        </div>
+    </oj-dialog>
+
+</div>
+
+<oj-dialog id="PumpBegin" dialog-title=[[delTitle]] modality="modeless" class="io-rem-max-width"
+    cancel-behavior="[[CancelBehaviorOpt]]" style="display:none;width:550px;min-width:550px;max-width:550px;">
+    <div slot="body">
+        <oj-validation-group id="PumpBeginForm" role="group" valid="{{groupValid}}" aria-labelledby="grouplabelid">
+            <oj-form-layout id="PumpBeginForm" readonly="[[isFormReadonly()]]" label-edge="start"
+                max-columns="1" direction="row">  
+        <oj-label for="bseqno" show-required="[[isRequired]]" help.definition='[[helpDef]]'
+        help.source='[[helpSource]]'>ExtSeqNo</oj-label>
+        <oj-input-number required id="bseqno" value="{{seqnovalue}}" converter='[[decimalHalfDownConverter]]' min="0"
+        step="0" label-hint="extseqno" label-edge="inside"></oj-input-number>
+        <oj-label for="brba" show-required="[[isRequired]]" help.definition='[[helpDef]]'
+        help.source='[[helpSource]]'>ExtRBA</oj-label>
+        <oj-input-number required id="bseqno" value="{{rbavalue}}" converter='[[decimalHalfDownConverter]]' min="0"
+        step="0" label-hint="extrba" label-edge="inside"></oj-input-number>
+    </oj-form-layout>
+</oj-validation-group>
+    </div>
+    <div slot="footer">
+        <oj-button id="okRepButton" chroming="callToAction" on-oj-action="[[AlterPumpBegin]]">
+            Alter
+        </oj-button>
+    </div>
+</oj-dialog>
+<oj-dialog id="ExtractBegin" dialog-title=[[delTitle]] modality="modeless" class="io-rem-max-width"
+    cancel-behavior="[[CancelBehaviorOpt]]" style="display:none;width:550px;min-width:550px;max-width:550px;">
+    <div slot="body">
+        <oj-validation-group id="ExtractBeginForm" role="group" valid="{{groupValid}}" aria-labelledby="grouplabelid">
+            <oj-form-layout id="ExtractBeginForm" readonly="[[isFormReadonly()]]" label-edge="start"
+                max-columns="1" direction="row">  
+        <div class="oj-panel  oj-sm-margin-4x-bottom " style=" text-align: left">
+            <oj-form-layout id="fl2" readonly="[[isFormReadonly()]]" label-edge="start" max-columns="1" direction="row">
+                <oj-label for="extcreddombegin" show-required="[[isRequired]]" help.definition='[[helpDef]]'
+                    help.source='[[helpSource]]'>Credential Domain
+                </oj-label>
+                <oj-select-single required id="extcreddombegin" label-hint="Source Credential Domain" label-edge="inside"
+                    data="[[domname1DP]]" value="{{selectedDomCategory}}"
+                    on-value-changed="[[domSelectionChanged]]">
+                </oj-select-single>
+                <oj-label for="ExtCredentialAliasBegin" show-required="[[isRequired]]" help.definition='[[helpDef]]'
+                    help.source='[[helpSource]]'>Credential Alias
+                </oj-label>
+                <oj-select-single required id="ExtCredentialAliasBegin" data="[[aliascategoriesDP]]"
+                    label-hint="Choose CDB in CDB Mode" label-edge="inside" value="{{selectedAliascategory}}">
+                </oj-select-single>
+
+                <oj-label for="startval" show-required="[[isRequired]]" help.definition='[[helpDef]]'
+                    help.source='[[helpSource]]'>Begin</oj-label>
+                <oj-select-single required id="startval" data="[[extStartOptionDP]]" value="{{currentExtBeginMode}}">
+                </oj-select-single>
+
+                <oj-bind-if test="[[currentExtBeginMode() === 'Time']]">
+                    <oj-label for="dateTime" show-required="[[isRequired]]" help.definition='[[helpDef]]'
+                        help.source='[[helpSource]]'>Begin Time
+                    </oj-label>
+                    <oj-input-date-time required id="dateTime" converter=[[secondConverter]] value='{{ctvalue}}'>
+                    </oj-input-date-time>
+                </oj-bind-if>
+
+                <oj-bind-if test="[[currentExtBeginMode() === 'SCN']]">
+                    <oj-label for="bseqno" show-required="[[isRequired]]" help.definition='[[helpDef]]'
+                        help.source='[[helpSource]]'>SCN</oj-label>
+                    <oj-input-number required id="bseqno" value="{{seqnovalue}}" converter='[[decimalHalfDownConverter]]' min="0"
+                        step="0" label-hint="SCN"></oj-input-number>
+                </oj-bind-if>
+           
+        </div>
+    </oj-form-layout>
+</oj-validation-group>
+    </div>
+    <div slot="footer">
+        <oj-button id="okRepButton" chroming="callToAction" on-oj-action="[[AlterExtractBegin]]">
+            Alter
+        </oj-button>
+    </div>
+</oj-dialog>
+
+
+
+<div class="oj-panel  demo-centering-container panel_masonary">
+    <oj-menu-button chroming="outlined" id="repMainMenuButton">
+        <span slot='startIcon' class="oj-ux-ico-settings"></span>
+        Replicats Action
+        <!-- To handle menu item selection, use an action listener as shown, not a click listener. -->
+        <oj-menu id="repMainMenu" slot="menu"  on-oj-action="[[menuReplicatItemAction]]" >
+            <oj-option id="addrep" value="addrep">
+                <span class="fa fa-plus-circle" slot="startIcon"></span>Add Replicat
+            </oj-option>
+            <oj-option id="stopallrep" value="stopallrep">
+                <span class="fa fa-stop-circle bg_red" slot="startIcon"></span>Stop All Replicats
+            </oj-option>
+            <oj-option id="startallrep" value="startallrep">
+                <span class="fa fa-play bg_green" slot="startIcon"></span>Start All Replicats
+            </oj-option>
+            </oj-menu>
+      </oj-menu-button>
+    <oj-label for="select4">
+    </oj-label>
+    <oj-bind-if test="[[RepData1().length > 0]]">
+        <div class="demo-scroll-container">
+            <oj-masonry-layout id="masonryLayout" class="demo-masonry-layout process_masonary"
+                on-oj-before-resize="[[RepHandleBeforeResize]]" on-oj-resize="[[RepHandleResize]]">
+                <oj-bind-for-each data="[[RepData1]]">
+                    <template data-oj-as="Replicat">
+                        <div :id="[[getRepTileId(Replicat.index)]]" class="oj-panel  rep-tile oj-masonrylayout-tile-1x1"
+                            :style="[[styleRep]]">
+                            <span :id="[[getRepLabelId(Replicat.index)]]">
+                                <oj-bind-text value="[[Replicat.data.RepName]]"></oj-bind-text>
+                                <oj-bind-if test="[[Replicat.data.expanded]]">
+                                    <!-- This additional content is only shown when the tile is 
+                                expanded. -->
+                                    <div
+                                        class="oj-panel demo-scroll-container oj-bg-warning-10 oj-selected  oj-panel-shadow-lg demo-expanded-content">
+                                        <oj-menu-button id="menuButton" chroming="borderless" display="icons">
+                                            <oj-menu id="myMenu" slot="menu"
+                                                on-oj-action="[[menuRepItemAction]]">
+                                                <oj-option id="repview">
+                                                    <span class="fa fa-eye " slot="startIcon"></span>View
+                                                   <oj-menu id="repviewmenu">
+                                                <oj-option id="reprpt" value="reprpt">
+                                                    <span class="fa fa-file-text-o" slot="startIcon"></span>View Report
+                                                </oj-option>
+                                                <oj-option id="repchk" value="repchk">
+                                                    <span class="fa fa-flag-checkered" slot="startIcon"></span>View
+                                                    Checkpoint
+                                                </oj-option>
+                                                <oj-option id="repstats" value="repstats">
+                                                    <span class="fa fa-bar-chart" slot="startIcon"></span>View Stats
+                                                </oj-option>
+                                                </oj-menu>
+                                                </oj-option>
+                                                <oj-option>---------------------------------
+                                                </oj-option>
+                                                <oj-option id="startrep">
+                                                    <span class="fa fa-play bg_green" slot="startIcon"></span>Start
+                                                    <oj-menu id="start_menu">
+                                                        <oj-option id="repstartdef" value="repstartdef">
+                                                            <span class="oj-ux-ico-inbox" slot="startIcon"></span>START
+                                                        </oj-option>
+                                                        <oj-option id="repstartdef" value="repskiptrans">
+                                                            <span class="oj-ux-ico-inbox"
+                                                                slot="startIcon"></span>SKIPTRANSACTION
+                                                        </oj-option>
+                                                        <oj-option id="repstartdef" value="repnofilterdup">
+                                                            <span class="oj-ux-ico-inbox"
+                                                                slot="startIcon"></span>NOFILTERDUPTRANSACTIONS
+                                                        </oj-option>
+                                                        <oj-option id="repatcsn" value="repatcsn">
+                                                            <span class="oj-ux-ico-inbox" slot="startIcon"></span>ATCSN
+                                                        </oj-option>
+                                                        <oj-option id="repaftercsn" value="repaftercsn">
+                                                            <span class="oj-ux-ico-archive "
+                                                                slot="startIcon"></span>AFTERCSN
+                                                        </oj-option>
+                                                    </oj-menu>
+                                                </oj-option>
+                                                <oj-option id="stoprep">
+                                                    <span class="fa fa-stop-circle-o bg_red"
+                                                        slot="startIcon"></span>Stop
+                                                    <oj-menu id="stop menu">
+                                                        <oj-option id="repstop" value="repstop">
+                                                            <span class="oj-ux-ico-inbox" slot="startIcon"></span>STOP
+                                                        </oj-option>
+                                                        <oj-option id="repforcestop" value="repforcestop">
+                                                            <span class="oj-ux-ico-inbox" slot="startIcon"></span>FORCE
+                                                            STOP
+                                                        </oj-option>
+                                                        <oj-option id="repkill" value="repkill">
+                                                            <span class="oj-ux-ico-archive "
+                                                                slot="startIcon"></span>KILL
+                                                        </oj-option>
+                                                    </oj-menu>
+                                                </oj-option>
+                                                <oj-option id="alter">
+                                                    <span class="fa fa-pencil-square-o" slot="startIcon"></span>Alter
+                                                    <oj-menu id="zoom_menu">
+                                                        <oj-option id="upgir" value="upgir">
+                                                            <span class="oj-ux-ico-inbox"
+                                                                slot="startIcon"></span>UPGRADE TO INTEGRATED
+                                                        </oj-option>
+                                                        <oj-option id="dwnir" value="dwnir">
+                                                            <span class="oj-ux-ico-inbox"
+                                                                slot="startIcon"></span>DOWNGRADE TO CLASSIC
+                                                        </oj-option>
+                                                        <oj-option id="repbegin" value="repbegin">
+                                                            <span class="oj-ux-ico-archive "
+                                                                slot="startIcon"></span>BEGIN
+                                                        </oj-option>
+                                                    </oj-menu>
+                                                </oj-option>
+                                                <oj-option>---------------------------------
+                                                </oj-option>
+                                                <oj-option id="repdel" value="repdel">
+                                                    <span class="fa fa-trash-o bg_red" slot="startIcon"></span>Delete
+                                                    Replicat
+                                                </oj-option>
+                                            </oj-menu>
+                                        </oj-menu-button>
+
+                                    </div>
+                                </oj-bind-if>
+
+                                <oj-button chroming="borderless" display="icons"
+                                    class="oj-panel-resize-button demo-button" on-oj-action="[[RepResizeTile]]"
+                                    :id="[[getRepButtonId(Replicat.index)]]"
+                                    :title="[[getRepButtonLabel(Replicat.data)]]"
+                                    :aria-label="[[getRepButtonLabel(Replicat.data)]]"
+                                    :aria-labelledby="[[getRepButtonLabelledBy(Replicat.index)]]">
+                                    <span slot="startIcon" :class="[[getRepButtonIcon(Replicat.data)]]">
+                                    </span>
+                                </oj-button>
+                        </div>
+                    </template>
+                </oj-bind-for-each>
+            </oj-masonry-layout>
+        </div>
+    </oj-bind-if>
+
+    <oj-dialog id="ViewReplicatRptDialog" dialog-title="[[delTitle]]" modality="modeless" resize-behavior="resizable"
+        cancel-behavior="[[CancelBehaviorOpt]]">
+        <div slot="body">
+            <oj-bind-for-each data="[[RepRpt]]">
+                <template data-oj-as="RepMsg">
+                    <p>
+                        <span id="results" class="oj-typography-body-lg">
+                            <oj-bind-text value='[[RepMsg.data]]'></oj-bind-text>
+                        </span>
+                    </p>
+                </template>
+            </oj-bind-for-each>
+        </div>
+        <div slot="footer">
+            <oj-button id="okRepButton" chroming="callToAction" on-oj-action="[[ViewReplicatRptOKClose]]">
+                OK
+            </oj-button>
+        </div>
+    </oj-dialog>
+
+    <oj-dialog id="ReplicatBegin" dialog-title="Replicat Begin" modality="modeless" class="io-rem-max-width"
+        cancel-behavior="[[CancelBehaviorOpt]]" style="display:none;width:550px;min-width:550px;max-width:550px;">
+        <div slot="body">
+            <oj-validation-group id="ReplicatBeginForm" role="group" valid="{{groupValid}}" aria-labelledby="grouplabelid">
+                <oj-form-layout id="ReplicatBeginForm" readonly="[[isFormReadonly()]]" label-edge="start"
+                    max-columns="1" direction="row">
+            <div class="oj-panel  oj-sm-margin-4x-bottom  style=" text-align: left">
+                    direction="row">
+                    <oj-label for="repcreddombegin" show-required="[[isRequired]]" help.definition='[[helpDef]]'
+                        help.source='[[helpSource]]'>Credential Domain
+                    </oj-label>
+                    <oj-combobox-one required id="repcreddombegin" options="{{domname1}}"
+                        value="{{selectedDomCategory}}" on-oj-value-updated="[[domSelectionChanged]]">
+                    </oj-combobox-one>
+                    <oj-label for="RepCredentialAliaBegin" show-required="[[isRequired]]" help.definition='[[helpDef]]'
+                        help.source='[[helpSource]]'>Credential Alias
+                    </oj-label>
+                    <oj-combobox-one required id="RepCredentialAliaBegin" options="[[aliascategories]]"
+                        value="{{selectedAliascategory}}">
+                    </oj-combobox-one>
+
+                    <oj-label for="startval" show-required="[[isRequired]]" help.definition='[[helpDef]]'
+                        help.source='[[helpSource]]'>Begin</oj-label>
+                    <oj-select-single id="startval" data="[[startOptionDP]]" value="{{currentbeginmode}}">
+                    </oj-select-single>
+
+                    <oj-bind-if test="[[currentbeginmode() === 'Time']]">
+                        <oj-label for="dateTime" show-required="[[isRequired]]" help.definition='[[helpDef]]'
+                            help.source='[[helpSource]]'>Begin Time
+                        </oj-label>
+                        <oj-input-date-time id="dateTime" converter=[[secondConverter]] value='{{ctvalue}}'>
+                        </oj-input-date-time>
+                    </oj-bind-if>
+
+                    <oj-bind-if test="[[currentbeginmode() === 'LOC']]">
+                        <oj-label for="bseqno" show-required="[[isRequired]]" help.definition='[[helpDef]]'
+                            help.source='[[helpSource]]'>Trail Sequence Number</oj-label>
+                        <oj-input-number id="bseqno" value="{{seqnovalue}}" converter='[[decimalHalfDownConverter]]'
+                            min="0" step="0" label-hint="Trail Seqno"></oj-input-number>
+                        <oj-label for="brba" show-required="[[isRequired]]" help.definition='[[helpDef]]'
+                            help.source='[[helpSource]]'>Trail RBA</oj-label>
+                        <oj-input-number id="brba" value="{{rbavalue}}" converter='[[decimalHalfDownConverter]]' min="0"
+                            step="0" label-hint="Trail RBA"></oj-input-number>
+                    </oj-bind-if>
+            </div>
+        </oj-form-layout>
+    </oj-validation-group>
+        </div>
+        <div slot="footer">
+            <oj-button id="okRepButton" chroming="callToAction" on-oj-action="[[AlterReplicatBegin]]">
+                Alter
+            </oj-button>
+        </div>
+    </oj-dialog>
+
+    <oj-dialog id="ReplicatATCSNDialog" dialog-title="Start ATCSN" modality="modeless"
+        cancel-behavior="[[CancelBehaviorOpt]]"
+        style="display:none;width:300px;min-width:300px;max-width:300px;background-color: silver;">
+        <div slot="body">
+            <oj-validation-group id="ReplicatATCSNDialogForm" role="group" valid="{{groupValid}}" aria-labelledby="grouplabelid">
+                <oj-form-layout id="ReplicatATCSNDialogForm" readonly="[[isFormReadonly()]]" label-edge="start"
+                    max-columns="1" direction="row">
+            <oj-input-number id='repatcsn' value='{{RepATCSN}}' converter='[[decimalHalfDownConverter]]'
+                label-hint="Enter CSN" label-edge="inside" step=0></oj-input-number>
+            </oj-form-layout>
+        </oj-validation-group>
+        </div>
+        <div slot="footer">
+            <oj-button id="okatcsnButton" class="oj-button-confirm" chroming="callToAction"
+                on-oj-action="[[RepStartATCSN]]">
+                Start Replicat ATCSN
+            </oj-button>
+        </div>
+    </oj-dialog>
+
+    <oj-dialog id="ReplicatAFTERCSNDialog" dialog-title="Start AfterCSN" modality="modeless"
+        cancel-behavior="[[CancelBehaviorOpt]]"
+        style="display:none;width:300px;min-width:300px;max-width:300px;background-color: silver;">
+        <div slot="body">
+            <oj-validation-group id="ReplicatAFTERCSNDialogForm" role="group" valid="{{groupValid}}" aria-labelledby="grouplabelid">
+                <oj-form-layout id="ReplicatAFTERCSNDialogForm" readonly="[[isFormReadonly()]]" label-edge="start"
+                    max-columns="1" direction="row">
+            <oj-input-number id='repaftercsn' value='{{RepAFTERCSN}}' converter='[[decimalHalfDownConverter]]' step=0>
+            </oj-input-number>
+        </oj-form-layout>
+    </oj-validation-group>
+        </div>
+        <div slot="footer">
+            <oj-button id="okaftercsnButton" class="oj-button-confirm" chroming="callToAction"
+                on-oj-action="[[RepStartAFTERCSN]]">
+                Start Replicat AfterCSN
+            </oj-button>
+        </div>
+    </oj-dialog>
+
+
+    <oj-dialog id="RepLoginDialog" dialog-title="[[DBLoginTitle]]" modality="modeless"
+        cancel-behavior="[[CancelBehaviorOpt]]"
+        style="display:display-box;width:400px;min-width:400px;max-width:400px;">
+        <div slot="body">
+            <oj-validation-group id="RepLoginDialogForm" role="group" valid="{{groupValid}}" aria-labelledby="grouplabelid">
+                <oj-form-layout id="RepLoginDialogForm" readonly="[[isFormReadonly()]]" label-edge="start"
+                    max-columns="1" direction="row">
+                <oj-combobox-one required id="repcreddom" label-hint="Credential Domain" options="{{domname1}}"
+                    value="{{selectedDomCategory}}" on-oj-value-updated="[[domSelectionChanged]]">
+                </oj-combobox-one>
+                <oj-bind-if test="[[selectedRepMenuItem() != 'dwnir' ]]">
+                    <oj-combobox-one required id="RepCredentialAlias" label-hint="Credential Alias"
+                        options="[[aliascategories]]" value="{{selectedAliascategory}}">
+                    </oj-combobox-one>
+                </oj-bind-if>
+                <oj-bind-if test="[[selectedRepMenuItem() === 'dwnir' ]]">
+                    <oj-label-value label-width="50%" colspan="1">
+                        <oj-label slot="label" for="RepCredentialAlias" show-required="[[isRequired]]"
+                            help.definition='[[helpDef]]' help.source='[[helpSource]]'>Credential Alias
+                        </oj-label>
+                        <oj-combobox-one required slot="value" id="RepCredentialAlias" options="[[aliascategories]]"
+                            value="{{selectedAliascategory}}" on-oj-value-updated="[[infoChkptTbl]]">
+                        </oj-combobox-one>
+                    </oj-label-value>
+                    <oj-label-value label-width="50%" colspan="1">
+                        <oj-label slot="label" for="ChkTblInfo" show-required="[[isRequired]]"
+                            help.definition='[[helpDef]]' help.source='[[helpSource]]'>Checkpoint Table
+                        </oj-label>
+                        <oj-combobox-one required slot="value" id="RepCredentialAlias" options="[[chkpttblDP]]"
+                            value="{{currentChkptTbl}}">
+                        </oj-combobox-one>
+                    </oj-label-value>
+                </oj-bind-if>
+            </oj-form-layout>
+        </oj-validation-group>
+        </div>
+        <div slot="footer">
+            <oj-bind-if test="[[selectedRepMenuItem() === 'upgir' ]]">
+                <oj-button id="repUpgtoIR" class="oj-button-confirm" chroming="callToAction"
+                    on-oj-action="[[RepUpgradetoIntegrated]]">
+                    Start Upgrade
+                </oj-button>
+            </oj-bind-if>
+            <oj-bind-if test="[[selectedRepMenuItem() === 'repdel' ]]">
+                <oj-button id="delrep" class="oj-button-confirm" chroming="danger" on-oj-action="[[DelRep]]">
+                    Delete Replicat
+                </oj-button>
+            </oj-bind-if>
+            <oj-bind-if test="[[selectedRepMenuItem() === 'dwnir' ]]">
+                <oj-button id="repDwntoCR" class="oj-button-confirm" chroming="callToAction"
+                    on-oj-action="[[RepDowngradetoClassic]]">
+                    Start Downgrade
+                </oj-button>
+            </oj-bind-if>
+        </div>
+    </oj-dialog>
+
+
+    <oj-dialog id="Progress" dialog-title="Working on it..." modality="modeless" cancel-behavior="[[CancelBehaviorOpt]]"
+        style="display:none;width:350px;min-width:240px;max-width:450px;">
+        <div slot="body">
+            <oj-progress-bar id="createbar" class="oj-progress-bar-embedded" value="-1">
+            </oj-progress-bar>
+        </div>
+    </oj-dialog>
+</div>
+</div>
+<oj-dialog id="TimeoutManage" dialog-title="There is a technical issue. Please try again later" modality="modeless"
+    style="display:none;width:350px;min-width:240px;max-width:450px;" cancel-behavior="[[CancelBehaviorOpt]]">
+    <div slot="body">
+    </div>
+</oj-dialog>

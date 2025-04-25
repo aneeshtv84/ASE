@@ -1,0 +1,235 @@
+                    <div class="oj-flex">
+                        <div class="oj-panel  oj-sm-margin-1x-bottom oj-xl-margin-10x oj-xl-padding-10x oj-lg-margin-10x oj-lg-padding-5x oj-md-margin-10x oj-md-padding-4x oj-sm-margin-10x oj-sm-padding-5x"
+                        style="width: 40%;text-align: left">
+                        <div class="oj-panel  demo-center-items io-color">
+                                <h6>CheckpointTable</h6>
+                        </div>
+            <div class="oj-panel">
+            <oj-validation-group id="chktbl" valid="{{groupValid}}">
+                        <oj-form-layout id="fl2" readonly="[[isFormReadonly()]]" label-edge="start" max-columns="1" direction="row">
+                    <oj-label  for="CredentialDomain" show-required="[[isRequired]]" 
+                              help.source='[[helpSource]]'>Credential Domain
+                    </oj-label>   
+                    <oj-select-single required  id="CredentialDomain" 
+                                     data="{{domname1DP}}" 
+                                     value="{{selectedDomCategory}}" on-value-changed="[[domSelectionChanged]]"  >
+                    </oj-select-single>
+
+
+                    <oj-label  for="CredentialAlias" show-required="[[isRequired]]" 
+                              help.source='[[helpSource]]'>Credential Alias</oj-label>   
+                    <oj-select-single required  label-hint="Choose PDB(in CDB Mode)"
+                    label-edge="inside" id="CredentialAlias" 
+                                     data="[[aliascategoriesDP]]" value="{{selectedAliascategory}}" >
+                    </oj-select-single>
+                            
+
+                    <oj-label  for="ChkTabName" show-required="[[isRequired]]" help.definition='[[helpDef]]'
+                               help.source='[[helpSource]]'>Checkpoint TableName
+                    </oj-label> 
+                    <oj-input-text required id="ChkTabName"  value="{{chkptTblName}}" ></oj-input-text>
+                                              
+                        </oj-form-layout>
+                    </oj-validation-group>
+        </div>
+        <div class="oj-panel  ">       
+            <div class="oj-flex-bar">
+                <oj-button id="addChkTbl" class="oj-flex-bar-end oj-button-confirm" chroming='callToAction'
+                           on-oj-action="[[addChkptTbl]]">
+                    Add CheckpointTable
+                </oj-button>
+                 <oj-dialog id="addChkTblDialog" dialog-title="Adding Checkpoint Table" modality="modeless"
+                           style="display:none;width:350px;min-width:240px;max-width:450px;">
+                    <div slot="body">
+                        <oj-progress-bar class="oj-progress-bar-embedded" id="createbar" value="-1" >
+                        </oj-progress-bar>
+                    </div>
+                </oj-dialog>
+                            <oj-dialog id="ChkptTblDialog" dialog-title="Add Checkpoint Table" modality="modeless"
+                       style="display:none;width:350px;min-width:240px;max-width:450px;">
+                <div slot="body">
+                            <oj-bind-text value='[[AddChkptTblMsg]]'></oj-bind-text>
+                </div>
+                <div slot="footer">
+                    <oj-button id="okdelButton"  on-oj-action="[[AddChkptTblMsgOKClose]]">
+                        OK
+                    </oj-button>
+                </div>
+            </oj-dialog> 
+            </div>
+        </div>
+    </div>
+    <div class="oj-panel  oj-sm-margin-1x-bottom oj-xl-margin-10x oj-xl-padding-10x oj-lg-margin-10x oj-lg-padding-5x oj-md-margin-10x oj-md-padding-4x oj-sm-margin-10x oj-sm-padding-5x"
+        style="width: 40%;text-align: left">
+        <div class="oj-panel demo-center-items io-color">
+            <div class="dbClass">
+                <oj-buttonset-one class="oj-buttonset-width-auto" value="{{TblButton}}" style="width: 100%;">
+                    <oj-option id="addTable" value="addTable">Add Table</oj-option>
+                    <oj-option id="edTable" value="edTable">Edit Table</oj-option>
+                    <oj-option id="delTable" value="delTable">Delete Table</oj-option>
+                </oj-buttonset-one>
+            </div></br>
+                    <h6>HeartBeatTable</h6>
+                    </div>
+
+            <oj-bind-if test="[[TblButton() === 'addTable']]">
+                <div class="oj-panel">           
+                <oj-validation-group id="hbtbl" valid="{{groupValid}}">
+                <oj-form-layout id="fl2" readonly="[[isFormReadonly()]]" label-edge="start" max-columns="1" direction="row">
+                    <oj-label  for="CredentialDomainHB" show-required="[[isRequired]]" 
+                    help.source='[[helpSource]]'>Credential Domain
+                </oj-label>   
+                <oj-select-single required  id="CredentialDomainHB" 
+                           data="{{domname1DP}}" 
+                           value="{{selectedHBDomCategory}}" on-value-changed="[[domSelectionChanged]]"  >
+                </oj-select-single>
+                <oj-label  for="CredentialAliasHB" show-required="[[isRequired]]" 
+                    help.source='[[helpSource]]'>Credential Alias</oj-label>   
+                 <oj-select-single required label-hint="Choose PDB(in CDB Mode)"
+                 label-edge="inside"  id="selectedHBAliascategory" 
+                           data="[[aliascategoriesDP]]" value="{{selectedHBAliascategory}}" >
+                </oj-select-single>
+                <oj-label  for="HBTblFrequency" show-required="[[isRequired]]" help.definition='[[helpDef1]]'
+                help.source='[[helpSource]]'>Frequency in Seconds
+                </oj-label> 
+                <oj-input-number required id="HBTblFrequency"  value="{{HBTblFrequency}}" ></oj-input-number>
+                <oj-label  for="HBTblRetention" show-required="[[isRequired]]" help.definition='[[helpDef2]]'
+                help.source='[[helpSource]]'>Retention Time in days
+                </oj-label> 
+                <oj-input-number required id="HBTblRetention"  value="{{HBTblRetention}}" ></oj-input-number>
+                <oj-label  for="HBTblPurgeFrequency" show-required="[[isRequired]]" help.definition='[[helpDef3]]'
+                help.source='[[helpSource]]'>Purge Frequency in days
+                </oj-label> 
+                <oj-input-number required id="HBTblPurgeFrequency"  value="{{HBTblPurgeFrequency}}" ></oj-input-number>
+
+                     </oj-form-layout>
+                    </oj-validation-group>
+                    </div>
+
+                </oj-bind-if>
+
+                <oj-bind-if test="[[TblButton() === 'edTable']]">
+                    <div class="oj-panel">           
+                    <oj-validation-group id="edTableGrp" valid="{{groupValid}}">
+                    <oj-form-layout id="fl2" readonly="[[isFormReadonly()]]" label-edge="start" max-columns="1" direction="row">
+                        <oj-label  for="CredentialDomainHB" show-required="[[isRequired]]" 
+                        help.source='[[helpSource]]'>Credential Domain
+                    </oj-label>   
+                    <oj-select-single required  id="CredentialDomainHB" 
+                               data="{{domname1DP}}" 
+                               value="{{selectedHBDomCategory}}" on-value-changed="[[domSelectionChanged]]"  >
+                    </oj-select-single>
+                    <oj-label  for="CredentialAliasHB" show-required="[[isRequired]]" 
+                        help.source='[[helpSource]]'>Credential Alias</oj-label>   
+                        <oj-select-single required label-hint="Choose PDB(in CDB Mode)"
+                     label-edge="inside"  id="selectedHBAliascategory" 
+                               data="[[aliascategoriesDP]]" value="{{selectedHBAliascategory}}" >
+                    </oj-select-single>
+                    <oj-label  for="HBTblFrequency" show-required="[[isRequired]]" help.definition='[[helpDef1]]'
+                    help.source='[[helpSource]]'>Frequency in Seconds
+                    </oj-label> 
+                    <oj-input-number required id="HBTblFrequency"  value="{{HBTblFrequency}}" ></oj-input-number>
+                    <oj-label  for="HBTblRetention" show-required="[[isRequired]]" help.definition='[[helpDef2]]'
+                    help.source='[[helpSource]]'>Retention Time in days
+                    </oj-label> 
+                    <oj-input-number required id="HBTblRetention"  value="{{HBTblRetention}}" ></oj-input-number>
+                    <oj-label  for="HBTblPurgeFrequency" show-required="[[isRequired]]" help.definition='[[helpDef3]]'
+                    help.source='[[helpSource]]'>Purge Frequency in days
+                    </oj-label> 
+                    <oj-input-number required id="HBTblPurgeFrequency"  value="{{HBTblPurgeFrequency}}" ></oj-input-number>
+    
+                         </oj-form-layout>
+                        </oj-validation-group>
+                        </div>
+    
+                    </oj-bind-if>
+
+                    <oj-bind-if test="[[TblButton() === 'delTable']]">
+                        <div class="oj-panel">           
+                        <oj-validation-group id="delTableGrp" valid="{{groupValid}}">
+                        <oj-form-layout id="fl2" readonly="[[isFormReadonly()]]" label-edge="start" max-columns="1" direction="row">
+                            <oj-label  for="CredentialDomainHB" show-required="[[isRequired]]" 
+                            help.source='[[helpSource]]'>Credential Domain
+                        </oj-label>   
+                        <oj-select-single required  id="CredentialDomainHB" 
+                                   data="{{domname1DP}}" 
+                                   value="{{selectedHBDomCategory}}" on-value-changed="[[domSelectionChanged]]"  >
+                        </oj-select-single>
+                        <oj-label  for="CredentialAliasHB" show-required="[[isRequired]]" 
+                            help.source='[[helpSource]]'>Credential Alias</oj-label>   
+                         <oj-select-single required label-hint="Choose PDB(in CDB Mode)"
+                         label-edge="inside"  id="selectedHBAliascategory" 
+                                   data="[[aliascategoriesDP]]" value="{{selectedHBAliascategory}}" >
+                        </oj-select-single>
+        
+                             </oj-form-layout>
+                            </oj-validation-group>
+                            </div>
+        
+                        </oj-bind-if>
+                
+                    <oj-dialog id="addHBTblDialog" dialog-title="Adding HeartBeat Table" modality="modeless"
+                    style="display:none;width:350px;min-width:240px;max-width:450px;">
+                <div slot="body">
+                <oj-progress-bar class="oj-progress-bar-embedded" id="createbar" value="-1" >
+                </oj-progress-bar>
+                </div>
+                </oj-dialog>
+
+                <oj-dialog id="HBTblDialog" dialog-title="Add Heartbeat Table" modality="modeless"
+                style="display:none;width:550px;min-width:560px;max-width:550px;">
+                <div slot="body">
+                    <oj-bind-text value='[[AddHBTblMsg]]'></oj-bind-text>
+                </div>
+                <div slot="footer">
+                <oj-button id="okhbButton"  on-oj-action="[[AddHBTblMsgOKClose]]">
+                OK
+                </oj-button>
+                </div>
+                </oj-dialog> 
+
+            <div class="oj-panel">            
+                <div class="oj-flex-bar">
+                    <oj-bind-if test="[[TblButton() === 'addTable']]">
+                        <oj-button id="addHBTbl" class="oj-flex-bar-end oj-button-confirm"  chroming='callToAction'
+                               on-oj-action="[[addHBTbl]]">
+                        Add HeartbeatTable
+                    </oj-button>
+                    </oj-bind-if>
+
+                    <oj-bind-if test="[[TblButton() === 'edTable']]">
+                        <oj-button id="editHBTbl" class="oj-flex-bar-end oj-button-confirm"  chroming='callToAction'
+                               on-oj-action="[[editHBTbl]]">
+                        Edit HeartbeatTable
+                    </oj-button>
+                    </oj-bind-if>
+
+                    <oj-bind-if test="[[TblButton() === 'delTable']]">
+                        <oj-button id="dltHBTbl" class="oj-flex-bar-end oj-button-confirm"  chroming='callToAction'
+                               on-oj-action="[[delUserDlg]]">
+                        Delete HeartbeatTable
+                    </oj-button>
+                    </oj-bind-if>
+
+                    <oj-dialog id="DeleteTable" dialog-title="Delete Credentialstore User" modality="modeless" style="display:none;width:900px;min-width:900px;max-width:900px;">
+                        <div slot="body">
+                                <span>Are you sure ? </span>
+                        </div>
+                        <div slot="footer">
+                            <oj-button id="okYesButton" chroming="callToAction" on-oj-action="[[delHBTbl]]">
+                             Yes 
+                         </oj-button>
+                         <oj-button id="okNoButton" chroming="callToAction" on-oj-action="[[CloseOkDltTbl]]">
+                            No
+                        </oj-button>
+                        </div>
+                        </oj-dialog>
+                    
+                    <oj-dialog id="TimeoutChk" dialog-title="There is a technical issue. Please try again later" modality="modeless"
+                    style="display:none;width:350px;min-width:240px;max-width:450px;" cancel-behavior="[[CancelBehaviorOpt]]">
+                    <div slot="body">
+                    </div>
+                    </oj-dialog>
+
+        </div>
+    </div>
