@@ -48,13 +48,13 @@
 }
 
 .demo-icon-1place{
-  content: url("images/oneplace.png");
+  content: url("images/Skylift_logo_signin.png");
   width: 83px;
   height: 49px;
   padding: 1%;
 }
 .strip{
-  background-image: url("images/strip-7.png");
+  background-image: url("images/stripe_skylift.png");
   height: 1rem;
 }
 
@@ -644,7 +644,7 @@
 }
 .demo-signin-bg {
   height: 100vh;
-  background-image: url("../js/ojAvatars/GGPanel.jpg");
+  background-image: url("../js/ojAvatars/skyliftGGPanel.png");
   background-size: cover;
   background-position-y: 10%; }
 

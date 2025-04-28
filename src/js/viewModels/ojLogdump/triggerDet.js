@@ -94,16 +94,13 @@ define([
                 dataType: 'json',
                 context: self,
                 error: function (e) {
-                    //console.log(e);
+                    console.log(e);
                 },
                 success: function (data) {
-                    console.log(data[0])
                     self.viewDetail([]);
                     for (var i = 0; i < data[0].length; i++) {
-                        self.viewDetail.push({'owner': data[0][i][0],'procname':   data[0][i][1],'tname':   data[0][i][2] });
+                        self.viewDetail.push({'owner': data[0][i].owner,'procname':   data[0][i].trigName,'tname':   data[0][i].trigTable });
                     }
-        
-                    console.log(self.viewDetail())
                     self.schemaList([]);
                     for (var i = 0; i < data[1].length; i++) {
                         self.schemaList.push({'label': data[1][i], 'value': data[1][i]})
@@ -122,14 +119,10 @@ define([
         self.schemaListSelected = ko.observableArray([]);
 
 
-        self.CountDetailcolumnArray = 
-        [
-            {headerText: 'Owner',
-            field: 'owner' } ,
-        {headerText: 'Trigger Name',
-        field: 'procname' },
-        {headerText: 'Table Name',
-        field: 'tname' },
+        self.CountDetailcolumnArray = [
+            {headerText: 'Owner', field: 'owner' } ,
+            {headerText: 'Trigger Name', field: 'procname' },
+            {headerText: 'Table Name', field: 'tname' },
         ];
         
 
@@ -149,27 +142,23 @@ define([
                 dataType: 'json',
                 timeout: sessionStorage.getItem("timeInetrval"),
                 context: self,
-                            error: function (xhr, textStatus, errorThrown) {
-                                if(textStatus == 'timeout' || textStatus == 'error'){
-                                    document.querySelector('#SelectSchemaTriggerDialog').close();
-                                    document.querySelector('#TimeoutInLoad').open();
-                                }
-                            },
+                error: function (xhr, textStatus, errorThrown) {
+                    if(textStatus == 'timeout' || textStatus == 'error'){
+                        document.querySelector('#SelectSchemaTriggerDialog').close();
+                        document.querySelector('#TimeoutInLoad').open();
+                    }
+                },
                 success: function (data) {
-                    console.log(data[0])
-                         self.viewNameDet([]);
+                    console.log(data)
+                    self.viewNameDet([]);
                     for (var i = 0; i < data[0].length; i++) {
-                        for (var j = 0; j < data[0][i].length; j++) {
-                        self.viewNameDet.push({ 'vname': data[0][i][j][0], 'output': 'none'});
-                        }
+                        self.viewNameDet.push({ 'vname': data[0][i].owner, 'output': 'none'});
                     }
                     fetchAutomateResults();
                     self.viewNameDet.valueHasMutated();
-                    console.log(self.viewNameDet())
                     document.querySelector('#SelectSchemaTriggerDialog').close();
                     self.buttonValAutomate(false)
-                    return self;
-                    
+                    return self;                    
                 }
 
             })
@@ -243,8 +232,6 @@ define([
         self.viewText = ko.observable();
 
         self.getViewText  =  function(data, event) {
-            console.log(self.getDisplayValue(self.selectedView())[0])
-            console.log(self.firstSelectedItem())
             self.procConvertedText('');
             document.querySelector('#SelectSchemaTriggerDialog').open();
             $.ajax({
@@ -257,19 +244,17 @@ define([
                 dataType: 'json',
                 timeout: sessionStorage.getItem("timeInetrval"),
                 context: self,
-                            error: function (xhr, textStatus, errorThrown) {
-                                if(textStatus == 'timeout' || textStatus == 'error'){
-                                    document.querySelector('#SelectSchemaTriggerDialog').close();
-                                    document.querySelector('#TimeoutInLoad').open();
-                                }
-                            },
+                error: function (xhr, textStatus, errorThrown) {
+                    if(textStatus == 'timeout' || textStatus == 'error'){
+                        document.querySelector('#SelectSchemaTriggerDialog').close();
+                        document.querySelector('#TimeoutInLoad').open();
+                    }
+                },
                 success: function (data) {
-                    console.log(data[0])
-                         self.viewText('');
-                         self.viewText(data[0]);
-                document.querySelector('#SelectSchemaTriggerDialog').close();
-                    return self;
-                    
+                    self.viewText('');
+                    self.viewText(data[0]);
+                    document.querySelector('#SelectSchemaTriggerDialog').close();
+                    return self;                    
                 }
 
             })
@@ -508,42 +493,43 @@ define([
                 dataType: 'json',
                 timeout: sessionStorage.getItem("timeInetrval"),
                 context: self,
-                            error: function (xhr, textStatus, errorThrown) {
-                                if(textStatus == 'timeout' || textStatus == 'error'){
-                                    document.querySelector('#SelectSchemaViewDialog').close();
-                                    document.querySelector('#TimeoutInLoad').open();
-                                }
-                            },
+                error: function (xhr, textStatus, errorThrown) {
+                    if(textStatus == 'timeout' || textStatus == 'error'){
+                        // document.querySelector('#SelectSchemaViewDialog').close();
+                        // document.querySelector('#TimeoutInLoad').open();
+                    }
+                },
                 success: function (data) {
+                    console.log(data)
                     self.listFunction([])
-                   var csvContent = '';
+                    var csvContent = '';
                     var headers = ['No', 'Function', 'Result'];
                     csvContent += headers.join(',') + '\n';
-                   for (var i =0; i<data.length;i++) {
-                    if(data[i].Function == self.viewNameDet()[i].vname) {
-                        if(data[i].Output == "Created" ||  data[i].Output == "Already Exist") {
-                            self.viewNameDet()[i].output = 'Success';
-                        } else if (data[i].Output == "Error"){
-                            self.viewNameDet()[i].output = 'Error';
-                        }
-                    } else {
-                        for (var j =0; j<self.viewNameDet().length;j++) {
-                            if (self.viewNameDet()[j].vname =data[i].Function ) {
-                                if(data[i].Output == "Created" ||  data[i].Output == "Already Exist") {
-                                    self.viewNameDet()[j].output = 'Success';
-                                } else if (data[i].Output == "Error"){
-                                    self.viewNameDet()[j].output = 'Error';
+                    for (var i =0; i<data.length;i++) {
+                        if(data[i].Function == self.viewNameDet()[i].vname) {
+                            if(data[i].Output == "Created" ||  data[i].Output == "Already Exist") {
+                                self.viewNameDet()[i].output = 'Success';
+                            } else if (data[i].Output == "Error"){
+                                self.viewNameDet()[i].output = 'Error';
+                            }
+                        } else {
+                            for (var j =0; j<self.viewNameDet().length;j++) {
+                                if (self.viewNameDet()[j].vname =data[i].Function ) {
+                                    if(data[i].Output == "Created" ||  data[i].Output == "Already Exist") {
+                                        self.viewNameDet()[j].output = 'Success';
+                                    } else if (data[i].Output == "Error"){
+                                        self.viewNameDet()[j].output = 'Error';
+                                    }
                                 }
                             }
                         }
+                        self.viewNameDet.valueHasMutated();
+                        var rowData = [i+1, data[i].Function,data[i].Output]
+                        csvContent += rowData.join(',') + '\n';
+                        self.listFunction.push({ 'No': i+1,'Funcation Name': data[i].Function,'Output':data[i].Output});
+                        self.listFunction.valueHasMutated();
                     }
-                    self.viewNameDet.valueHasMutated();
-                    var rowData = [i+1, data[i].Function,data[i].Output]
-                    csvContent += rowData.join(',') + '\n';
-                    self.listFunction.push({ 'No': i+1,'Funcation Name': data[i].Function,'Output':data[i].Output});
-                    self.listFunction.valueHasMutated();
-                   }
-                   var blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                    var blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
                     var fileName = 'DBA_Trigger_Report'+ '.csv';
                     self.excelBlob(blob);
                     self.excelFileName(fileName);

@@ -76,6 +76,7 @@ define([
         self.schemaList = ko.observableArray([]);
 
         self.clickGetDet = function (data, event) {
+            console.log(self.DepName() )
             $.ajax({
                 url: self.DepName() + "/gettablename",
                 data: JSON.stringify({
@@ -85,7 +86,7 @@ define([
                 dataType: 'json',
                 context: self,
                 error: function (e) {
-                    //console.log(e);
+                    console.log(e);
                 },
                 success: function (data) {
                     console.log(data)
@@ -152,39 +153,34 @@ define([
                                 }
                             },
                 success: function (data) {
-                    console.log(data)
-                         self.tableNameDetails([]);
-                         self.errorTableNameDetails([]);
+                    self.tableNameDetails([]);
+                    self.errorTableNameDetails([]);
                     var csvContent = '';
                     var headers = ['Table Name', 'Column Name', 'Column Type', 'Column Width', 'Scale', 'Nulls', 'Primary Key', 'Default Value', 'Remarks'];
                     csvContent += headers.join(',') + '\n';
                     for (var i = 0; i < data[0].length; i++) {
                         for (var j = 0; j < data[0][i].length; j++) {
-                            // console.log(data[0][i])
-                        var rowData = [data[0][i][j]['tname'],data[0][i][j]['cname'] ,data[0][i][j]['coltype'],data[0][i][j]['width'], data[0][i][j]['syslength'],data[0][i][j]['NN'] , data[0][i][j]['in_primary_key'],data[0][i][j]['default_value'],data[0][i][j]['remarks']]
-                        csvContent += rowData.join(',') + '\n';
-            //            self.tableNameDetails.push({ 'tname': data[0][i][j]['tname'],'cname': data[0][i][j]['cname'] , 'coltype': data[0][i][j]['coltype'], 'width': data[0][i][j]['width'], 'syslength': data[0][i][j]['syslength'], 'NN': data[0][i][j]['NN'] , 'in_primary_key': data[0][i][j]['in_primary_key'], 'default_value': data[0][i][j]['default_value'], 'column_kind': data[0][i][j]['column_kind'], 'remarks': data[0][i][j]['remarks']});
+                            var rowData = [data[0][i][j]['tname'],data[0][i][j]['cname'] ,data[0][i][j]['coltype'],data[0][i][j]['width'], data[0][i][j]['syslength'],data[0][i][j]['NN'] , data[0][i][j]['in_primary_key'],data[0][i][j]['default_value'],data[0][i][j]['remarks']]
+                            csvContent += rowData.join(',') + '\n';
+                            self.tableNameDetails.push({ 'tname': data[0][i][j]['tname'],'cname': data[0][i][j]['cname'] , 'coltype': data[0][i][j]['coltype'], 'width': data[0][i][j]['width'], 'syslength': data[0][i][j]['syslength'], 'NN': data[0][i][j]['NN'] , 'in_primary_key': data[0][i][j]['in_primary_key'], 'default_value': data[0][i][j]['default_value'], 'column_kind': data[0][i][j]['column_kind'], 'remarks': data[0][i][j]['remarks']});
+                        }
+                        var blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                        var fileName = 'Table_Report'+ '.csv';
+                        self.excelBlob(blob);
+                        self.excelFileName(fileName);
                     }
-                    var blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-                    var fileName = 'Table_Report'+ '.csv';
-                    self.excelBlob(blob);
-                    self.excelFileName(fileName);
-                }
-
-                for (var i = 0; i < data[1].length; i++) {
-                    console.log(data[1][i])
-                    self.errorTableNameDetails.push({ 'tname': data[1][i]['tname'],'cname': data[1][i]['cname'] , 'coltype': data[1][i]['coltype'], 'width': data[1][i]['width'], 'syslength': data[1][i]['syslength'], 'NN': data[1][i]['NN'] , 'in_primary_key': data[1][i]['in_primary_key'], 'default_value': data[1][i]['default_value'], 'column_kind': data[1][i]['column_kind'], 'remarks': data[1][i]['remarks']});
-                console.log(self.errorTableNameDetails());
-            }
+                    for (var i = 0; i < data[1].length; i++) {
+                        for (var j = 0; j < data[1][i].length; j++) {
+                            self.errorTableNameDetails.push({ 'tname': data[1][i][j]['tname'],'cname': data[1][i][j]['cname'] , 'coltype': data[1][i][j]['coltype'], 'width': data[1][i][j]['width'], 'syslength': data[1][i][j]['syslength'], 'NN': data[1][i][j]['NN'] , 'in_primary_key': data[1][i][j]['in_primary_key'], 'default_value': data[1][i][j]['default_value'], 'column_kind': data[1][i][j]['column_kind'], 'remarks': data[1][i][j]['remarks']});
+                        }
+                    }
                     self.buttonValReport(false)
                     self.tableNameDetails.valueHasMutated();
                     self.errorTableNameDetails.valueHasMutated();
-                document.querySelector('#SelectSchemaDialog').close();
-                document.querySelector('#viewTableModalDlg').open();
+                    document.querySelector('#SelectSchemaDialog').close();
+                    document.querySelector('#viewTableModalDlg').open();
                     return self;
-                    
                 }
-
             })
         }
 

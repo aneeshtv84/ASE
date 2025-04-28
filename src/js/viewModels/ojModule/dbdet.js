@@ -208,8 +208,6 @@ function (oj, ko, $, app, ArrayDataProvider,NumberConverter) {
         }
 
         self.viewDB = function (data, event) {
-           
-            
             document.querySelector('#addDBDialog').open();
             $.ajax({
                 url: self.DepName() + "/dbconn",
@@ -232,7 +230,17 @@ function (oj, ko, $, app, ArrayDataProvider,NumberConverter) {
                     self.dialogTitle('View Database Details');
                     document.querySelector('#ViewDbDlg').open();
                     self.viewDBMsg([]);
-                    self.viewDBMsg.push({ 'DBNAME': data[0].DBNAME,'ProductName' : data[0].ProductName,'ProductVersion' : data[0].ProductVersion, 'platform': data[0].Platform ,'OSVer' : data[0].PlatformVer , 'DBFile' : data[0].DBFile ,'ServerEdition' : data[0].ServerEdition  });
+                    
+                    let serverInfo = data[0].ProductVersion;
+                    let parts = serverInfo.split('/');
+                    let productName = parts[0].trim();
+                    let productVersion = parts[1].split(' ')[0].trim();
+                    let os = parts[5].split(' ')[0].trim();
+                    let osVersion = parts[5].split(' ')[1].trim();
+                    let dbFile = parts[6].trim();
+                    let buildID = parts[7].trim();
+                    self.viewDBMsg.push({ 'DBNAME': data[0].DBNAME,'ProductName' : productName,'ProductVersion' : productVersion, 'platform': os ,'OSVer' : osVersion , 'DBFile' : dbFile ,'ServerEdition' : buildID });
+                    // self.viewDBMsg.push({ 'DBNAME': data[0].DBNAME,'ProductName' : data[0].ProductName,'ProductVersion' : data[0].ProductVersion, 'platform': data[0].Platform ,'OSVer' : data[0].PlatformVer , 'DBFile' : data[0].DBFile ,'ServerEdition' : data[0].ServerEdition  });
                     return self;
                 }
 
@@ -261,7 +269,6 @@ function (oj, ko, $, app, ArrayDataProvider,NumberConverter) {
 
 self.valueChangedHandler = function (data, event) {
     document.querySelector('#addDBDialog').open();
-    console.log(self.currentDB())
     $.ajax({
         url: self.DepName() + "/selectdbdet",
         type: 'POST',

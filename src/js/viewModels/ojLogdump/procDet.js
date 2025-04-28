@@ -495,8 +495,7 @@ define([
         self.viewText = ko.observable();
 
         self.getViewText  =  function(data, event) {
-            // //(self.getDisplayValue(self.selectedView())[0])
-            // //(self.firstSelectedItem())
+            console.log(self.getDisplayValue(self.selectedView())[0])
             self.procConvertedText('');
             // document.querySelector('#SelectSchemaProcessDialog').open();
             $.ajax({

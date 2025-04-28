@@ -86,7 +86,6 @@ hName = hName[0]
 if os.path.exists(db_home):
     os.environ['LD_LIBRARY_PATH'] = os.path.join(db_home, 'lib64') + ':' + os.path.join(db_home, 'bin64', 'jre180', 'lib', 'amd64', 'client') + ':' + os.path.join( db_home, 'bin64', 'jre180', 'lib', 'amd64', 'server') + ':' + os.path.join(db_home, 'bin64', 'jre180', 'lib', 'amd64') + ':' + os.path.join( db_home, 'bin64', 'jre180', 'lib', 'amd64', 'native_threads')
     os.environ['SQLANY_API_DLL'] = os.path.join(db_home, 'bin64') + ':' + os.path.join(db_home, 'bin','sdk')
-print(os.environ['LD_LIBRARY_PATH'])
 
 os.environ['ORACLE_HOME'] = db_home
 logdump_bin = os.path.join(gg_home, 'logdump')
@@ -372,10 +371,10 @@ class getTableName(Resource):
             cursor = con.cursor()
             tabDetails = {}
             schemaList = []
-            cursor.execute("SELECT owner,tabname,nrows FROM SYSTABLES where tabtype='T' and tabname not like 'sys%' union SELECT owner,tabname,nrows FROM SYSTABLES where tabname like 'systemlink' and tabtype='T'")
+            cursor.execute("SELECT user_name(o.uid) AS owner, o.name AS tabname FROM sysobjects o WHERE o.type = 'U' AND o.name NOT LIKE 'sys%' UNION SELECT user_name(o.uid) AS owner, o.name AS tabname FROM sysobjects o WHERE o.type = 'U' AND o.name LIKE 'systemlink'")
             tabName = cursor.fetchall()
             for name in tabName:
-                tabDetails[name[1]] = {name[0]: int(name[2]) if name[2] == int(name[2]) else float(name[2])}
+                tabDetails[name[1]] = {"owner": name[0]}
                 schemaList.append(name[0])    
             schemaList = list(set(schemaList))
         except Exception as e:
@@ -393,6 +392,7 @@ class getViewName(Resource):
         dbname = data['dbname']
         try:
             val = selectConn(dbname)
+            print(val)
             con = val[0]
             cursor = con.cursor()
             viewDetails = {}
@@ -489,13 +489,14 @@ class getTrigNameFromSchema(Resource):
             cursor = con.cursor()
             procNameList = []
             for schema in schemaList:
-                print(schema)
-                cursor.execute("select trim(owner)||'.'||trigname from SYSTRIGGERS where owner= ?", (schema,))
+                cursor.execute("""
+                                SELECT su.name + '.' + so.name AS full_trigger_name, so.name AS trigger_name, su.name AS owner, 
+                                so.crdate AS created_date FROM sysobjects so JOIN sysusers su ON so.uid = su.uid 
+                                WHERE so.type = 'TR' AND su.name = ? ORDER BY so.name
+                                """, (schema,))
                 table_fetch = cursor.fetchall()
-                print(table_fetch)
                 for name in table_fetch:
                     procNameList.append({'owner':name[0].strip()})
-            print(procNameList)
         except Exception as e:
             logger.info(str(e))
             print(str(e))
@@ -520,15 +521,10 @@ class getTrigText(Resource):
             procName = procName.split('.')
             owner = procName[0]
             pname = procName[1]
-            cursor.execute("select b.data from SYSTRIGGERS a, SYSTRIGBODY b where a.trigid=b.trigid and a.owner=? and a.trigname=? and b.datakey ='D'", (owner, pname,))
-            table_fetch = cursor.fetchall()
-            for name in table_fetch:
-                trigText.append(name[0])
-            cursor.execute("select b.data from SYSTRIGGERS a, SYSTRIGBODY b where a.trigid=b.trigid and a.owner=? and a.trigname=? and b.datakey ='A'", (owner, pname,))
+            cursor.execute("SELECT c.text FROM sysobjects o JOIN syscomments c ON o.id = c.id WHERE o.type = 'TR' AND user_name(o.uid) = ? AND o.name = ? ", (owner, pname,))
             table_fetch = cursor.fetchall()
             for name in table_fetch: 
                 trigText.append(name[0])
-            print(trigText)
         except Exception as e:
             logger.info(str(e))
             print(str(e))
@@ -580,7 +576,7 @@ class getProcText(Resource):
             pname = procName[1]
             print(owner)
             print(pname)
-            cursor.execute("select b.data from SYSPROCEDURES a, SYSPROCBODY b where a.procid=b.procid and a.owner=? and a.procname=? and b.datakey='T'", (owner, pname,))
+            cursor.execute("SELECT sc.text AS procText FROM sysobjects so JOIN syscomments sc ON so.id = sc.id WHERE so.type = 'P' AND user_name(so.uid) = ? AND so.name = ?", (owner, pname,))
             table_fetch = cursor.fetchall()
             procText.extend([row[0] for row in table_fetch])
             print(procText)
@@ -946,7 +942,7 @@ class getViewText(Resource):
             viewName = viewName.split('.')
             owner = viewName[0]
             vname = viewName[1]
-            cursor.execute("select a.viewtext from sysviews a,systables b where a.tabid=b.tabid and b.owner=? and b.tabname=?", (owner, vname,))
+            cursor.execute("SELECT sc.text AS viewtext FROM sysobjects so JOIN syscomments sc ON so.id = sc.id WHERE so.type = 'V' AND user_name(so.uid) = ? AND so.name = ?", (owner, vname,))
             table_fetch = cursor.fetchall()
             viewText.extend([row[0] for row in table_fetch])
             print(viewText)
@@ -973,15 +969,31 @@ class getTableDetFromSchema(Resource):
             unSupportedTables = []
             for schema in schemaList:
                 cursor.execute(
-                    "SELECT a.owner, a.tabname AS table_name, a.nrows AS count,a.npused * a.pagesize AS tablesize, a.tabtype AS table_type_str FROM systables a where  a.tabtype='T' and a.owner = ?", (schema,))
+                    "SELECT user_name(uid) AS owner, name AS table_name FROM sysobjects WHERE type = 'U' AND user_name(uid) = ?", (schema,))
                 table_fetch = cursor.fetchall()
                 for row in table_fetch:
-                    cursor.execute("""select st.tabname,sc.colname,sc.coltype,sc.collength from systables st,syscolumns sc  where st.tabid=sc.tabid and st.tabtype='T' and st.tabname = ?""", (row[1],))
+                    owner, table_name = row
+                    unsupported = False
+                    try:
+                        cursor.execute(f"SELECT COUNT(*) FROM {owner}.{table_name}")
+                        row_count = cursor.fetchone()[0]
+                    except Exception as e:
+                        row_count = None
+                        unsupported = True
+                    cursor.execute(f"""
+                                    SELECT '{table_name}' AS tname, c.name AS cname, t.name AS coltype, c.length AS width, c.prec AS syslength, 
+                                    CASE WHEN c.status & 8 = 8 THEN 'NO' ELSE 'YES' END AS NN, 'UNKNOWN' AS in_primary_key, c.cdefault AS default_value, 
+                                    '' AS remarks FROM syscolumns c JOIN systypes t ON c.usertype = t.usertype JOIN sysobjects o ON c.id = o.id 
+                                    WHERE o.name = ? AND o.type = 'U' ORDER BY c.colid""", (table_name,))
                     tableMetadata_fetch = cursor.fetchall()
                     columns = [column[0] for column in cursor.description]  # Get column names
                     table_data = [dict(zip(columns, row)) for row in tableMetadata_fetch]  # Zip column names with row values
-                    json_data = json.dumps(table_data)
-                    tableMetadataDict.append(table_data)
+
+                    if unsupported:
+                        unSupportedTables.append(table_data)
+                    else:
+                        json_data = json.dumps(table_data)
+                        tableMetadataDict.append(table_data)
             #print(tableMetadataDict)
         #           tableMetadata_fetch.to_csv(os.path.join(oneplace_home,'Table_Details.csv'),Index=False)
         except Exception as e:
@@ -1567,7 +1579,6 @@ class downloadSoft(Resource):
                 KEY = softVer + '_' + '12c.zip'
             elif dbVer.startswith('11'):
                 KEY = softVer + '_' + '11g.zip'
-        
         
         s3 = boto3.resource('s3', aws_access_key_id=aws_access_key_id, aws_secret_access_key=aws_secret_access_key)
         RunIns = []
@@ -6563,17 +6574,16 @@ class dbConn(Resource):
                     con = val[0]
                     msg = {}
                     cursor = con.cursor()
-                    cursor.execute(
-                        '''select db_property('Name'),db_property('File'),PROPERTY('ProductName'),PROPERTY('ProductVersion'),PROPERTY('Platform'),PROPERTY('PlatformVer'), PROPERTY('ServerEdition')''')
-                    dbName = cursor.fetchone()
-                    if dbName:
-                        msg['DBNAME'] = dbName[0]
-                        msg['DBFile'] = dbName[1]
-                        msg['ProductName'] = dbName[2]
-                        msg['ProductVersion'] = dbName[3]
-                        msg['Platform'] = dbName[4]
-                        msg['PlatformVer'] = dbName[5]
-                        msg['ServerEdition'] = dbName[6]
+                    cursor.execute('''select db_name() AS DatabaseName, @@servername AS ServerName, @@version AS VersionInfo''')
+                    result = cursor.fetchone()
+                    if result:
+                        msg['DBNAME'] = result[0]
+                        # msg['DBFile'] = dbName[1]
+                        msg['ProductName'] = result[1]
+                        msg['ProductVersion'] = result[2]
+                        # msg['Platform'] = dbName[4]
+                        # msg['PlatformVer'] = dbName[5]
+                        # msg['ServerEdition'] = dbName[6]
                 except Exception as e:
                     msg = str(e)
                     print(msg)
@@ -6585,8 +6595,12 @@ class dbConn(Resource):
             msg = str(e)
         finally:
             if conn:
-                cursor.close()
-                conn.close()
+                try:
+                    cursor.close()
+                except Exception as e:
+                    print(f"Error closing cursor: {e}")
+                finally:
+                    conn.close()
         return [msg]
 
 
@@ -8148,17 +8162,10 @@ def selectConn(dbname):
         passwd = db_row[1]
         passwd = cipher.decrypt(passwd)
         servicename = db_row[2]
-        servicename = servicename.split('/')
-        hostname = servicename[0]
-        #dbName = servicename[1]
-        connection_string = (
-            'DRIVER={Devart ODBC Driver for ASE};'
-            'User ID=sa;'
-            'Password=skylift;'
-            'Data Source=ip-172-31-20-125.eu-west-1.compute.internal;'
-            'Port=5000;'
-            'Charset=iso_1;'
-        )   
+        # servicename = servicename.split('/')
+        # hostname = servicename[0]
+        # dbName = servicename[1]
+        connection_string = (f'DSN={servicename};')
         try:
             con = pyodbc.connect(connection_string)
             db_det = '''SELECT @@version AS version'''

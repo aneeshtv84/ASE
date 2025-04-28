@@ -37,15 +37,15 @@
         <oj-button disabled="[[buttonValReport]]" class="oj-button-sm oj-flex" chroming="solid"
                 on-oj-action='[[downloadTableReport]]'>Download Report</oj-button>
         </div>
-        <!-- <div class="oj-panel oj-margin oj-panel-alt1 oj-panel-shadow-lg">
-        <h6>Column Details </h6>
-        <oj-table id='table' aria-label='All Table' data='[[tableNameDetailsDP]]' display='grid'
-        selection-mode='{"row": "single"}' columns='{{TableDetailcolumnArray}}' style='width: 100%;'>
-    </oj-table>
-    <oj-paging-control id="paging" data="[[tableNameDetailsDP]]" page-size="20"
-    slot="bottom">
-</oj-paging-control>
-        </div> -->
+        <div class="oj-panel oj-margin oj-panel-alt1 oj-panel-shadow-lg">
+            <h6>Column Details </h6>
+            <oj-table id='table' aria-label='All Table' data='[[tableNameDetailsDP]]' display='grid'
+                selection-mode='{"row": "single"}' columns='{{TableDetailcolumnArray}}' style='width: 100%;'>
+            </oj-table>
+            <oj-paging-control id="paging" data="[[tableNameDetailsDP]]" page-size="20"
+                slot="bottom">
+            </oj-paging-control>
+        </div>
     </div>
 </div>
 

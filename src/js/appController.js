@@ -97,8 +97,8 @@ define([ 'ojs/ojoffcanvas' , 'knockout', 'ojs/ojmodule-element-utils', 'ojs/ojre
 
 
       self.footerLinks = ko.observableArray([
-        new footerLink('About 1Place1Cloud', 'about', 'https://1place1cloud.com/about'),
-        new footerLink('Contact Us', 'contactUs', 'https://1place1cloud.com/contact'),
+        new footerLink('About SkyliftAI', 'about', 'https://1place1cloud.com/about'),
+        new footerLink('Contact Us', 'contactUs', 'https://skyliftai.com/contact'),
         new footerLink('Your Privacy Rights', 'yourPrivacyRights', 'https://1place1cloud.com/privacy-policy')
       ]);
 
@@ -131,7 +131,7 @@ define([ 'ojs/ojoffcanvas' , 'knockout', 'ojs/ojmodule-element-utils', 'ojs/ojre
         self.appName('1Place For BigData Targets')
       }
       else if(self.onepDepType() == 'oracle'){
-        self.appName('1Place For SAP SQL Anywhere')
+        self.appName('Skylift For Sybase ASE')
       }
     };
 
