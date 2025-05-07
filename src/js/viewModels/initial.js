@@ -1257,16 +1257,17 @@ self.currentExtParam = ko.computed( {
                                 data: JSON.stringify({
                                     dbname : self.TGTcurrentPDB(),
                                     jobName  : self.LoadName(),
+                                    dep_url : self.TGTonepDepUrl()
                                 }),
                                 dataType: 'json',
                                 timeout: sessionStorage.getItem("timeInetrval"),
                                 context: self,
-                                            error: function (xhr, textStatus, errorThrown) {
-                                                if(textStatus == 'timeout' || textStatus == 'error'){
-                                                    document.querySelector('#CreateTableProgress').close();
-                                                    document.querySelector('#TimeoutInLoad').open();
-                                                }
-                                            },
+                                error: function (xhr, textStatus, errorThrown) {
+                                    if(textStatus == 'timeout' || textStatus == 'error'){
+                                        document.querySelector('#CreateTableProgress').close();
+                                        document.querySelector('#TimeoutInLoad').open();
+                                    }
+                                },
                                 success: function (data) {
                                     document.querySelector('#CreateTableProgress').close();
                                     document.getElementById('metatbl').refresh();
@@ -1411,32 +1412,44 @@ self.currentExtParam = ko.computed( {
                         dataType: 'json',
                         timeout: sessionStorage.getItem("timeInetrval"),
                         context: self,
-                                    error: function (xhr, textStatus, errorThrown) {
-                                        if(textStatus == 'timeout' || textStatus == 'error'){
-                                            document.querySelector('#SelectSchemaDialog').close();
-                                            document.querySelector('#TimeoutInLoad').open();
-                                        }
-                                    },
-                        success: function (data) {
-                            console.log(data[0])
-                            if(!data[0].includes('ORA-')){
-                            for (var i = 0; i < data[0].length; i++) {
-                                self.schemaNameList.push({ 'label': data[0][i].user_name, 'value': data[0][i].user_name });
+                        error: function (xhr, textStatus, errorThrown) {
+                            if(textStatus == 'timeout' || textStatus == 'error'){
+                                document.querySelector('#SelectSchemaDialog').close();
+                                document.querySelector('#TimeoutInLoad').open();
                             }
+                        },
+                        success: function (data) {
+                            for (var i = 0; i < data[0].length; i++) {
+                                self.schemaNameList.push({ 'label': data[0][i].username, 'value': data[0][i].username });
+                            }
+                            console.log(data[1])
+                            let serverInfo = data[1].ProductName;
+                            let parts = serverInfo.split('/');
+                            let productName = parts[0].trim();
+                            let productVersion = parts[1].split(' ')[0].trim();
+                            let os = parts[5].split(' ')[0].trim();
+                            let osbit = parts[4].trim();;
+                            let osVersion = parts[5].split(' ')[1].trim();
+                            let dbFile = parts[6].trim();
+                            let buildID = parts[7].trim();
                             self.schemaNameList.valueHasMutated();
-                            self.dbDetList.push({ 'DBNAME': data[1].DBNAME,'ProductName' : data[1].ProductName,'ProductVersion' : data[1].ProductVersion, 'platform': data[1].Platform ,'OSVer' : data[1].PlatformVer , 'DBFile' : data[1].DBFile ,'ServerEdition' : data[1].ServerEdition });
+                            self.dbDetList.push({ 'DBNAME': data[1].DBNAME,'ProductName' : productName,'ProductVersion' : productVersion, 'platform': os ,'OSVer' : osVersion , 'OSBIT': osbit, 'DBFile' : dbFile ,'ServerEdition' : buildID });
                             self.dbDetList.valueHasMutated();
-                        }
-                        else{
-
-                            document.querySelector('#DBErrDialog').open();
-                            self.OPError(data[1]);
-                        }
-                        document.querySelector('#SelectSchemaDialog').close();
+                            // if(!data[0].includes('ORA-')){
+                            //     for (var i = 0; i < data[0].length; i++) {
+                            //         self.schemaNameList.push({ 'label': data[0][i].user_name, 'value': data[0][i].user_name });
+                            //     }
+                            //     self.schemaNameList.valueHasMutated();
+                            //     self.dbDetList.push({ 'DBNAME': data[1].DBNAME,'ProductName' : data[1].ProductName,'ProductVersion' : data[1].ProductVersion, 'platform': data[1].Platform ,'OSVer' : data[1].PlatformVer , 'DBFile' : data[1].DBFile ,'ServerEdition' : data[1].ServerEdition });
+                            //     self.dbDetList.valueHasMutated();
+                            // }
+                            // else{
+                            //     document.querySelector('#DBErrDialog').open();
+                            //     self.OPError(data[1]);
+                            // }
+                            document.querySelector('#SelectSchemaDialog').close();
                             return self;
-                            
                         }
-    
                     })
                 }
                 }
@@ -1506,20 +1519,18 @@ self.currentExtParam = ko.computed( {
                         dataType: 'json',
                         timeout: sessionStorage.getItem("timeInetrval"),
                         context: self,
-                                    error: function (xhr, textStatus, errorThrown) {
-                                        if(textStatus == 'timeout' || textStatus == 'error'){
-                                            document.querySelector('#SelectSchemaDialog').close();
-                                            document.querySelector('#TimeoutInLoad').open();
-                                        }
-                                    },
-                        success: function (data) {
-                       
-                                self.dbTgtDetList.push({ 'DBNAME': data[0].dbName,'ProductName' : data[0].prodName,'ProductVersion' : data[0].prodVersion, 'platform': data[0].osPlat ,'OSVer' : data[0].osVer });
+                        error: function (xhr, textStatus, errorThrown) {
+                            if(textStatus == 'timeout' || textStatus == 'error'){
+                                document.querySelector('#SelectSchemaDialog').close();
+                                document.querySelector('#TimeoutInLoad').open();
+                            }
+                        },
+                        success: function (data) {           
+                            console.log(data)            
+                            self.dbTgtDetList.push({ 'DBNAME': data[1].DBNAME,'ProductName' : data[1].prodName,'ProductVersion' : data[1].ProductVersion, 'platform': data[1].osPlat ,'OSVer' : data[1].ServerVersion });
                             self.dbTgtDetList.valueHasMutated();
                             document.querySelector('#SelectSchemaDialog').close();
-                            console.log(self.dbTgtDetList())
-                            return self;
-                            
+                            return self;                            
                         }
     
                     })
@@ -1602,13 +1613,14 @@ self.currentExtParam = ko.computed( {
                         dataType: 'json',
                         timeout: sessionStorage.getItem("timeInetrval"),
                         context: self,
-                                    error: function (xhr, textStatus, errorThrown) {
-                                        if(textStatus == 'timeout' || textStatus == 'error'){
-                                            document.querySelector('#SelectSchemaDialog').close();
-                                            document.querySelector('#TimeoutInLoad').open();
-                                        }
-                                    },
+                        error: function (xhr, textStatus, errorThrown) {
+                            if(textStatus == 'timeout' || textStatus == 'error'){
+                                document.querySelector('#SelectSchemaDialog').close();
+                                document.querySelector('#TimeoutInLoad').open();
+                            }
+                        },
                         success: function (data) {
+                            console.log(data)
                             document.getElementById('tableNameList').refresh();
                             let total=0;
                             for (var i = 0; i < data[0].length; i++) {
@@ -1658,41 +1670,31 @@ self.currentExtParam = ko.computed( {
 
 
 
-          self.dbDetcolumnArray = [{headerText: 'DB Name',
-                field: 'DBNAME'},
-                {headerText: 'Product Name',
-                field: 'ProductName'},
-                {headerText: 'Product Version',
-                field: 'ProductVersion'},
-                {headerText: 'OS Platform',
-                field: 'platform'},
-                {headerText: 'OS Version',
-                field: 'OSVer'} ,
-                {headerText: 'DB File',
-                field: 'DBFile'} ,
-                {headerText: 'DB Edition',
-                field: 'ServerEdition'} 
-             ]
+            self.dbDetcolumnArray = [
+                {headerText: 'DB Name', field: 'DBNAME'},
+                {headerText: 'Product Name', field: 'ProductName'},
+                {headerText: 'Product Version', field: 'ProductVersion'},
+                {headerText: 'OS Platform', field: 'platform'},
+                {headerText: 'OS Version', field: 'OSVer'} ,
+                {headerText: 'OS Bit', field: 'OSBIT'},
+                {headerText: 'DB File', field: 'DBFile'},
+                {headerText: 'DB Edition', field: 'ServerEdition'} 
+            ]
 
-             self.TgtdbDetcolumnArray = [
-                {headerText: 'Product Name',
-                field: 'ProductName'},
-                {headerText: 'DB Name',
-             field: 'DBNAME'},
-             {headerText: 'Product Version',
-             field: 'ProductVersion'},
-             {headerText: 'OS Platform',
-             field: 'platform'},
-             {headerText: 'OS Version',
-             field: 'OSVer'} 
-          ]
+            self.TgtdbDetcolumnArray = [
+                {headerText: 'Product Name', field: 'ProductName'},
+                {headerText: 'DB Name', field: 'DBNAME'},
+                {headerText: 'Product Version', field: 'ProductVersion'},
+                {headerText: 'OS Platform', field: 'platform'},
+                {headerText: 'OS Version', field: 'OSVer'}
+            ]
 
 
-             self.submitInput = function(data,event){
+            self.submitInput = function(data,event){
                 setTimeout(function(){  self.LoadName(self.currentRawValue().toUpperCase());}, 1);
-             }
+            }
 
-             self.valueChangedHandler1 = (event) => {
+            self.valueChangedHandler1 = (event) => {
                 self.ButtonVal(false);
                 self.ApplyMetaButtonVal(false);
             };

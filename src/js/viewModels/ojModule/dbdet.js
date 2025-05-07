@@ -236,10 +236,11 @@ function (oj, ko, $, app, ArrayDataProvider,NumberConverter) {
                     let productName = parts[0].trim();
                     let productVersion = parts[1].split(' ')[0].trim();
                     let os = parts[5].split(' ')[0].trim();
+                    let osbit = parts[4].trim();;
                     let osVersion = parts[5].split(' ')[1].trim();
                     let dbFile = parts[6].trim();
                     let buildID = parts[7].trim();
-                    self.viewDBMsg.push({ 'DBNAME': data[0].DBNAME,'ProductName' : productName,'ProductVersion' : productVersion, 'platform': os ,'OSVer' : osVersion , 'DBFile' : dbFile ,'ServerEdition' : buildID });
+                    self.viewDBMsg.push({ 'DBNAME': data[0].DBNAME,'ProductName' : productName,'ProductVersion' : productVersion, 'platform': os ,'OSVer' : osVersion , 'OSBIT': osbit, 'DBFile' : dbFile ,'ServerEdition' : buildID });
                     // self.viewDBMsg.push({ 'DBNAME': data[0].DBNAME,'ProductName' : data[0].ProductName,'ProductVersion' : data[0].ProductVersion, 'platform': data[0].Platform ,'OSVer' : data[0].PlatformVer , 'DBFile' : data[0].DBFile ,'ServerEdition' : data[0].ServerEdition  });
                     return self;
                 }
@@ -260,6 +261,8 @@ function (oj, ko, $, app, ArrayDataProvider,NumberConverter) {
         field: 'platform'},
         {headerText: 'OS Version',
         field: 'OSVer'} ,
+        {headerText: 'OS BIT',
+            field: 'OSBIT'} ,
         {headerText: 'DB File',
         field: 'DBFile'} ,
         {headerText: 'DB Edition',

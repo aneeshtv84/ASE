@@ -50,6 +50,7 @@ import sqlanydb
 import openpyxl
 from openpyxl import Workbook
 import pyodbc
+import decimal
 
 app = Flask(__name__, static_folder="./web", static_url_path="/")
 CORS(app)
@@ -4510,14 +4511,12 @@ class cdbCheck(Resource):
         try:
             val = selectConn(dbname)
             con = val[0]
-            schema_list = "select distinct trim(owner) username from  systables"
+            schema_list = "SELECT DISTINCT ltrim(rtrim(user_name(uid))) AS username  FROM sysobjects  WHERE type = 'U'"
             schema_data_fetch = pd.read_sql_query(schema_list, con)
             schema_data_fetch = schema_data_fetch.to_dict('records')
-            print(schema_data_fetch)
             cursor = con.cursor()
-            cursor.execute('''select trim(dbinfo('dbname')),dbinfo('version','full') FROM systables WHERE tabid = 1''')
+            cursor.execute('''SELECT db_name() AS dbname, @@version AS version  FROM sysobjects  WHERE id = 1''')
             dbName = cursor.fetchone()
-            print(dbName)
             if dbName:
                 msg['DBNAME'] = dbName[0]
                 msg['ProductName'] = dbName[1]
@@ -4575,7 +4574,6 @@ class tableList(Resource):
         table_fetch = ''
         try:
             cursor = con.cursor()
-            cursor.outputtypehandler = output_type_handler
             i = 1
             bindNames = ','.join(':%d' % i for i in range(len(schemaList)))
             schemas = []
@@ -4586,140 +4584,174 @@ class tableList(Resource):
             for schema in schemaList:
                 schemas.append(schema)
                 cursor.execute(
-                    "select owner,tabname,nrows,nrows*rowsize tablesize,tabtype  from SYSTABLES where tabtype='T'  and owner = ?",
+                    '''
+                        SELECT  u.name AS owner,  o.name AS tabname,  row_count(db_id(), o.id) AS nrows,  
+                        row_count(db_id(), o.id) * data_pages(db_id(), o.id) * @@maxpagesize / NULLIF(data_pages(db_id(), 
+                        o.id), 0) AS tablesize,  o.type AS tabtype  FROM  sysobjects o  JOIN  sysusers u ON o.uid = u.uid  
+                        WHERE  o.type = 'U' AND u.name = ?
+                    ''',
                     (schema,))
                 table_fetch = cursor.fetchall()
                 df = pd.DataFrame(table_fetch)
-                df.to_csv(os.path.join(oneplace_home, LoadName, LoadName + '_' + schema + '.csv'),
-                          header=['owner', 'table_name', 'count', 'tablesize', 'table_type_str'])
+                expected_headers = ['owner', 'table_name', 'count', 'tablesize', 'table_type_str']
+                if df.shape[1] == len(expected_headers):
+                    df.to_csv(os.path.join(oneplace_home, LoadName, LoadName + '_' + schema + '.csv'),
+                              index=False, header=expected_headers)
+                else:
+                    print(f"Mismatch: Expected 5 columns, got {df.shape[1]}. Writing without headers.")
+                    df.to_csv(os.path.join(oneplace_home, LoadName, LoadName + '_' + schema + '.csv'),
+                              index=False)
                 counter = 0
                 tot_tab_size = 0
                 for row in table_fetch:
                     if gatherMeta is True:
-                        tableMetadata = """SELECT a.cname,a.tname,a.coltype,a.length width,a.syslength,a.nulls NN,a.in_primary_key,a.default_value,a.column_kind,a.remarks FROM sys.syscolumns a where a.tname = :table_name """
+                        tableMetadata = '''
+                                        SELECT c.name AS column_name, o.name AS table_name, t.name AS data_type, c.length AS width, c.length AS syslength, 
+                                        CASE WHEN c.status & 8 = 8 THEN 0 ELSE 1 END AS NN, 
+                                        CASE WHEN EXISTS (SELECT 1 FROM sysindexes i WHERE i.id = o.id AND i.status2 & 2 = 2 AND 
+                                        CHARINDEX(c.name, index_col(o.name, i.indid, 1)) > 0) THEN 1 ELSE 0 END AS in_primary_key, d.text AS default_value, 
+                                        NULL AS column_kind, NULL AS remarks FROM syscolumns c JOIN sysobjects o ON c.id = o.id 
+                                        JOIN systypes t ON c.usertype = t.usertype LEFT JOIN syscomments d ON c.cdefault = d.id 
+                                        WHERE o.name = :table_name AND o.type = 'U'
+                                        '''
                         param = {"table_name": str(row[1])}
                         tableMetadata_fetch = pd.read_sql_query(tableMetadata, con, params=[param["table_name"]])
+                        print(tableMetadata_fetch)
+                        tableMetadata_fetch.rename(columns={
+                            'column_name': 'cname',
+                            'table_name': 'tname',
+                            'data_type': 'coltype'
+                        }, inplace=True)
                         tableMetadata_fetch['cname'] = tableMetadata_fetch['cname'].replace(['window','offset'],['window_name','offset_to'])
                         tableMetadata_fetch['coltype'] = tableMetadata_fetch['coltype'].replace(
                             ['integer', 'binary', 'binary varying', 'bit', 'datetime', 'datetimeoffset', 'float',
                              'image', 'long binary', 'long bit varying', 'long nvarchar', 'long varbit', 'long varchar',
                              'nchar', 'ntext', 'nvarchar', 'smalldatetime', 'smallmoney', 'uniqueidentifier',
                              'uniqueidentifierstr', 'unsigned bigint', 'unsigned int', 'unsigned smallint',
-                             'unsigned tinyint', 'varbinary', 'tinyint','double'],
-                            ['int', 'bytea', 'bytea', 'bit', 'timestamp', 'timestamp with time zone',
-                             'double precision', 'bytea', 'bytea', 'bytea', 'text', 'bytea', 'text', 'char', 'text',
-                             'varchar', 'timestamp', 'money', 'uuid', 'char(16)', 'numeric(20)', 'numeric(10)',
-                             'numeric(5)', 'numeric(3)', 'bytea', 'smallint','double precision'])
+                             'unsigned tinyint', 'varbinary', 'tinyint', 'double'],
+                            ['integer', 'bytea', 'bytea', 'boolean', 'timestamp', 'timestamptz', 'double precision',
+                             'bytea', 'bytea', 'bytea', 'text', 'bytea', 'text', 'char', 'text', 'varchar',
+                             'timestamp', 'numeric(10,4)', 'uuid', 'uuid', 'bigint', 'integer', 'smallint',
+                             'smallint', 'bytea', 'smallint', 'double precision']
+                        )
                         tableMetadata_fetch['default_value'] = tableMetadata_fetch['default_value'].replace(
-                            ['current timestamp', 'timestamp'], 'current_timestamp')
+                            ['current timestamp', 'timestamp'], 'CURRENT_TIMESTAMP')
                         collist = ''
                         pkList = []
+
+                        pg_integer_types = {'int', 'smallint', 'bigint'}
+                        pg_auto_types = {
+                            ('smallint', 'autoincrement'): 'smallserial',
+                            ('int', 'autoincrement'): 'serial',
+                            ('bigint', 'autoincrement'): 'bigserial',
+                            ('numeric', 'autoincrement'): 'serial',
+                            ('decimal', 'autoincrement'): 'serial',
+                        }
+
+                        pg_nullable_types = {
+                            'uuid', 'bytea', 'text', 'xml', 'double precision',
+                            'timestamp with time zone', 'money', 'boolean'
+                        }
+
+                        pg_numeric_variants = {'numeric(10)', 'numeric(20)', 'numeric(5)', 'numeric(3)'}
+
                         for idx, line in tableMetadata_fetch.iterrows():
-                            if line['coltype'] == 'int' or line['coltype'] == 'smallint' or line[ 'coltype'] == 'bytea' or line[ 'coltype'] == 'date' or line['coltype'] == 'text' or line['coltype'] == 'boolean' or \
-                                    line['coltype'] == 'bigint' or line['coltype'] == 'uuid' or line[
-                                'coltype'] == 'timestamp' or line['coltype'] == 'money' or line[
-                                'coltype'] == 'timestamp with time zone' or line['coltype'] == 'numeric(20)' or line[
-                                'coltype'] == 'numeric(10)' or line['coltype'] == 'numeric(5)' or line[
-                                'coltype'] == 'numeric(3)' or line['coltype'] == 'numeric' or line['coltype'] == 'bit' or line[ 'coltype'] == 'timestamp' or line['coltype'] == 'decimal' or line['coltype'] == 'double precision' or  line['coltype'] == 'xml' or line['coltype'] == 'varchar' or line['coltype'] == 'text' or line['coltype'] == 'uuid':
-                                if line['default_value'] == 'autoincrement' and line['coltype'] == 'smallint' and line['NN'] == 'N':
-                                    collist = collist + line['cname'] + '  ' + 'smallserial,'
-                                elif line['coltype'] == 'smallint' and line['NN'] == 'N':
-                                    collist = collist + line['cname'] + '  ' + line['coltype'] + ' NOT NULL,'
-                                elif line['coltype'] == 'smallint' and line['NN'] == 'Y':
-                                    collist = collist + line['cname'] + '  ' + line['coltype'] + ','
-                                elif line['default_value'] == 'autoincrement' and line['coltype'] == 'bigint' and line['NN'] == 'N':
-                                    collist = collist + line['cname'] + '  ' + 'bigserial,'
-                                elif line['coltype'] == 'bigint' and line['NN'] == 'N':
-                                    collist = collist + line['cname'] + '  ' + line['coltype'] + ' NOT NULL,'
-                                elif line['coltype'] == 'bigint' and line['NN'] == 'Y':
-                                    collist = collist + line['cname'] + '  ' + line['coltype'] + ','
-                                elif line['default_value'] == 'autoincrement' and line['coltype'] == 'int' and line['NN'] == 'N':
-                                    collist = collist + line['cname'] + '  ' + 'serial,'
-                                elif line['coltype'] == 'int' and line['NN'] == 'N':
-                                    collist = collist + line['cname'] + '  ' + line['coltype'] + ' NOT NULL,'
-                                elif line['coltype'] == 'int' and line['NN'] == 'Y':
-                                    collist = collist + line['cname'] + '  ' + line['coltype'] + ','
-                                elif line['coltype'] == 'uuid' and line['NN'] == 'N':
-                                    collist = collist + line['cname'] + '  ' + line['coltype'] + ' NOT NULL,'
-                                elif line['coltype'] == 'uuid' and line['NN'] == 'Y':
-                                    collist = collist + line['cname'] + '  ' + line['coltype'] + ','
-                                elif line['default_value'] == 'autoincrement' and line['coltype'] == 'numeric':
-                                    collist = collist + line['cname'] + '  ' + 'serial,'
-                                elif line['default_value'] == 'autoincrement' and line['coltype'] == 'decimal' :
-                                     collist = collist + line['cname'] + '  ' + 'serial,'
-                                elif line['coltype'] == 'double precision':
-                                     collist = collist + line['cname'] + '  ' +  line['coltype'] + ','
-                                elif line['coltype'] == 'xml':
-                                     collist = collist + line['cname'] + '  ' +  line['coltype'] + ','
-                                elif line['coltype'] == 'text':
-                                     collist = collist + line['cname'] + '  ' +  line['coltype'] + ','
-                                elif line['coltype'] == 'varchar' :
-                                    if line['default_value'] == 'autoincrement':
-                                       collist = collist + line['cname'] + '  ' + 'serial,'
-                                    elif line['NN'] == 'N':
-                                       collist = collist + line['cname'] + '  ' + line['coltype'] + '(' + str(line['width']) + ') NOT NULL ,'
-                                    elif line['NN'] == 'Y':
-                                       collist = collist + line['cname'] + '  ' + line['coltype'] + '(' + str(line['width']) + '),'
-                                elif line['coltype'] == 'bit':
-                                    if line['NN'] == 'N' and line['default_value']:
-                                        collist = collist + line['cname'] + ' ' + line['coltype'] + '  ' + ' default ' + line['default_value'] + "::bit" + ' not null' + ","
-                                    elif line['NN'] == 'N':
-                                       collist = collist + line['cname'] + ' ' + line['coltype'] + '  ' + 'not null' + ','
-                                    elif line['NN'] == 'Y' and line['default_value']:
-                                       collist = collist + line['cname'] + ' ' + line['coltype'] + ' default ' +  line['default_value'] + "::bit" + ","
-                                    elif line['NN'] == 'Y' :
-                                        collist = collist + line['cname'] + ' ' + line['coltype'] + ','
-                                elif line['coltype'] == 'date' or line['coltype'] == 'timestamp':
-                                    if line['default_value'] == 'current date':
-                                        collist = collist + line['cname'] + ' ' + line['coltype'] + ' default ' + 'CURRENT_DATE,'
-                                    else:
-                                        collist = collist + line['cname'] + ' ' + line['coltype']  + ','
-                                elif (line['coltype'] == 'numeric(10)' or line['coltype'] == 'numeric(20)' or line['coltype'] == 'numeric(5)' or line['coltype'] == 'numeric(3)')  and line['default_value'] == 'autoincrement':
-                                    collist = collist + line['cname'] + '  ' + 'serial,'
-                                elif (line['coltype'] == 'numeric(10)' or line['coltype'] == 'numeric(20)' or line['coltype'] == 'numeric(5)' or line['coltype'] == 'numeric(3)' or line['coltype'] == 'bytea' or  line['coltype'] == 'timestamp with time zone') and line['NN'] == 'N':
-                                    collist = collist + line['cname'] + '  ' + line['coltype'] + ' NOT NULL,'
-                                elif (line['coltype'] == 'numeric(10)' or line['coltype'] == 'numeric(20)' or line['coltype'] == 'numeric(5)' or line['coltype'] == 'numeric(3)' or line['coltype'] == 'bytea' or line['coltype'] == 'timestamp with time zone') and line['NN'] == 'Y':
-                                    collist = collist + line['cname'] + '  ' + line['coltype'] + ','
-                                elif line['default_value'] and line['NN'] == 'N':
-                                    collist = collist + line['cname'] + ' ' + line['coltype'] + ' NOT NULL default ' + line['default_value'] + ','
-                                elif int(line['syslength']) == 0:
-                                    print(line['tname'],line['cname'] , line['coltype'] , 'Inside syslength = 0' )
-                                    if line['NN'] == 'N':
-                                        collist = collist + line['cname'] + '  ' + line['coltype'] + '(' + str(line['width']) + ') NOT NULL,'
-                                    else:
-                                        collist = collist + line['cname'] + '  ' + line['coltype'] + '(' + str(line['width']) + '),'
-                                elif int(line['syslength']) != 0:
-                                    print(line['tname'],line['cname'] , line['coltype'] , 'Inside syslength != 0 ')
-                                    if line['NN'] == 'N':
-                                        collist = collist + line['cname'] + '  ' + line['coltype'] + '(' + str(line['width']) + ',' + str(line['syslength']) + ') NOT NULL,'
-                                    else:
-                                        collist = collist + line['cname'] + '  ' + line['coltype'] + '(' + str(line['width']) + ',' + str(line['syslength']) + '),'
-                                elif line['NN'] == 'N':
-                                    collist = collist + line['cname'] + '  ' + line['coltype'] + ' NOT NULL,'
-                                elif line['NN'] == 'Y':
-                                    collist = collist + line['cname'] + '  ' + line['coltype'] + ','
-                            else:
-                                if line['default_value'] and line['NN'] == 'N':
-                                    collist = collist + line['cname'] + '  ' + line['coltype'] + '(' + str(line['width']) + ') NOT NULL default ' + line['default_value'] + ','
-                                elif line['NN'] == 'N':
-                                    collist = collist + line['cname'] + '  ' + line['coltype'] + '(' + str(line['width']) + ') NOT NULL ,'
+                            coltype = line['coltype']
+                            cname = line['cname']
+                            default = line['default_value']
+                            notnull = line['NN'] == 'N'
+                            width = str(line.get('width', ''))
+                            syslength = int(line.get('syslength', 0))
+
+                            col_entry = ""
+                            # Handle auto-increment
+                            if (coltype, default) in pg_auto_types:
+                                col_entry = f"{cname} {pg_auto_types[(coltype, default)]},"
+
+                            # Handle numeric variants with autoincrement
+                            elif coltype in pg_numeric_variants and default == 'autoincrement':
+                                col_entry = f"{cname} serial,"
+
+                            # Integer family with NOT NULL / NULL
+                            elif coltype in pg_integer_types:
+                                base_type = coltype
+                                if default == 'autoincrement':
+                                    base_type = pg_auto_types.get((coltype, default), coltype)
+                                null_text = 'NOT NULL' if notnull else ''
+                                col_entry = f"{cname} {base_type} {null_text},".strip() + ','
+
+                            # varchar handling
+                            elif coltype == 'varchar':
+                                if default == 'autoincrement':
+                                    col_entry = f"{cname} serial,"
                                 else:
-                                    collist = collist + line['cname'] + '  ' + line['coltype'] + '(' + str(line['width']) + '),'
-                            if line['in_primary_key'] == 'Y':
-                                pkList.append(line['cname'])
-                            if re.match(r'^\d', line['tname']):
-                               tabName = schema + '.' + '"' +  line['tname'] + '"'
+                                    null_text = 'NOT NULL' if notnull else ''
+                                    col_entry = f"{cname} varchar({width}) {null_text},".strip() + ','
+
+                            # bit handling
+                            elif coltype == 'bit':
+                                if default:
+                                    col_entry = f"{cname} bit DEFAULT {default}::bit"
+                                else:
+                                    col_entry = f"{cname} bit"
+                                if notnull:
+                                    col_entry += " NOT NULL"
+                                col_entry += ","
+
+                            # date / timestamp
+                            elif coltype in ['date', 'timestamp']:
+                                if default == 'current date':
+                                    col_entry = f"{cname} {coltype} DEFAULT CURRENT_DATE,"
+                                else:
+                                    col_entry = f"{cname} {coltype},"
+
+                            # fixed coltypes with NOT NULL logic
+                            elif coltype in pg_nullable_types or coltype in pg_numeric_variants:
+                                null_text = 'NOT NULL' if notnull else ''
+                                col_entry = f"{cname} {coltype} {null_text},".strip() + ','
+
+                            # width and syslength handling
+                            elif syslength == 0:
+                                null_text = 'NOT NULL' if notnull else ''
+                                col_entry = f"{cname} {coltype}({width}) {null_text},".strip() + ','
+                            elif syslength != 0:
+                                null_text = 'NOT NULL' if notnull else ''
+                                col_entry = f"{cname} {coltype}({width},{syslength}) {null_text},".strip() + ','
+
+                            # default fallback
+                            elif default and notnull:
+                                col_entry = f"{cname} {coltype} NOT NULL DEFAULT {default},"
+                            elif notnull:
+                                col_entry = f"{cname} {coltype} NOT NULL,"
                             else:
-                               tabName = schema + '.' + line['tname']
+                                col_entry = f"{cname} {coltype},"
+
+                            # Append column
+                            collist += col_entry
+
+                            # Primary key check
+                            if line['in_primary_key'] == 'Y':
+                                pkList.append(cname)
+
+                            # Quoting tablename if it starts with digit
+                            if re.match(r'^\d', line['tname']):
+                                tabName = f'{schema}."{line["tname"]}"'
+                            else:
+                                tabName = f'{schema}.{line["tname"]}'
                         pkStmt = ''
-                        for name in pkList:
-                            pkStmt = pkStmt + name + ','
-                        pkStmt = pkStmt.rstrip(',')
+                        if pkList:
+                            pkStmt = ', '.join([f'"{name}"' for name in pkList])
                         collist = collist.rstrip(',')
-                        if len(pkList) > 0:
-                            createStmt = 'create table IF NOT EXISTS ' + tabName + '(' + collist + ',primary key(' + pkStmt + '))'
+                        print(collist)
+                        if '.' in tabName:
+                            schema, table = tabName.split('.', 1)
+                            safe_tabName = f'"{schema}"."{table}"'
                         else:
-                            createStmt = 'create table IF NOT EXISTS ' + tabName + '(' + collist + ')'
+                            safe_tabName = f'"{tabName}"'
+                        if len(pkList) > 0:
+                            createStmt = f'CREATE TABLE IF NOT EXISTS {safe_tabName} ({collist}, PRIMARY KEY ({pkStmt}))'
+                        else:
+                            createStmt = f'CREATE TABLE IF NOT EXISTS {safe_tabName} ({collist})'
                         fileName = 'SQLAnyMetaData~' + str(row[0]) + '~' + str(row[1])
                         with open(os.path.join(oneplace_home, LoadName, fileName), 'w') as infile:
                             pass
@@ -4734,7 +4766,12 @@ class tableList(Resource):
             if con:
                 cursor.close()
                 con.close()
-        return [table_fetch, gg_home, autoQualifySplit]
+
+        def convert_to_serializable(row):
+            return [float(val) if isinstance(val, decimal.Decimal) else val for val in row]
+
+        table_fetch_serializable = [convert_to_serializable(row) for row in table_fetch]
+        return [table_fetch_serializable, gg_home, autoQualifySplit]
 
 
 class MetaDatafile(Resource):
