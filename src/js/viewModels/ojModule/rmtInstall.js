@@ -104,13 +104,13 @@ define(['ojs/ojcore', 'knockout', 'jquery','appController','ojs/ojarraydataprovi
                           self.onepDepUrl(data[0]);
                           var DepType = data[2];
                           if(DepType == 'oracle'){
-                            self.DepType('Oracle');
+                            self.DepType('Sybase');
                             }
                           else if (DepType == 'bda'){
-                            self.DepType('BigData Targets');
+                            self.DepType('BigData Targets');    
                         }   
                         self.diagTitle('Upload Goldengate Software for ' + self.DepType());    
-                          getDepDet();
+                        getDepDet();
                           return self;
                       }
                   })
@@ -145,8 +145,8 @@ define(['ojs/ojcore', 'knockout', 'jquery','appController','ojs/ojarraydataprovi
                  self.ggDepOSPlat(data[1] + '_' + data[2]);
                  var temp = data[3].toString();
                  temp = temp.replace(/,/g, ".");
-                 if (self.DepType() == 'Oracle'){
-                     self.ggDepDBClientVerLabel('DB Client Version');
+                 if (self.DepType() == 'oracle'){
+                     self.ggDepDBClientVerLabel('ODBC  Version');
                      self.ggDepDBVerLabel('Goldengate Build For');
                      self.ggDepDBHomeLabel('Database Client Home Path');
                  }
@@ -564,7 +564,7 @@ define(['ojs/ojcore', 'knockout', 'jquery','appController','ojs/ojarraydataprovi
 
                       if(DepType == 'oracle'){
                         self.DepType('Oracle');
-                        self.ggDepDBClientVerLabel('DB Client Version');
+                        self.ggDepDBClientVerLabel('ODBC  Version');
                         self.ggDepDBVerLabel('Goldengate Build For');
                         self.ggDepDBHomeLabel('Database Client Home Path');
                         }

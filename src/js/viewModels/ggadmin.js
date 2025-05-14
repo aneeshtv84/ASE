@@ -34,7 +34,7 @@ define(['knockout','ojs/ojmoduleanimations','ojs/ojmodule-element-utils', 'ojs/o
         }
         else {
           if (self.onepDepType() == 'oracle') {
-            self.currentModule = ko.observable("dbdet");
+            self.currentModule = ko.observable("rmtInstall");
           }
           else if (self.onepDepType() == 'bda') {
             self.currentModule = ko.observable("rmtInstall_BDA");

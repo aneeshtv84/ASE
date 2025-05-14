@@ -58,15 +58,26 @@
                                 label-edge="inside" data="{{onepDepListDP}}" value="{{SrcOnePDepName}}"
                                 class="demo-max-width" on-value-changed="[[SelectSRCDeployment]]">
                             </oj-select-single>
-                          
+                            <oj-label for="SRCCredentialDomain" show-required="[[isRequired]]"
+                                help.definition='[[helpDef]]' help.source='[[helpSource]]'>Credential Domain
+                            </oj-label>
+                            <oj-select-single required id="SRCCredentialDomain" data="[[SRCdomname1DP]]"
+                                value="{{selectedSRCDomCategory}}" on-value-changed="[[SRCdomSelectionChanged]]">
+                            </oj-select-single>
+
+                            <oj-label for="SRCCredentialAlias" show-required="[[isRequired]]"
+                                help.definition='[[helpDef]]' help.source='[[helpSource]]'>Credential Alias</oj-label>
                             <oj-select-single required label-hint="Choose Database Alias" label-edge="inside"
-                                id="SRCCredentialAlias" data="[[DBDetDP]]" value="{{SRCcurrentPDB}}"
+                                id="SRCCredentialAlias" data="[[SRCaliascategoriesDP]]" value="{{SRCcurrentPDB}}"
                                 on-value-changed="[[CDBData]]">
                             </oj-select-single>
-                                <oj-select-many required id="srcschema" label-hint="Choose Schema Name"
-                                    label-edge="inside" options="{{schemaNameListDP}}" value="{{schemaList}}"
-                                    class="demo-max-width" on-value-changed="[[valueChangedHandler]]">
-                                </oj-select-many>
+
+
+                        
+                                      <oj-select-many required id="srcschema" label-hint="Choose Schema Name"
+                                label-edge="inside" options="{{schemaNameListDP}}" value="{{schemaList}}"
+                                class="demo-max-width" on-value-changed="[[valueChangedHandler]]">
+                            </oj-select-many>
 
                             <div class="oj-flex">
                                 <oj-switch id="metaswitch" class="oj-flex-item" value="{{gatherMeta}}"
@@ -108,7 +119,7 @@
                                 <h7>Target Database Details</h7>
                             </div>
                             <oj-table id='dbTgtDetList' aria-label='All Table' data='[[dbTgtDetListDP]]' display='grid'
-                                selection-mode='{"row": "single"}' columns='{{TgtdbDetcolumnArray}}' style='width: 100%;'>
+                                selection-mode='{"row": "single"}' columns='{{dbDetTgtcolumnArray}}' style='width: 100%;'>
                             </oj-table>
                         </oj-bind-if>
                     </div>
@@ -122,20 +133,21 @@
                                 label-edge="inside" data="{{onepDepListDP}}" value="{{TgtOnePDepName}}"
                                 class="demo-max-width" on-value-changed="[[SelectTGTDeployment]]">
                             </oj-select-single>
-                            <oj-label for="TGTCredentialAlias" show-required="[[isRequired]]"
+                            <oj-bind-if test="[[TgtonepDepType() != 'bda']]">
+                                <oj-label for="TGTCredentialDomain" show-required="[[isRequired]]"
+                                    help.definition='[[helpDef]]' help.source='[[helpSource]]'>Credential Domain
+                                </oj-label>
+                                <oj-select-single required id="TGTCredentialDomain" data="[[TGTdomname1DP]]"
+                                    value="{{selectedTGTDomCategory}}" on-value-changed="[[TGTdomSelectionChanged]]">
+                                </oj-select-single>
+
+                                <oj-label for="TGTCredentialAlias" show-required="[[isRequired]]"
                                     help.definition='[[helpDef]]' help.source='[[helpSource]]'>Credential Alias
                                 </oj-label>
-                                <oj-select-single required label-hint="Choose Credential Alias" label-edge="inside"
-                                    id="CredentialAlias" data="[[TgtDBDetDP]]" value="{{TGTcurrentPDB}}"
+                                <oj-select-single required label-hint="Choose Database Alias" label-edge="inside"
+                                    id="CredentialAlias" data="[[TGTaliascategoriesDP]]" value="{{TGTcurrentPDB}}"
                                     on-value-changed="[[DBTgtSchema]]">
                                 </oj-select-single>
-                                <div class="oj-panel demo-center-items">
-                                    <oj-button  id="confirmBtn"
-                                        class="oj-flex-bar-start oj-button-confirm" chroming='solid'
-                                        on-oj-action="[[OpenS3Details]]">
-                                        S3 Config
-                                    </oj-button>
-                                </div>
                                 <div class="oj-panel demo-center-items">
                                     <oj-button disabled="[[ApplyMetaButtonVal]]" id="confirmBtn"
                                         class="oj-flex-bar-start oj-button-confirm" chroming='solid'
@@ -143,9 +155,40 @@
                                         Apply Metadata
                                     </oj-button>
                                 </div>
+                            </oj-bind-if>
                         </oj-form-layout>
 
 
+                        <oj-bind-if test="[[currentLoadOption() === 'auto']]">
+                            <oj-bind-if test="[[TgtonepDepType() != 'bda']]">
+                                <oj-form-layout id="fl2" readonly="[[isFormReadonly()]]" direction="row">
+                                    <div>
+                                        <oj-select-single class="oj-flex-item oj-sm-10" id="ckpt" data="[[chkpttblDP]]"
+                                            value="{{currentChkptTbl}}" label-edge="inside"
+                                            label-hint="Checkpoint Table">
+                                        </oj-select-single>
+                                        <oj-button disabled="[[ButtonChltbl]]" display='icons'
+                                            on-oj-action="[[gotoGGAdmin]]" style="height: 4em !important;">
+                                            &nbsp;&nbsp;<span slot='startIcon'
+                                                class="demo-icon-sprite oj-flex-item oj-sm-2"></span></oj-button>
+                                    </div>
+
+                                </oj-form-layout>
+                            </oj-bind-if>
+                            <oj-bind-if test="[[TgtonepDepType() === 'bda']]">
+                                <oj-form-layout id="fl3" readonly="[[isFormReadonly()]]" direction="row">
+                                    <div class="oj-flex">
+                                    <oj-select-single class="oj-flex-item oj-sm-20 oj-md-9" id="ckpt" data="[[BigDataTgtDP]]"
+                                        value="{{currentBDA}}" label-edge="inside" label-hint="BigData Targets"
+                                        on-value-changed="[[bdaChangeHandler]]">
+                                    </oj-select-single>
+                                    <oj-button disabled="[[ButtonAWSKinesis]]" display='icons'
+                                        on-oj-action="[[openAWSKenisis]]" style="height: 4em !important;">
+                                        &nbsp;&nbsp;<span slot='startIcon'
+                                            class="demo-icon-sprite oj-flex-item oj-md-2"></span></oj-button>
+                                        </div>
+                                </oj-form-layout>
+                            </oj-bind-if>
 
                             <div class="oj-panel oj-flex">
                                 <oj-switch id="defreswitch" class="oj-flex-item oj-sm-4" value="{{deferStart}}"
@@ -181,7 +224,7 @@
                                             </oj-input-text>
                                         </td>
                                         <td>
-                                            <oj-input-text readonly='true' value="[[row.data.TABTYPE]]">
+                                            <oj-input-text readonly='true' value="[[row.data.ANALYZETIME]]">
                                             </oj-input-text>
                                         </td>
                                         <td>
@@ -233,26 +276,6 @@
 
 </oj-bind-if>
 </oj-validation-group>
-
-<oj-dialog id="OpenS3Config" title="Loading Dictionary Details" modality="modeless">
-<div slot="body">
-        <div class="oj-panel oj-flex-item  ">
-            <oj-form-layout id="fl1" readonly="[[isFormReadonly()]]">
-                <oj-input-text required label-hint="AWS S3 Bucket" value='{{s3bucket}}'>
-                </oj-input-text>
-                <oj-input-text required label-hint="aws_access_key_id" value='{{aws_access_key_id}}'>
-                </oj-input-text>
-                <oj-input-text required label-hint="aws_secret_access_key" value='{{aws_secret_access_key}}'>
-                </oj-input-text>
-                </oj-form-layout>
-</div>
-</div>
-<div slot="footer">
-<div class="oj-panel oj-flex-item">
-<oj-button class="callToAction" on-oj-action="[[saveS3Config]]">Save</oj-button>
-</div>
-</div>
-</oj-dialog>
 
 <oj-validation-group id="dataSrc" role="group" valid="{{groupValid}}" aria-labelledby="grouplabelid">
     <oj-bind-if test="[[selectedStepValue() === 'stp2' ]]">

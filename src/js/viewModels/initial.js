@@ -76,12 +76,7 @@ define(['knockout', 'jquery','appController',  'ojs/ojasyncvalidator-regexp', 'o
                 self.CancelBehaviorOpt = ko.observable('icon');
                 self.ButtonChltbl = ko.observable(true);
 
-                self.OpenS3Details = (event,data) =>{
-                    document.querySelector('#OpenS3Config').open();
-                }
-                self.saveS3Config = (event,data) =>{
-                    document.querySelector('#OpenS3Config').close();
-                }
+
 
                 self.SelectSRCDeployment = (event,data) =>{
                     document.querySelector('#SelectSchemaDialog').open();
@@ -106,7 +101,7 @@ define(['knockout', 'jquery','appController',  'ojs/ojasyncvalidator-regexp', 'o
                           self.pdbList('');
                           self.schemaList([]);
                           self.SRConepDepUrl(data[0]);
-                          getDB(data[0]);
+                          getSrcDomains();
                           document.querySelector('#SelectSchemaDialog').close();
                           return self;
                       }
@@ -114,66 +109,6 @@ define(['knockout', 'jquery','appController',  'ojs/ojasyncvalidator-regexp', 'o
               
                  };
 
-                 self.DBDet = ko.observableArray([]);
-
-                 function getDB(depurl) {
-                    
-                    $.ajax({
-                        url: depurl + "/dbdet",
-                        type: 'GET',
-                        dataType: 'json',
-                        timeout: sessionStorage.getItem("timeInetrval"),
-                        context: self,
-                        error: function (xhr, textStatus, errorThrown) {
-                            if(textStatus == 'timeout' || textStatus == 'error'){
-                                document.querySelector('#TimeoutSup').open();
-                            }
-                        },
-                        success: function (data) {
-                            self.DBDet([]);
-                            for (var i = 0; i < data[0].length; i++) {
-                                self.DBDet.push({'value' : data[0][i].dbname, 'label' : data[0][i].dbname});
-                        }
-        
-                        self.DBDet.valueHasMutated();
-                        return self;
-                    }
-                    })
-                }
-        
-                self.DBDetDP = new ArrayDataProvider(self.DBDet, { keyAttributes: 'value' });
-
-
-                self.TgtDBDet = ko.observableArray([]);
-
-                function getTgtDB(depurl) {
-                   
-                   $.ajax({
-                       url: depurl + "/dbdet",
-                       type: 'GET',
-                       dataType: 'json',
-                       timeout: sessionStorage.getItem("timeInetrval"),
-                       context: self,
-                       error: function (xhr, textStatus, errorThrown) {
-                           if(textStatus == 'timeout' || textStatus == 'error'){
-                               document.querySelector('#TimeoutSup').open();
-                           }
-                       },
-                       success: function (data) {
-                           self.TgtDBDet([]);
-                           for (var i = 0; i < data[0].length; i++) {
-                               self.TgtDBDet.push({'value' : data[0][i].dbname, 'label' : data[0][i].dbname});
-                       }
-       
-                       self.TgtDBDet.valueHasMutated();
-                       console.log( self.TgtDBDet())
-                       return self;
-                   }
-                   })
-               }
-
-
-               self.TgtDBDetDP = new ArrayDataProvider(self.TgtDBDet, { keyAttributes: 'value' });
 
                  self.SelectTGTDeployment = (event,data) =>{
                     if (self.TgtOnePDepName()){
@@ -194,12 +129,13 @@ define(['knockout', 'jquery','appController',  'ojs/ojasyncvalidator-regexp', 'o
                             }
                         },
                       success: function (data) {
-                          console.log(data)
                           self.selectedTGTDomCategory('');
                           self.TGTcurrentPDB('');
                           self.TGTonepDepUrl(data[0]);
                           self.TgtonepDepType(data[2]);
-                          getTgtDB(data[0]);
+                          if(data[2] != 'bda'){
+                            getTgtDomains();
+                          }
                           document.querySelector('#SelectSchemaDialog').close();
                           return self;
                       }
@@ -287,7 +223,6 @@ define(['knockout', 'jquery','appController',  'ojs/ojasyncvalidator-regexp', 'o
                                 self.kinesisProxyServerPort = ko.observable();
                                 self.aws_access_key_id = ko.observable();
                                 self.aws_secret_access_key = ko.observable();
-                                self.s3bucket = ko.observable();
 
                 self.ExtPrmList = ko.observableArray([]);
                 self.ExtTrailName = ko.observable();
@@ -986,18 +921,27 @@ self.addAutoILProc = function (data, event) {
     self.dialogTitle('Preparing Processes for InitialLoad')
     document.querySelector('#CreateExtractDialog').open();
     $.ajax({
-        url: self.SRConepDepUrl() + "/addcsvilproc",
+        url: self.SRConepDepUrl() + "/addautoilproc",
         type: 'POST',
         data: JSON.stringify({
             srcdep : self.SrcOnePDepName(),
+            srcdomain: self.selectedSRCDomCategory(),
             srcalias: self.SRCcurrentPDB(),
+            startExtChk : self.startExtChk(),
             tgtdep : self.TgtOnePDepName(),
+            tgtdomain: self.selectedTGTDomCategory(),
             tgtalias: self.TGTcurrentPDB(),
+            chktbl : self.currentChkptTbl(),
+            startRepChk : self.startRepChk(),
+            tabSplit : self.qualifySplitList(),
+            schemaList : self.schemaList(),
             jobName : self.LoadName(),
-            s3bucket : self.s3bucket(),
-            aws_access_key_id : self.aws_access_key_id(),
-            aws_secret_access_key : self.aws_secret_access_key()
-
+            cdbCheck : self.CDBCheck(),
+            pdbName : self.pdbList(),
+            rmtHostName : self.rmtHostName(),
+            rmtMgrPort : self.rmtMgrPort(),
+            currentSCN : self.dbDetList()[0].current_scn,
+            deferStart : self.deferStart()
         }),
         dataType: 'json',
         timeout: sessionStorage.getItem("timeInetrval"),
@@ -1011,7 +955,8 @@ self.addAutoILProc = function (data, event) {
         success: function (data) {
             document.querySelector('#CreateExtractDialog').close();
             document.querySelector('#AddILProcDialog').open();
-            self.router.go({ path: 'initmon' , params: { LoadName : self.LoadName() } });
+            self.AddExtractMsg(data[0]);
+            return self;
         }
     })
 }
@@ -1256,18 +1201,17 @@ self.currentExtParam = ko.computed( {
                                 type: 'POST',
                                 data: JSON.stringify({
                                     dbname : self.TGTcurrentPDB(),
-                                    jobName  : self.LoadName(),
-                                    dep_url : self.TGTonepDepUrl()
+                                    dep_url  : self.SRConepDepUrl(),
                                 }),
                                 dataType: 'json',
                                 timeout: sessionStorage.getItem("timeInetrval"),
                                 context: self,
-                                error: function (xhr, textStatus, errorThrown) {
-                                    if(textStatus == 'timeout' || textStatus == 'error'){
-                                        document.querySelector('#CreateTableProgress').close();
-                                        document.querySelector('#TimeoutInLoad').open();
-                                    }
-                                },
+                                            error: function (xhr, textStatus, errorThrown) {
+                                                if(textStatus == 'timeout' || textStatus == 'error'){
+                                                    document.querySelector('#CreateTableProgress').close();
+                                                    document.querySelector('#TimeoutInLoad').open();
+                                                }
+                                            },
                                 success: function (data) {
                                     document.querySelector('#CreateTableProgress').close();
                                     document.getElementById('metatbl').refresh();
@@ -1412,12 +1356,12 @@ self.currentExtParam = ko.computed( {
                         dataType: 'json',
                         timeout: sessionStorage.getItem("timeInetrval"),
                         context: self,
-                        error: function (xhr, textStatus, errorThrown) {
-                            if(textStatus == 'timeout' || textStatus == 'error'){
-                                document.querySelector('#SelectSchemaDialog').close();
-                                document.querySelector('#TimeoutInLoad').open();
-                            }
-                        },
+                                    error: function (xhr, textStatus, errorThrown) {
+                                        if(textStatus == 'timeout' || textStatus == 'error'){
+                                            document.querySelector('#SelectSchemaDialog').close();
+                                            document.querySelector('#TimeoutInLoad').open();
+                                        }
+                                    },
                         success: function (data) {
                             for (var i = 0; i < data[0].length; i++) {
                                 self.schemaNameList.push({ 'label': data[0][i].username, 'value': data[0][i].username });
@@ -1435,21 +1379,11 @@ self.currentExtParam = ko.computed( {
                             self.schemaNameList.valueHasMutated();
                             self.dbDetList.push({ 'DBNAME': data[1].DBNAME,'ProductName' : productName,'ProductVersion' : productVersion, 'platform': os ,'OSVer' : osVersion , 'OSBIT': osbit, 'DBFile' : dbFile ,'ServerEdition' : buildID });
                             self.dbDetList.valueHasMutated();
-                            // if(!data[0].includes('ORA-')){
-                            //     for (var i = 0; i < data[0].length; i++) {
-                            //         self.schemaNameList.push({ 'label': data[0][i].user_name, 'value': data[0][i].user_name });
-                            //     }
-                            //     self.schemaNameList.valueHasMutated();
-                            //     self.dbDetList.push({ 'DBNAME': data[1].DBNAME,'ProductName' : data[1].ProductName,'ProductVersion' : data[1].ProductVersion, 'platform': data[1].Platform ,'OSVer' : data[1].PlatformVer , 'DBFile' : data[1].DBFile ,'ServerEdition' : data[1].ServerEdition });
-                            //     self.dbDetList.valueHasMutated();
-                            // }
-                            // else{
-                            //     document.querySelector('#DBErrDialog').open();
-                            //     self.OPError(data[1]);
-                            // }
                             document.querySelector('#SelectSchemaDialog').close();
                             return self;
+                            
                         }
+    
                     })
                 }
                 }
@@ -1519,18 +1453,23 @@ self.currentExtParam = ko.computed( {
                         dataType: 'json',
                         timeout: sessionStorage.getItem("timeInetrval"),
                         context: self,
-                        error: function (xhr, textStatus, errorThrown) {
-                            if(textStatus == 'timeout' || textStatus == 'error'){
-                                document.querySelector('#SelectSchemaDialog').close();
-                                document.querySelector('#TimeoutInLoad').open();
-                            }
-                        },
-                        success: function (data) {           
-                            console.log(data)            
-                            self.dbTgtDetList.push({ 'DBNAME': data[1].DBNAME,'ProductName' : data[1].prodName,'ProductVersion' : data[1].ProductVersion, 'platform': data[1].osPlat ,'OSVer' : data[1].ServerVersion });
+                                    error: function (xhr, textStatus, errorThrown) {
+                                        if(textStatus == 'timeout' || textStatus == 'error'){
+                                            document.querySelector('#SelectSchemaDialog').close();
+                                            document.querySelector('#TimeoutInLoad').open();
+                                        }
+                                    },
+                        success: function (data) {
+                            
+                            self.ButtonChltbl(false);
+                            self.dbTgtDetList.push({ 'dbname' : data[1].DBNAME,'product' : data[1].prodName,'prodver' : data[1].ProductVersion  ,'OSPlat' : data[1].osPlat});
                             self.dbTgtDetList.valueHasMutated();
+                            self.trailSubDir(data[2]);
+                            queryChkTbl();
                             document.querySelector('#SelectSchemaDialog').close();
-                            return self;                            
+                            getGGVersion();
+                            return self;
+                            
                         }
     
                     })
@@ -1585,7 +1524,7 @@ self.currentExtParam = ko.computed( {
                 }
 
        
-                self.dbTgtDetListDP = new ArrayDataProvider(self.dbTgtDetList, {keyAttributes: 'DBNAME'});    
+                self.dbTgtDetListDP = new ArrayDataProvider(self.dbTgtDetList, {keyAttributes: 'dbid'});    
 
 
 
@@ -1606,6 +1545,8 @@ self.currentExtParam = ko.computed( {
                         data: JSON.stringify({
                             dbname : self.SRCcurrentPDB(),
                             schemaList : self.schemaList(),
+                            cdbCheck : self.CDBCheck(),
+                            pdbName : self.pdbList(),
                             gatherMeta : self.gatherMeta(),
                             LoadName : self.LoadName(),
                             tgtDepURL : self.TGTonepDepUrl()
@@ -1613,28 +1554,24 @@ self.currentExtParam = ko.computed( {
                         dataType: 'json',
                         timeout: sessionStorage.getItem("timeInetrval"),
                         context: self,
-                        error: function (xhr, textStatus, errorThrown) {
-                            if(textStatus == 'timeout' || textStatus == 'error'){
-                                document.querySelector('#SelectSchemaDialog').close();
-                                document.querySelector('#TimeoutInLoad').open();
-                            }
-                        },
+                                    error: function (xhr, textStatus, errorThrown) {
+                                        if(textStatus == 'timeout' || textStatus == 'error'){
+                                            document.querySelector('#SelectSchemaDialog').close();
+                                            document.querySelector('#TimeoutInLoad').open();
+                                        }
+                                    },
                         success: function (data) {
-                            console.log(data)
                             document.getElementById('tableNameList').refresh();
                             let total=0;
+                            console.log(data[0])
                             for (var i = 0; i < data[0].length; i++) {
-                                self.tableNameList.push({'TABLE_NAME': data[0][i][0] + '.' + data[0][i][1] , 'ROWCNT' : data[0][i][2] ,'AVGSPC': data[0][i][3],'TABTYPE' : data[0][i][4]});
-                                total = total + parseInt(data[0][i][3]);
+                                console.log(data[0][i])
+                                self.tableNameList.push({'TABLE_NAME': data[0][i].name , 'rowtotal' : data[0][i].rowtotal ,'reserved': data[0][i].reserved , 'data': data[0][i].data , 'index_size': data[0][i].index_size , 'unused': data[0][i].unused});
+                                total = total + parseInt(data[0][i].avg_space);
                             }
-                            console.log(self.tableNameList())
                             self.avg_space(total);
-                            for (var i = 0; i < data[2].length; i++) {
-                            self.qualifySplitList.push({'TABLE_NAME' : data[2][i].table_name });
-                            }
                             self.tableNameList.valueHasMutated();
-                            self.qualifySplitList.valueHasMutated();
-                            //console.log(self);
+                            console.log(self);
                             document.querySelector('#SelectSchemaDialog').close();
                             if (self.gatherMeta() == true) {
                                 self.ApplyMetaButtonVal(false);
@@ -1643,6 +1580,7 @@ self.currentExtParam = ko.computed( {
                                 self.ApplyMetaButtonVal(true);
                             }
                             return self;
+            
                         }
     
                     })
@@ -1655,46 +1593,48 @@ self.currentExtParam = ko.computed( {
                 });
                 self.qualifySplitListDP = new ArrayDataProvider(self.qualifySplitList, {idAttribute: 'TABLE_NAME'}); 
 
+         
                 self.tableListcolumnArray = [
-                {headerText: 'Schema.Table Name',
-                field: 'TABLE_NAME',
-                footerTemplate: "revenueLabelTemplate"},
-                {headerText: 'Row Count',
-                field: 'ROWCNT'},
-                {headerText: 'Average Size(Bytes)',
-                footerTemplate: "revenueTotalTemplate",
-                field: 'AVGSPC'},
-                {headerText: 'Table Type',
-                field: 'TABTYPE'}
-            ]
+                    {headerText: 'Schema.Table Name',
+                    field: 'TABLE_NAME',
+                    footerTemplate: "revenueLabelTemplate"},
+                    {headerText: 'Row Count',
+                    field: 'rowtotal'},
+                    {headerText: 'Reserved Size(KB)',
+                    footerTemplate: "revenueTotalTemplate",
+                    field: 'reserved'},
+                    {headerText: 'Data Size(KB)',
+                    field: 'data'} ,
+                    {headerText: 'Index Size(KB)',
+                    field: 'index_size'},
+                    {headerText: 'Unused Size(KB)',
+                    field: 'unused'} ]
+    
+                    self.dbDetcolumnArray = [
+                        {headerText: 'DB Name', field: 'DBNAME'},
+                        {headerText: 'Product Name', field: 'ProductName'},
+                        {headerText: 'Product Version', field: 'ProductVersion'},
+                        {headerText: 'OS Platform', field: 'platform'},
+                        {headerText: 'OS Version', field: 'OSVer'} ,
+                        {headerText: 'OS Bit', field: 'OSBIT'},
+                        {headerText: 'DB File', field: 'DBFile'},
+                        {headerText: 'DB Edition', field: 'ServerEdition'} 
+                    ]
+    
+    
+                
+                    self.dbDetTgtcolumnArray = [
+                        {headerText: 'DB Name', field: 'dbname'},
+                        {headerText: 'Product Name', field: 'product'},
+                        {headerText: 'Product Version', field: 'prodver'},
+                        {headerText: 'OS Platform', field: 'OSPlat'}
+                    ]
 
-
-
-            self.dbDetcolumnArray = [
-                {headerText: 'DB Name', field: 'DBNAME'},
-                {headerText: 'Product Name', field: 'ProductName'},
-                {headerText: 'Product Version', field: 'ProductVersion'},
-                {headerText: 'OS Platform', field: 'platform'},
-                {headerText: 'OS Version', field: 'OSVer'} ,
-                {headerText: 'OS Bit', field: 'OSBIT'},
-                {headerText: 'DB File', field: 'DBFile'},
-                {headerText: 'DB Edition', field: 'ServerEdition'} 
-            ]
-
-            self.TgtdbDetcolumnArray = [
-                {headerText: 'Product Name', field: 'ProductName'},
-                {headerText: 'DB Name', field: 'DBNAME'},
-                {headerText: 'Product Version', field: 'ProductVersion'},
-                {headerText: 'OS Platform', field: 'platform'},
-                {headerText: 'OS Version', field: 'OSVer'}
-            ]
-
-
-            self.submitInput = function(data,event){
+             self.submitInput = function(data,event){
                 setTimeout(function(){  self.LoadName(self.currentRawValue().toUpperCase());}, 1);
-            }
+             }
 
-            self.valueChangedHandler1 = (event) => {
+             self.valueChangedHandler1 = (event) => {
                 self.ButtonVal(false);
                 self.ApplyMetaButtonVal(false);
             };

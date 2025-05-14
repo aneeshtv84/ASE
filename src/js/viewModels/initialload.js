@@ -63,7 +63,7 @@ define(['knockout', 'jquery','appController',  'ojs/ojasyncvalidator-regexp', 'o
                 self.TGTonepDepUrl = ko.observable();
                 self.CancelBehaviorOpt = ko.observable('icon');
 
-
+                self.LoadName = ko.observable();
 
                 self.SelectSRCDeployment = (event,data) =>{
                     self.SRConepDepUrl('');
@@ -1153,19 +1153,34 @@ self.currentExtParam = ko.computed( {
                                         }
                                     },
                         success: function (data) {
-                            self.CDBCheck(data[0]);
-                            for (var i = 0; i < data[1].length; i++) {
-                                self.PDBNameList.push({ 'label': data[1][i].NAME, 'value': data[1][i].NAME });
+                            for (var i = 0; i < data[0].length; i++) {
+                                self.schemaNameList.push({ 'label': data[0][i].username, 'value': data[0][i].username });
                             }
-                            self.PDBNameList.valueHasMutated();
-                            for (var i = 0; i < data[2].length; i++) {
-                                self.schemaNameList.push({ 'label': data[2][i].USERNAME, 'value': data[2][i].USERNAME });
-                            }
+                            console.log(data[1])
+                            let serverInfo = data[1].ProductName;
+                            let parts = serverInfo.split('/');
+                            let productName = parts[0].trim();
+                            let productVersion = parts[1].split(' ')[0].trim();
+                            let os = parts[5].split(' ')[0].trim();
+                            let osbit = parts[4].trim();;
+                            let osVersion = parts[5].split(' ')[1].trim();
+                            let dbFile = parts[6].trim();
+                            let buildID = parts[7].trim();
                             self.schemaNameList.valueHasMutated();
-                            for (var i = 0; i < data[3].length; i++) {
-                                self.dbDetList.push({ 'dbid': data[3][i].DBID,'dbname' : data[3][i].DBNAME,'pdbname' : data[3][i].PDBNAME,'platform' : data[3][i].PLATFORM_NAME  ,'host' : data[3][i].HOST,'version' : data[3][i].VERSION,'dbedition' : data[3][i].DB_EDITION , 'db_role' : data[3][i].DATABASE_ROLE , 'current_scn' : data[3][i].CURRENT_SCN , 'cdb' : data[3][i].CDB});
-                            }
+                            self.dbDetList.push({ 'DBNAME': data[1].DBNAME,'ProductName' : productName,'ProductVersion' : productVersion, 'platform': os ,'OSVer' : osVersion , 'OSBIT': osbit, 'DBFile' : dbFile ,'ServerEdition' : buildID });
                             self.dbDetList.valueHasMutated();
+                            // if(!data[0].includes('ORA-')){
+                            //     for (var i = 0; i < data[0].length; i++) {
+                            //         self.schemaNameList.push({ 'label': data[0][i].user_name, 'value': data[0][i].user_name });
+                            //     }
+                            //     self.schemaNameList.valueHasMutated();
+                            //     self.dbDetList.push({ 'DBNAME': data[1].DBNAME,'ProductName' : data[1].ProductName,'ProductVersion' : data[1].ProductVersion, 'platform': data[1].Platform ,'OSVer' : data[1].PlatformVer , 'DBFile' : data[1].DBFile ,'ServerEdition' : data[1].ServerEdition });
+                            //     self.dbDetList.valueHasMutated();
+                            // }
+                            // else{
+                            //     document.querySelector('#DBErrDialog').open();
+                            //     self.OPError(data[1]);
+                            // }
                             document.querySelector('#SelectSchemaDialog').close();
                             return self;
                             
@@ -1244,16 +1259,15 @@ self.currentExtParam = ko.computed( {
                                         }
                                     },
                         success: function (data) {
-                            for (var i = 0; i < data[3].length; i++) {
-                                self.dbTgtDetList.push({ 'dbid': data[3][i].DBID,'dbname' : data[3][i].DBNAME,'pdbname' : data[3][i].PDBNAME,'platform' : data[3][i].PLATFORM_NAME  ,'host' : data[3][i].HOST,'version' : data[3][i].VERSION,'dbedition' : data[3][i].DB_EDITION , 'db_role' : data[3][i].DATABASE_ROLE , 'current_scn' : data[3][i].CURRENT_SCN , 'cdb' : data[3][i].CDB});
-                                self.dbVer(data[3][i].VERSION);
-                            }
+                            self.dbTgtDetList.push({ 'dbname' : data[1].DBNAME,'product' : data[1].prodName,'prodver' : data[1].ProductVersion  ,'OSPlat' : data[1].osPlat});
                             self.dbTgtDetList.valueHasMutated();
                             self.trailSubDir(data[4] + '/dirdat');
                             queryChkTbl();
                             document.querySelector('#SelectSchemaDialog').close();
                             getGGVersion();
                             return self;
+
+                            console.log(self.dbTgtDetList())
                             
                         }
     
@@ -1328,7 +1342,9 @@ self.currentExtParam = ko.computed( {
                             schemaList : self.schemaList(),
                             cdbCheck : self.CDBCheck(),
                             pdbName : self.pdbList(),
-                            gatherMeta : self.gatherMeta()
+                            LoadName : self.LoadName(),
+                            gatherMeta : self.gatherMeta(),
+                            tgtDepURL : self.TGTonepDepUrl()
                         }),
                         dataType: 'json',
                         timeout: sessionStorage.getItem("timeInetrval"),
@@ -1342,13 +1358,15 @@ self.currentExtParam = ko.computed( {
                         success: function (data) {
                             document.getElementById('tableNameList').refresh();
                             let total=0;
+                            console.log(data[0])
                             for (var i = 0; i < data[0].length; i++) {
-                                self.tableNameList.push({'TABLE_NAME': data[0][i].owner + '.' + data[0][i].table_name , 'ROWCNT' : data[0][i].num_rows ,'AVGSPC': data[0][i].avg_space,'ANALYZETIME' : data[0][i].last_analyzed});
+                                console.log(data[0][i])
+                                self.tableNameList.push({'TABLE_NAME': data[0][i].name , 'rowtotal' : data[0][i].rowtotal ,'reserved': data[0][i].reserved , 'data': data[0][i].data , 'index_size': data[0][i].index_size , 'unused': data[0][i].unused});
                                 total = total + parseInt(data[0][i].avg_space);
                             }
                             self.avg_space(total);
                             self.tableNameList.valueHasMutated();
-                            //console.log(self);
+                            console.log(self);
                             document.querySelector('#SelectSchemaDialog').close();
                             if (self.gatherMeta() == true) {
                                 self.ApplyMetaButtonVal(false);
@@ -1369,32 +1387,36 @@ self.currentExtParam = ko.computed( {
                 field: 'TABLE_NAME',
                 footerTemplate: "revenueLabelTemplate"},
                 {headerText: 'Row Count',
-                field: 'ROWCNT'},
-                {headerText: 'Average Size(MB)',
+                field: 'rowtotal'},
+                {headerText: 'Reserved Size(KB)',
                 footerTemplate: "revenueTotalTemplate",
-                field: 'AVGSPC'},
-                {headerText: 'Analyze Time',
-                field: 'ANALYZETIME'} ]
+                field: 'reserved'},
+                {headerText: 'Data Size(KB)',
+                field: 'data'} ,
+                {headerText: 'Index Size(KB)',
+                field: 'index_size'},
+                {headerText: 'Unused Size(KB)',
+                field: 'unused'} ]
 
-          self.dbDetcolumnArray = [{headerText: 'DB Name',
-                field: 'dbname'},
-                {headerText: 'PDB Name',
-                field: 'pdbname'},
-                {headerText: 'Platform',
-                field: 'platform'},
-                {headerText: 'Host',
-                field: 'host'},
-                {headerText: 'Version',
-                field: 'version'} ,
-                {headerText: 'DB Edition',
-                field: 'dbedition'} ,
-                {headerText: 'DB Role',
-                field: 'db_role'} ,
-                {headerText: 'Current SCN',
-                field: 'current_scn'} ,
-                {headerText: 'CDB',
-                field: 'cdb'} ,
-             ]
+                self.dbDetcolumnArray = [
+                    {headerText: 'DB Name', field: 'DBNAME'},
+                    {headerText: 'Product Name', field: 'ProductName'},
+                    {headerText: 'Product Version', field: 'ProductVersion'},
+                    {headerText: 'OS Platform', field: 'platform'},
+                    {headerText: 'OS Version', field: 'OSVer'} ,
+                    {headerText: 'OS Bit', field: 'OSBIT'},
+                    {headerText: 'DB File', field: 'DBFile'},
+                    {headerText: 'DB Edition', field: 'ServerEdition'} 
+                ]
+
+
+            
+                self.dbDetTgtcolumnArray = [
+                    {headerText: 'DB Name', field: 'dbname'},
+                    {headerText: 'Product Name', field: 'product'},
+                    {headerText: 'Product Version', field: 'prodver'},
+                    {headerText: 'OS Platform', field: 'OSPlat'}
+                ]
 
              self.valueChangedHandler = (event) => {
                 self.ButtonVal(false);

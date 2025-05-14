@@ -139,22 +139,10 @@
                             id="SRCCredentialAlias" options="[[SRCaliascategories]]" value="{{SRCcurrentPDB}}"
                             on-oj-value-updated="[[CDBData]]">
                         </oj-combobox-one>
-                        <oj-bind-if test="[[CDBCheck() === 'YES']]">
-                            <oj-select-single required id="srcpdb" label-hint="Choose PDB Name" label-edge="inside"
-                                data="{{PDBNameListDP}}" value="{{PDBName}}" class="demo-max-width"
-                                on-value-changed="[[SRCDBSchema]]">
-                            </oj-select-single>
-                            <oj-select-many required id="srcschema" label-hint="Choose Schema Name" label-edge="inside"
-                                options="{{schemaNameCDBListDP}}" value="{{schemaList}}" class="demo-max-width"
-                                on-value-changed="[[valueChangedHandler]]">
-                            </oj-select-many>
-                        </oj-bind-if>
-                        <oj-bind-if test="[[CDBCheck() === 'NO']]">
-                            <oj-select-many required id="srcschema" label-hint="Choose Schema Name" label-edge="inside"
+                             <oj-select-many required id="srcschema" label-hint="Choose Schema Name" label-edge="inside"
                                 options="{{schemaNameListDP}}" value="{{schemaList}}" class="demo-max-width"
                                 on-value-changed="[[valueChangedHandler]]">
                             </oj-select-many>
-                        </oj-bind-if>
                     </oj-form-layout>
                     </oj-validation-group>
                 </div>

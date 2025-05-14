@@ -180,10 +180,10 @@
                            <oj-label for="domcombo">Credential Domain</oj-label>
                                 <oj-input-text  required id="domcombo" value="{{selectedDomCategory}}"></oj-input-text>
                         </oj-bind-if>
-                            <oj-label for="Alias-Name">Credential Alias</oj-label>
-                            <oj-input-text required id="Alias-Name" value="{{aliasName}}"></oj-input-text>
+                            <oj-label for="Alias-Name">SOURCEDB</oj-label>
+                            <oj-input-text required id="Alias-Name" label-hint='dbname@servername' label-edge="inside" value="{{aliasName}}"></oj-input-text>
                             <oj-label for="User-Name">User Name</oj-label>
-                            <oj-input-text required id="User-Name" label-hint='dbusername@dbhostname:dbport/servicename' label-edge="inside"
+                            <oj-input-text required id="User-Name" label-hint='dbusername' label-edge="inside"
                                 value="{{uName}}"></oj-input-text>
                             <oj-label for="password">Password</oj-label>
                             <oj-input-password required id="password" value="{{uPasswd}}"></oj-input-password>

@@ -50,26 +50,22 @@
 
                             <oj-label for="SRCCredentialAlias" show-required="[[isRequired]]"
                                 help.definition='[[helpDef]]' help.source='[[helpSource]]'>Credential Alias</oj-label>
-                            <oj-combobox-one required label-hint="Choose CDB(in CDB Mode)" label-edge="inside"
+                            <oj-combobox-one required  label-edge="inside"
                                 id="SRCCredentialAlias" options="[[SRCaliascategories]]" value="{{SRCcurrentPDB}}"
                                 on-oj-value-updated="[[CDBData]]">
                             </oj-combobox-one>
-                            <oj-bind-if test="[[CDBCheck() === 'YES']]">
-                                <oj-select-single required id="srcpdb" label-hint="Choose PDB Name" label-edge="inside"
-                                    data="{{PDBNameListDP}}" value="{{pdbList}}" class="demo-max-width"
-                                    on-value-changed="[[SRCDBSchema]]">
-                                </oj-select-single>
-                                <oj-select-many required id="srcschema" label-hint="Choose Schema Name"
-                                    label-edge="inside" options="{{schemaNameCDBListDP}}" value="{{schemaList}}"
-                                    class="demo-max-width" on-value-changed="[[valueChangedHandler]]">
-                                </oj-select-many>
-                            </oj-bind-if>
-                            <oj-bind-if test="[[CDBCheck() === 'NO']]">
-                                <oj-select-many required id="srcschema" label-hint="Choose Schema Name"
+
+
+                            
+                                          <oj-select-many required id="srcschema" label-hint="Choose Schema Name"
                                     label-edge="inside" options="{{schemaNameListDP}}" value="{{schemaList}}"
                                     class="demo-max-width" on-value-changed="[[valueChangedHandler]]">
                                 </oj-select-many>
-                            </oj-bind-if>
+
+
+                                <oj-input-text  required id="LoadName" value="{{LoadName}}"
+                                length.max="4" label-hint="Load Name" 
+                                raw-value="{{currentRawValue}}"></oj-input-text>
                             <oj-switch id="metaswitch" value="{{gatherMeta}}" label-edge="inside"
                                 label-hint="Gather Metadata">
                             </oj-switch>
@@ -94,7 +90,7 @@
                             <h7>Target Database Details</h7>
                         </div>
                         <oj-table id='dbTgtDetList' aria-label='All Table' data='[[dbTgtDetListDP]]' display='grid'
-                            selection-mode='{"row": "single"}' columns='{{dbDetcolumnArray}}' style='width: 100%;'>
+                            selection-mode='{"row": "single"}' columns='{{dbDetTgtcolumnArray}}' style='width: 100%;'>
                         </oj-table>
 
                     </div>

@@ -893,19 +893,26 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'appController',"ojs/ojoffcanvas", '
                         },
                         success: function (data) {
                             self.CDBCheck(data[0]);
-                            console.log(data[1])
-                            if(!data[1].includes('ORA-')){
-                            for (var i = 0; i < data[1].length; i++) {
-                                self.PDBNameList.push({ 'label': data[1][i].NAME, 'value': data[1][i].NAME });
+
+                            if(!data[1]['DBNAME'].includes('ORA-')){
+                            for (var i = 0; i < data[0].length; i++) {
+                                self.schemaNameList.push({ 'label': data[0][i].username, 'value': data[0][i].username });
                             }
-                            self.PDBNameList.valueHasMutated();
-                            for (var i = 0; i < data[2].length; i++) {
-                                self.schemaNameList.push({ 'label': data[2][i].USERNAME, 'value': data[2][i].USERNAME });
-                            }
+
+                            console.log(self.schemaNameList())
                             self.schemaNameList.valueHasMutated();
-                            for (var i = 0; i < data[3].length; i++) {
-                                self.dbDetList.push({ 'dbid': data[3][i].DBID, 'dbname': data[3][i].DBNAME, 'pdbname': data[3][i].PDBNAME, 'platform': data[3][i].PLATFORM_NAME, 'host': data[3][i].HOST, 'version': data[3][i].VERSION, 'dbedition': data[3][i].DB_EDITION, 'db_role': data[3][i].DATABASE_ROLE, 'current_scn': data[3][i].CURRENT_SCN, 'cdb': data[3][i].CDB });
-                            }
+                             
+                            let serverInfo = data[1].ProductName;
+                            let parts = serverInfo.split('/');
+                            let productName = parts[0].trim();
+                            let productVersion = parts[1].split(' ')[0].trim();
+                            let os = parts[5].split(' ')[0].trim();
+                            let osbit = parts[4].trim();;
+                            let osVersion = parts[5].split(' ')[1].trim();
+                            let dbFile = parts[6].trim();
+                            let buildID = parts[7].trim();
+                            self.dbDetList.push({ 'DBNAME': data[1]['DBNAME'],'ProductName' : productName,'ProductVersion' : productVersion, 'platform': os ,'OSVer' : osVersion , 'OSBIT': osbit, 'DBFile' : dbFile ,'ServerEdition' : buildID });
+                            console.log(self.dbDetList())
                             self.dbDetList.valueHasMutated();
                             document.querySelector('#SelectSchemaDialog').close();
                         }
@@ -1215,43 +1222,26 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'appController',"ojs/ojoffcanvas", '
                         field: 'ANALYZETIME'
                     }]
 
-                self.dbDetcolumnArray = [{
-                    headerText: 'DB Name',
-                    field: 'dbname'
-                },
-                {
-                    headerText: 'PDB Name',
-                    field: 'pdbname'
-                },
-                {
-                    headerText: 'Platform',
-                    field: 'platform'
-                },
-                {
-                    headerText: 'Host',
-                    field: 'host'
-                },
-                {
-                    headerText: 'Version',
-                    field: 'version'
-                },
-                {
-                    headerText: 'DB Edition',
-                    field: 'dbedition'
-                },
-                {
-                    headerText: 'DB Role',
-                    field: 'db_role'
-                },
-                {
-                    headerText: 'Current SCN',
-                    field: 'current_scn'
-                },
-                {
-                    headerText: 'CDB',
-                    field: 'cdb'
-                },
-                ]
+
+
+                    
+                self.dbDetcolumnArray = [{headerText: 'DB Name',
+                field: 'DBNAME'},
+                {headerText: 'Product Name',
+                field: 'ProductName'},
+                {headerText: 'Product Version',
+                field: 'ProductVersion'},
+                {headerText: 'OS Platform',
+                field: 'platform'},
+                {headerText: 'OS Version',
+                field: 'OSVer'} ,
+                {headerText: 'OS BIT',
+                    field: 'OSBIT'} ,
+                {headerText: 'DB File',
+                field: 'DBFile'} ,
+                {headerText: 'DB Edition',
+                field: 'ServerEdition'} 
+             ]
 
                 self.valueChangedHandler = (event) => {
                     self.ButtonVal(false);
