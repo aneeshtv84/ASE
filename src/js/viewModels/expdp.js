@@ -1352,31 +1352,29 @@ self.currentExtParam = ko.computed( {
                                     },
                         success: function (data) {
                             self.CDBCheck(data[0]);
-                            //console.log(data[1])
-                            if(!data[1].includes('ORA-')){
-                            for (var i = 0; i < data[1].length; i++) {
-                                self.PDBNameList.push({ 'label': data[1][i].NAME, 'value': data[1][i].NAME });
+                            console.log(data)
+                            if(!Object.values(data[1]).some(val => typeof val === 'string' && val.includes('ORA-'))){
+                                // for (var i = 0; i < data[1].length; i++) {
+                                //     self.PDBNameList.push({ 'label': data[1][i].NAME, 'value': data[1][i].NAME });
+                                // }
+                                // for (var i = 0; i < data[2].length; i++) {
+                                //     self.schemaNameList.push({ 'label': data[2][i].USERNAME, 'value': data[2][i].USERNAME });
+                                // }
+                                for (var i = 0; i < data[1].length; i++) {
+                                    self.dbDetList.push({ 'dbid': data[1][i].DBID,'dbname' : data[1][i].DBNAME,'pdbname' : data[1][i].PDBNAME,'platform' : data[1][i].PLATFORM_NAME  ,'host' : data[1][i].HOST,'version' : data[1][i].VERSION,'dbedition' : data[1][i].DB_EDITION , 'db_role' : data[1][i].DATABASE_ROLE , 'current_scn' : data[1][i].CURRENT_SCN , 'cdb' : data[1][i].CDB});
+                                }
+                                // self.trailSubDir(data[4]);
+                                // self.dbMainVersion(data[5]);
+                                // self.dbMinorVersion(data[6]);
+                                document.querySelector('#SelectSchemaDialog').close();
                             }
-                            for (var i = 0; i < data[2].length; i++) {
-                                self.schemaNameList.push({ 'label': data[2][i].USERNAME, 'value': data[2][i].USERNAME });
+                            else{
+                                document.querySelector('#SelectSchemaDialog').close();
+                                document.querySelector('#DBErrDialog').open();
+                                self.OPError(data[1]);
                             }
-                            for (var i = 0; i < data[3].length; i++) {
-                                self.dbDetList.push({ 'dbid': data[3][i].DBID,'dbname' : data[3][i].DBNAME,'pdbname' : data[3][i].PDBNAME,'platform' : data[3][i].PLATFORM_NAME  ,'host' : data[3][i].HOST,'version' : data[3][i].VERSION,'dbedition' : data[3][i].DB_EDITION , 'db_role' : data[3][i].DATABASE_ROLE , 'current_scn' : data[3][i].CURRENT_SCN , 'cdb' : data[3][i].CDB});
-                            }
-                            self.trailSubDir(data[4]);
-                            self.dbMainVersion(data[5]);
-                            self.dbMinorVersion(data[6]);
-                            document.querySelector('#SelectSchemaDialog').close();
-                        }
-                        else{
-                            document.querySelector('#SelectSchemaDialog').close();
-                            document.querySelector('#DBErrDialog').open();
-                            self.OPError(data[1]);
-                        }
-                            return self;
-                            
-                        }
-    
+                            return self;                            
+                        }    
                     })
                    }
                     
@@ -1402,12 +1400,12 @@ self.currentExtParam = ko.computed( {
                         dataType: 'json',
                         timeout: sessionStorage.getItem("timeInetrval"),
                         context: self,
-                                    error: function (xhr, textStatus, errorThrown) {
-                                        if(textStatus == 'timeout' || textStatus == 'error'){
-                                            document.querySelector('#SelectSchemaDialog').close();
-                                            document.querySelector('#TimeoutInLoad').open();
-                                        }
-                                    },
+                        error: function (xhr, textStatus, errorThrown) {
+                            if(textStatus == 'timeout' || textStatus == 'error'){
+                                document.querySelector('#SelectSchemaDialog').close();
+                                document.querySelector('#TimeoutInLoad').open();
+                            }
+                        },
                         success: function (data) {
                             if (data[0].includes('ORA-')){
                                 document.querySelector('#SelectSchemaDialog').close();
@@ -1452,34 +1450,31 @@ self.currentExtParam = ko.computed( {
                             dataType: 'json',
                             timeout: sessionStorage.getItem("timeInetrval"),
                             context: self,
-                                        error: function (xhr, textStatus, errorThrown) {
-                                            if(textStatus == 'timeout' || textStatus == 'error'){
-                                                document.querySelector('#SelectSchemaDialog').close();
-                                                document.querySelector('#TimeoutInLoad').open();
-                                            }
-                                        },
-                            success: function (data) {
-                                
-                                self.ButtonChltbl(false);
-                                if(!data[1].includes('ORA-')){
-    
-                                for (var i = 0; i < data[3].length; i++) {
-                                    self.dbTgtDetList.push({ 'dbid': data[3][i].DBID,'dbname' : data[3][i].DBNAME,'pdbname' : data[3][i].PDBNAME,'platform' : data[3][i].PLATFORM_NAME  ,'host' : data[3][i].HOST,'version' : data[3][i].VERSION,'dbedition' : data[3][i].DB_EDITION , 'db_role' : data[3][i].DATABASE_ROLE , 'current_scn' : data[3][i].CURRENT_SCN , 'cdb' : data[3][i].CDB});
-                                    self.dbVer(data[3][i].VERSION);
+                            error: function (xhr, textStatus, errorThrown) {
+                                if(textStatus == 'timeout' || textStatus == 'error'){
+                                    document.querySelector('#SelectSchemaDialog').close();
+                                    document.querySelector('#TimeoutInLoad').open();
                                 }
-                                self.dbTgtDetList.valueHasMutated();
-                                self.trailSubDir(data[4]);
-                                queryChkTbl();
-                                document.querySelector('#SelectSchemaDialog').close();
-                            }
-                            else{
-                                document.querySelector('#SelectSchemaDialog').close();
-                                document.querySelector('#DBErrDialog').open();
-                                self.OPError(data[1]);
-    
-                            }
-                                return self;
-                                
+                            },
+                            success: function (data) {
+                                console.log(data)
+                                self.ButtonChltbl(false);
+                                if(!Object.values(data[1]).some(val => typeof val === 'string' && val.includes('ORA-'))){    
+                                    for (var i = 0; i < data[1].length; i++) {
+                                        self.dbTgtDetList.push({ 'dbid': data[1][i].DBID,'dbname' : data[1][i].DBNAME,'pdbname' : data[1][i].PDBNAME,'platform' : data[1][i].PLATFORM_NAME  ,'host' : data[1][i].HOST,'version' : data[1][i].VERSION,'dbedition' : data[1][i].DB_EDITION , 'db_role' : data[1][i].DATABASE_ROLE , 'current_scn' : data[1][i].CURRENT_SCN , 'cdb' : data[1][i].CDB});
+                                        self.dbVer(data[1][i].VERSION);
+                                    }
+                                    self.dbTgtDetList.valueHasMutated();
+                                    self.trailSubDir(data[4]);
+                                    queryChkTbl();
+                                    document.querySelector('#SelectSchemaDialog').close();
+                                }
+                                else{
+                                    document.querySelector('#SelectSchemaDialog').close();
+                                    document.querySelector('#DBErrDialog').open();
+                                    self.OPError(data[1]);    
+                                }
+                                return self;                                
                             }
         
                         })

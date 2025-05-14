@@ -67,6 +67,7 @@ oneplace_base = config.get('ONEPLACE_CONFIG', 'BASE_DIR')
 oneplace_home = config.get('ONEPLACE_CONFIG', 'HOME_DIR')
 gg_home = config.get('ONEPLACE_CONFIG', 'GG_HOME')
 db_home = config.get('ONEPLACE_CONFIG', 'DB_HOME')
+sybase_home=config.get('ONEPLACE_CONFIG', 'SYBASE')
 rac_check = config.get('ONEPLACE_CONFIG', 'RAC_CHECK')
 oneplace_host = config.get('ONEPLACE_CONFIG', 'ONEPLACE_HOST')
 oneplace_port = config.get('ONEPLACE_CONFIG', 'SERVER_PORT')
@@ -85,8 +86,8 @@ hName = hName.split('.')
 hName = hName[0]
 
 if os.path.exists(db_home):
-    os.environ['LD_LIBRARY_PATH'] = os.path.join(db_home, 'lib64') + ':' + os.path.join(db_home, 'bin64', 'jre180', 'lib', 'amd64', 'client') + ':' + os.path.join( db_home, 'bin64', 'jre180', 'lib', 'amd64', 'server') + ':' + os.path.join(db_home, 'bin64', 'jre180', 'lib', 'amd64') + ':' + os.path.join( db_home, 'bin64', 'jre180', 'lib', 'amd64', 'native_threads')
-    os.environ['SQLANY_API_DLL'] = os.path.join(db_home, 'bin64') + ':' + os.path.join(db_home, 'bin','sdk')
+    os.environ['LD_LIBRARY_PATH'] = os.path.join(db_home, 'lib') + ':' +  os.path.join(db_home,'lib3p64')
+    os.environ['SYBASE'] = sybase_home
 
 os.environ['ORACLE_HOME'] = db_home
 logdump_bin = os.path.join(gg_home, 'logdump')
@@ -340,26 +341,33 @@ class ViewReplicatLog(Resource):
 
 class ggDepDet(Resource):
     def get(self):
-        DBVersion = ''
-        platform = ''
+        Client_Ver = ''
         try:
-            val = selectConn(dbName)
-            con = val[0]
-            cursor = con.cursor()
-            cursor.execute('''select version,platform from SYSHISTORY''')
-            DBVer = cursor.fetchone()
-            if DBVer:
-                DBVersion = DBVer[0]
-                platform = DBVer[1]
+            GGVer = subprocess.check_output([ggsci_bin, '-v'], stderr=subprocess.STDOUT, universal_newlines=True)
+            line = GGVer.splitlines()
+            GGVer = line[2].split()[1]
+            GGDBVer = line[3].split()[4]
+            print(GGDBVer)
         except Exception as e:
-            DBVer = 'Not Detected'
-            platform = 'Not Detected'
+            GGVer = 'Not Installed'
+            GGDBVer = 'Not Installed'
+            DBVer = 'Not Installed'
             logger.info(str(e))
-        finally:
-            if con:
-                cursor.close()
-                con.close()
-        return [DBVersion, platform]
+            print(str(e))
+        try:
+            SoftList = []
+            Client_Ver = pyodbc.version
+            if Client_Ver[0] == 21:
+                SoftList.append({'label': 'Oracle GoldenGate 21.3.0.0.0', 'value': '21.3.0.0.0'})
+            elif Client_Ver[0] == 19:
+                SoftList.append({'label': 'Oracle GoldenGate 21.3.0.0.0', 'value': '21.3.0.0.0'})
+                SoftList.append({'label': 'Oracle GoldenGate 19.1.0.0.210720 - July 2021', 'value': '19.1.0.0.210720'})
+        except cx_Oracle.DatabaseError as e:
+            Client_Ver = 'Client Binary not Dectected'
+            logger.info(str(e))
+
+        return [hName, OSPlat, OSPlatBit, Client_Ver, GGVer, GGDBVer, gg_home, db_home, SoftList]
+
 
 
 class getTableName(Resource):
@@ -2320,13 +2328,22 @@ class ggTestDBLogin(Resource):
         data = request.get_json(force=True)
         domain = data['domain']
         alias = data['alias']
+        conn = sqlite3.connect('conn.db')
+        cursor = conn.cursor()
+        cursor.execute('''select user,passwd from CONN where dbname=:dbname''',{"dbname": alias})
+        db_row = cursor.fetchone()
+        print(db_row)
+        if db_row:
+            user = db_row[0]
+            passwd = db_row[1]
+            passwd = cipher.decrypt(passwd)
         ssh = subprocess.Popen([ggsci_bin],
                                stdin=subprocess.PIPE,
                                stdout=subprocess.PIPE,
                                stderr=subprocess.STDOUT,
                                universal_newlines=True,
                                bufsize=0)
-        ssh.stdin.write("dblogin useridalias " + alias + " domain " + domain + "\n")
+        ssh.stdin.write("dblogin SOURCEDB " + alias + ",userid " + user + " , password " + passwd + "\n")
         TestDBLogin_Out = []
         LoginErr, stderr = ssh.communicate()
         TestDBLogin_Out.append(LoginErr)
@@ -2365,23 +2382,17 @@ class ggAddUserAlias(Resource):
         alias = data['alias']
         user = data['user']
         passwd = data['passwd']
-        addUsr = subprocess.getoutput(
-            "echo -e 'alter credentialstore add user '" + user + " password " + passwd + " alias " + alias + " domain " + domain + " |" + ggsci_bin + "|grep -i credential")
-        if '@' in user:
-            user = user.split('@')
-            uname = user[0]
-            servicename = user[1]
-        else:
-            uname = user
-            servicename = ''
+        addUsr = subprocess.getoutput("echo -e 'alter credentialstore add user '" + user + " password " + passwd + " alias " + alias + " domain " + domain + " |" + ggsci_bin + "|grep -i credential")
         try:
             conn = sqlite3.connect('conn.db')
             cursor = conn.cursor()
             passwd = cipher.encrypt(passwd).decode('utf-8')
             cursor.execute('''insert or replace into CONN values(:dbname,:user,:passwd,:servicename)''',
-                           {"dbname": alias, "user": uname, "passwd": passwd, "servicename": servicename})
+                           {"dbname": alias , "user": user , "passwd": passwd, "servicename": alias})
+            addUsr='Successfully Added'
         except sqlite3.Error as e:
             clientType.append(e)
+            addUsr=str(e)
         finally:
             conn.commit()
             cursor.close()
@@ -2399,20 +2410,13 @@ class ggEditUserAlias(Resource):
         domain = data['domain']
         editUsr = subprocess.getoutput(
             "echo -e 'alter credentialstore replace user '" + user + " password " + passwd + " alias " + alias + " domain " + domain + " |" + ggsci_bin + "|grep -i credential")
-        if '@' in user:
-            user = user.split('@')
-            uname = user[0]
-            servicename = user[1]
-        else:
-            uname = user
-            servicename = ''
         try:
             conn = sqlite3.connect('conn.db')
             cursor = conn.cursor()
             passwd = cipher.encrypt(passwd).decode('utf-8')
             cursor.execute(
                 '''INSERT OR REPLACE INTO CONN(dbname,user,passwd,servicename)  values(:dbname,:user,:passwd,:servicename)''',
-                {"dbname": alias, "user": uname, "passwd": passwd, "servicename": servicename})
+                {"dbname": alias, "user": user , "passwd": passwd, "servicename": alias })
         except sqlite3.Error as e:
             editUsr = str(e)
         finally:
@@ -2430,13 +2434,6 @@ class ggDelUserAlias(Resource):
         user = data['user']
         delUsr = subprocess.getoutput(
             "echo -e 'alter credentialstore delete user '" + user + " alias " + alias + " domain " + domain + " |" + ggsci_bin + "|grep -i credential")
-        if '@' in user:
-            user = user.split('@')
-            user = user[0]
-            servicename = user[1]
-        else:
-            user = user
-            servicename = ''
         try:
             conn = sqlite3.connect('conn.db')
             cursor = conn.cursor()
@@ -4514,6 +4511,7 @@ class cdbCheck(Resource):
             schema_list = "SELECT DISTINCT ltrim(rtrim(user_name(uid))) AS username  FROM sysobjects  WHERE type = 'U'"
             schema_data_fetch = pd.read_sql_query(schema_list, con)
             schema_data_fetch = schema_data_fetch.to_dict('records')
+            print(schema_data_fetch)
             cursor = con.cursor()
             cursor.execute('''SELECT db_name() AS dbname, @@version AS version  FROM sysobjects  WHERE id = 1''')
             dbName = cursor.fetchone()
@@ -4570,6 +4568,7 @@ class tableList(Resource):
             LoadName = ''
         val = selectConn(dbname)
         con = val[0]
+        tabSizeFrame=[]
         autoQualifySplit = []
         table_fetch = ''
         try:
@@ -4583,16 +4582,17 @@ class tableList(Resource):
                     os.path.join(oneplace_home, LoadName), mode=0o777)
             for schema in schemaList:
                 schemas.append(schema)
-                cursor.execute(
-                    '''
-                        SELECT  u.name AS owner,  o.name AS tabname,  row_count(db_id(), o.id) AS nrows,  
-                        row_count(db_id(), o.id) * data_pages(db_id(), o.id) * @@maxpagesize / NULLIF(data_pages(db_id(), 
-                        o.id), 0) AS tablesize,  o.type AS tabtype  FROM  sysobjects o  JOIN  sysusers u ON o.uid = u.uid  
-                        WHERE  o.type = 'U' AND u.name = ?
-                    ''',
-                    (schema,))
+                cursor.execute("SELECT u.name  AS schema_name, so.name AS table_name, ROW_COUNT(DB_ID(), so.id) AS row_count, USED_PAGES(DB_ID(), so.id, 0) AS data_pages, (USED_PAGES(DB_ID(), so.id) - USED_PAGES(DB_ID(), so.id, 0)) AS index_pages FROM sysobjects AS so JOIN sysusers AS u ON so.uid = u.uid WHERE so.type = 'U' AND (so.sysstat2 & 1024) = 0   /* not remote */ AND (so.sysstat2 & 2048) = 0   /* not proxy */ AND u.name = ?       /* filter by schema name */ ORDER BY u.name, so.name" ,(schema,))
                 table_fetch = cursor.fetchall()
-                df = pd.DataFrame(table_fetch)
+                for row in table_fetch:
+                    print(row[0] +  '.'  +row[1], len(row))  # Should be 5 columns per row
+                    cursor.execute(f"sp_spaceused '{row[0] +  '.'  +row[1]}'")
+                    result = cursor.fetchall()[0]
+                    columns = [desc[0] for desc in cursor.description]
+                    space_info = dict(zip(columns, result))
+                    tabSizeFrame.append(space_info)
+                print(tabSizeFrame)
+                df = pd.DataFrame(tabSizeFrame,columns=columns)
                 expected_headers = ['owner', 'table_name', 'count', 'tablesize', 'table_type_str']
                 if df.shape[1] == len(expected_headers):
                     df.to_csv(os.path.join(oneplace_home, LoadName, LoadName + '_' + schema + '.csv'),
@@ -4741,11 +4741,12 @@ class tableList(Resource):
                         pkStmt = ''
                         if pkList:
                             pkStmt = ', '.join([f'"{name}"' for name in pkList])
+                        collist = collist.replace(',,', ',')
                         collist = collist.rstrip(',')
                         print(collist)
                         if '.' in tabName:
                             schema, table = tabName.split('.', 1)
-                            safe_tabName = f'"{schema}"."{table}"'
+                            safe_tabName = f'{schema}."{table}"'
                         else:
                             safe_tabName = f'"{tabName}"'
                         if len(pkList) > 0:
@@ -4771,14 +4772,15 @@ class tableList(Resource):
             return [float(val) if isinstance(val, decimal.Decimal) else val for val in row]
 
         table_fetch_serializable = [convert_to_serializable(row) for row in table_fetch]
-        return [table_fetch_serializable, gg_home, autoQualifySplit]
+        print(tabSizeFrame)
+        return [tabSizeFrame, gg_home, autoQualifySplit]
 
 
 class MetaDatafile(Resource):
     def post(self):
         data = request.get_json(force=True)
         jobName = data['jobName']
-        tabName = data['tabName']
+        # tabName = data['tabName']
         try:
             tabName = tabName.split('.')
             tabOwner = tabName[0]
@@ -8188,6 +8190,7 @@ def selectConn(dbname):
     cursor = conn.cursor()
     cursor.execute('SELECT user,passwd,servicename FROM CONN WHERE dbname=:dbname', {"dbname": dbname})
     db_row = cursor.fetchone()
+    print(db_row)
     cursor.close()
     conn.close()
     con = ''
@@ -8199,12 +8202,13 @@ def selectConn(dbname):
         passwd = db_row[1]
         passwd = cipher.decrypt(passwd)
         servicename = db_row[2]
+        print(servicename)
         # servicename = servicename.split('/')
         # hostname = servicename[0]
         # dbName = servicename[1]
         connection_string = (f'DSN={servicename};')
         try:
-            con = pyodbc.connect(connection_string)
+            con = pyodbc.connect(connection_string,autocommit=True)
             db_det = '''SELECT @@version AS version'''
             db_det_fetch = pd.read_sql_query(db_det, con)
             db_det = db_det_fetch.to_dict('records')

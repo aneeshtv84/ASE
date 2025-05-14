@@ -1201,18 +1201,20 @@ self.currentExtParam = ko.computed( {
                                 type: 'POST',
                                 data: JSON.stringify({
                                     dbname : self.TGTcurrentPDB(),
-                                    dep_url  : self.SRConepDepUrl(),
+                                    dep_url  : self.TGTonepDepUrl(),
+                                    jobName : self.LoadName(),
                                 }),
                                 dataType: 'json',
                                 timeout: sessionStorage.getItem("timeInetrval"),
                                 context: self,
-                                            error: function (xhr, textStatus, errorThrown) {
-                                                if(textStatus == 'timeout' || textStatus == 'error'){
-                                                    document.querySelector('#CreateTableProgress').close();
-                                                    document.querySelector('#TimeoutInLoad').open();
-                                                }
-                                            },
+                                error: function (xhr, textStatus, errorThrown) {
+                                    if(textStatus == 'timeout' || textStatus == 'error'){
+                                        document.querySelector('#CreateTableProgress').close();
+                                        document.querySelector('#TimeoutInLoad').open();
+                                    }
+                                },
                                 success: function (data) {
+                                    console.log(data)
                                     document.querySelector('#CreateTableProgress').close();
                                     document.getElementById('metatbl').refresh();
                                     document.querySelector('#CreateTableDialog').open();
@@ -1554,24 +1556,35 @@ self.currentExtParam = ko.computed( {
                         dataType: 'json',
                         timeout: sessionStorage.getItem("timeInetrval"),
                         context: self,
-                                    error: function (xhr, textStatus, errorThrown) {
-                                        if(textStatus == 'timeout' || textStatus == 'error'){
-                                            document.querySelector('#SelectSchemaDialog').close();
-                                            document.querySelector('#TimeoutInLoad').open();
-                                        }
-                                    },
+                        error: function (xhr, textStatus, errorThrown) {
+                            if(textStatus == 'timeout' || textStatus == 'error'){
+                                document.querySelector('#SelectSchemaDialog').close();
+                                document.querySelector('#TimeoutInLoad').open();
+                            }
+                        },
                         success: function (data) {
+                            console.log(data)
                             document.getElementById('tableNameList').refresh();
                             let total=0;
-                            console.log(data[0])
                             for (var i = 0; i < data[0].length; i++) {
-                                console.log(data[0][i])
-                                self.tableNameList.push({'TABLE_NAME': data[0][i].name , 'rowtotal' : data[0][i].rowtotal ,'reserved': data[0][i].reserved , 'data': data[0][i].data , 'index_size': data[0][i].index_size , 'unused': data[0][i].unused});
+
+                                const reserved = parseInt(data[0][i].reserved.replace(" KB", "").trim());
+                                const dataSize = parseInt(data[0][i].data.replace(" KB", "").trim());
+                                const indexSize = parseInt(data[0][i].index_size.replace(" KB", "").trim());
+                                const unused = parseInt(data[0][i].unused.replace(" KB", "").trim());
+                                
+                                self.tableNameList.push({
+                                    'TABLE_NAME': data[0][i].name , 
+                                    'rowtotal' : data[0][i].rowtotal,
+                                    'reserved': reserved, 
+                                    'data': dataSize, 
+                                    'index_size': indexSize, 
+                                    'unused': unused
+                                });
                                 total = total + parseInt(data[0][i].avg_space);
                             }
                             self.avg_space(total);
                             self.tableNameList.valueHasMutated();
-                            console.log(self);
                             document.querySelector('#SelectSchemaDialog').close();
                             if (self.gatherMeta() == true) {
                                 self.ApplyMetaButtonVal(false);

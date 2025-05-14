@@ -635,18 +635,16 @@ define([
             dataType: 'json',
             timeout: sessionStorage.getItem("timeInetrval"),
             context: self,
-                        error: function (xhr, textStatus, errorThrown) {
-                            if(textStatus == 'timeout' || textStatus == 'error'){
-                                document.querySelector('#SelectSchemaProcessDialog').close();
-                                document.querySelector('#TimeoutInLoad').open();
-                            }
-                        },
+            error: function (xhr, textStatus, errorThrown) {
+                if(textStatus == 'timeout' || textStatus == 'error'){
+                    document.querySelector('#SelectSchemaProcessDialog').close();
+                    document.querySelector('#TimeoutInLoad').open();
+                }
+            },
             success: function (data) {
-           
-                    self.dbTgtDetList.push({ 'DBNAME': data[0].dbName,'ProductName' : data[0].prodName,'ProductVersion' : data[0].prodVersion, 'platform': data[0].osPlat ,'OSVer' : data[0].osVer });
+                self.dbTgtDetList.push({ 'DBNAME': data[1].DBNAME,'ProductName' : data[1].prodName,'ProductVersion' : data[1].ProductVersion, 'platform': data[1].osPlat ,'OSVer' : data[1].ServerVersion });
                 self.dbTgtDetList.valueHasMutated();
                 document.querySelector('#SelectSchemaProcessDialog').close();
-                // //(self.dbTgtDetList())
                 self.buttonValAutomate(false)
                 return self;
                 
@@ -764,7 +762,7 @@ define([
             self.procConvertedText('');  
             document.querySelector('#SelectSchemaProcessDialog').open();
             $.ajax({
-                url: self.TGTonepDepUrl() + "/pgconvertprocedure",
+                url: self.TGTonepDepUrl() + "/convertCode",
                 data: JSON.stringify({
                     dbName : self.TGTcurrentPDB(),
                     viewProc : self.viewText()[0]
@@ -773,12 +771,12 @@ define([
                 dataType: 'json',
                 context: self,
                 error: function (e) {
-                    ////(e);
+                    console.log(e);
                 },
                 success: function (data) {
-                    // console.log(data)
+                    console.log(data)
                     document.querySelector('#SelectSchemaProcessDialog').close();
-                    self.procConvertedText(data[0]);
+                    self.procConvertedText(data);
                     ////(self);
                     return self;
                 }

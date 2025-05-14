@@ -217,18 +217,22 @@
                                             <oj-bind-text value="[[row.data.TABLE_NAME]]"></oj-bind-text>
                                         </td>
                                         <td>
-                                            <oj-bind-text value="[[row.data.ROWCNT]]"></oj-bind-text>
+                                            <oj-bind-text value="[[row.data.rowtotal]]"></oj-bind-text>
                                         </td>
                                         <td>
-                                            <oj-input-text readonly='true' value="[[row.data.AVGSPC]]">
+                                            <oj-input-text readonly='true' value="[[row.data.reserved]]">
                                             </oj-input-text>
                                         </td>
                                         <td>
-                                            <oj-input-text readonly='true' value="[[row.data.ANALYZETIME]]">
+                                            <oj-input-text readonly='true' value="[[row.data.data]]">
                                             </oj-input-text>
                                         </td>
                                         <td>
-                                            <oj-input-text value="[[filter]]">
+                                            <oj-input-text value="[[row.data.index_size]]">
+                                            </oj-input-text>
+                                        </td>
+                                        <td>
+                                            <oj-input-text value="[[row.data.unused]]">
                                             </oj-input-text>
                                         </td>
                                     </tr>

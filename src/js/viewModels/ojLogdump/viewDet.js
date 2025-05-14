@@ -576,8 +576,8 @@ define([
                             }
                         },
             success: function (data) {
-           
-                    self.dbTgtDetList.push({ 'DBNAME': data[0].dbName,'ProductName' : data[0].prodName,'ProductVersion' : data[0].prodVersion, 'platform': data[0].osPlat ,'OSVer' : data[0].osVer });
+                console.log(data)
+                self.dbTgtDetList.push({ 'DBNAME': data[1].DBNAME,'ProductName' : data[1].prodName,'ProductVersion' : data[1].ProductVersion, 'platform': data[1].osPlat ,'OSVer' : data[1].ServerVersion });
                 self.dbTgtDetList.valueHasMutated();
                 document.querySelector('#SelectSchemaViewDialog').close();
                 console.log(self.dbTgtDetList())
@@ -612,7 +612,7 @@ define([
         self.procConvertedText('');  
         document.querySelector('#SelectSchemaViewDialog').open();
         $.ajax({
-            url: self.TGTonepDepUrl() + "/pgconvertviewprocedure",
+            url: self.TGTonepDepUrl() + "/convertCode",
             data: JSON.stringify({
                 dbName : self.TGTcurrentPDB(),
                 viewProc : self.viewText()[0]
@@ -621,12 +621,11 @@ define([
             dataType: 'json',
             context: self,
             error: function (e) {
-                //console.log(e);
+                console.log(e);
             },
             success: function (data) {
                 document.querySelector('#SelectSchemaViewDialog').close();
-                self.procConvertedText(data[0]);
-                console.log(self);
+                self.procConvertedText(data);
                 return self;
             }
         })
