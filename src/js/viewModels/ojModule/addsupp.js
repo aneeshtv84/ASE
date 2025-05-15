@@ -87,13 +87,12 @@ function (oj, ko, $, app,PagingDataProviderView, ArrayDataProvider,ArrayTreeData
                     }
                 },
                 success: function (data) {
-                    
-                            self.dbSuppInfo.push({ 'DBName': data[0].name , 'Status' : data[0].Truncation})
-                             getDomains();
-                             document.querySelector('#SuppLogDialog').close();
-                             return self;
-                    }
-                    
+                    console.log(data)
+                    self.dbSuppInfo.push({ 'DBName': data[0].name , 'Status' : data[0].Truncation})
+                    getDomains();
+                    document.querySelector('#SuppLogDialog').close();
+                    return self;
+                }   
             })
         }
         }
@@ -251,7 +250,7 @@ function (oj, ko, $, app,PagingDataProviderView, ArrayDataProvider,ArrayTreeData
             document.querySelector('#SelectSchemaDialog').open();
             self.tableNameList([]);
             $.ajax({
-                url: self.DepName() + "/tablelist",
+                url: self.DepName() + "/tableListOnly",
                 type: 'POST',
                 data: JSON.stringify({
                     dbname : self.currentPDB(),
@@ -271,10 +270,9 @@ function (oj, ko, $, app,PagingDataProviderView, ArrayDataProvider,ArrayTreeData
                 success: function (data) {
                     document.getElementById('tableTrandata').refresh();
                     for (var i = 0; i < data[0].length; i++) {
-                        self.tableNameList.push({'TABLE_NAME': data[0][i].owner + '.' + data[0][i].table_name , 'ROWCNT' : data[0][i].num_rows ,'AVGSPC': data[0][i].avg_space,'ANALYZETIME' : data[0][i].last_analyzed});
+                        self.tableNameList.push({'TABLE_NAME': data[0][i].owner + '.' + data[0][i].name , 'ROWCNT' : data[0][i].rowtotal ,'AVGSPC': data[0][i].avg_space,'ANALYZETIME' : data[0][i].last_analyzed});
                     }
                     self.tableNameList.valueHasMutated();
-                    //console.log(self);
                     document.querySelector('#SelectSchemaDialog').close();
                     return self;
                 }
@@ -403,36 +401,36 @@ function (oj, ko, $, app,PagingDataProviderView, ArrayDataProvider,ArrayTreeData
                 }
             }
 
-           self.addSuppLog = function (data, event) {
-       
-            if(self.tranlevelVal() == 'schematrandata'){
-                document.querySelector('#DeleteSupp').close();
-                let valid = self._checkValidationGroup("tracker");
-                if (valid) {
-                document.querySelector('#SuppLogDialog').open();
+            self.addSuppLog = function (data, event) {
+                if(self.tranlevelVal() == 'schematrandata'){
+                    document.querySelector('#DeleteSupp').close();
+                    let valid = self._checkValidationGroup("tracker");
+                    console.log(valid)
+                    if (valid) {
+                        document.querySelector('#SuppLogDialog').open();
+                        self.AddSuppMsg([]);
+                        params.data = JSON.stringify({
+                            domain : self.selectedDomCategory(),
+                            alias : self.currentPDB(),
+                            tranlevel : self.tranlevelVal(),
+                            SchemaName : self.SchemaName(),
+                            buttonValue : self.buttonValue() ,
+                            opts : self.STVal()
+                        })
+                        $.ajax(params)
+                    }
+                }
+                else if(self.tranlevelVal() == 'trandata') {
+                    document.querySelector('#SuppLogDialog').open();
                     self.AddSuppMsg([]);
                     params.data = JSON.stringify({
-                                    domain : self.selectedDomCategory(),
-                                    alias : self.currentPDB(),
-                                    tranlevel : self.tranlevelVal(),
-                                    SchemaName : self.SchemaName(),
-                                    buttonValue : self.buttonValue() ,
-                                    opts : self.STVal()
-                                })
-                    $.ajax(params)
-                            }
-                            }
-            else if(self.tranlevelVal() == 'trandata') {
-                document.querySelector('#SuppLogDialog').open();
-                self.AddSuppMsg([]);
-                    params.data = JSON.stringify({
-                                    domain : self.selectedDomCategory(),
-                                    alias : self.currentPDB(),
-                                    tranlevel : self.tranlevelVal(),
-                                    tabNameList : self.tabNameList(),
-                                    buttonValue : self.buttonValue() ,
-                                    opts : self.STVal()
-                            })
+                        domain : self.selectedDomCategory(),
+                        alias : self.currentPDB(),
+                        tranlevel : self.tranlevelVal(),
+                        tabNameList : self.tabNameList(),
+                        buttonValue : self.buttonValue() ,
+                        opts : self.STVal()
+                    })
                     $.ajax(params)
                 }
             }

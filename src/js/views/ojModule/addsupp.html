@@ -21,7 +21,7 @@
 
 <oj-bind-for-each data="[[dbSuppInfo]]">
     <template data-oj-as="ExtMsg">
-        <oj-bind-if test="[[ExtMsg.data.Status === 'Secondary truncation point is NOT set']]">
+        <oj-bind-if test="[[ExtMsg.data.Status === 'Secondary truncation point is set']]">
             <div class="oj-panel oj-sm-margin-1x-bottom oj-xl-margin-5x  oj-sm-padding-5x">
                 <h6 class="demo-center-items oj-typography-heading-md">Schema/Table Supplemental Logging</h6>
                 <div class="oj-panel demo-center-items oj-xl-margin-5x">

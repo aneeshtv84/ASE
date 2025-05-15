@@ -4555,6 +4555,46 @@ class lmDictDet(Resource):
         return [capture_name_fetch.to_dict('records'), dict_det_fetch.to_dict('records')]
 
 
+class tableListOnly(Resource):
+    def post(self):
+        data = request.get_json(force=True)
+        dbname = data['dbname']
+        schemaList = data['schemaList']
+        val = selectConn(dbname)
+        con = val[0]
+        table_fetch = ''
+        tabSizeFrame = []
+        try:
+            cursor = con.cursor()
+            i = 1
+            bindNames = ','.join(':%d' % i for i in range(len(schemaList)))
+            schemas = []
+            for schema in schemaList:
+                schemas.append(schema)
+                cursor.execute("SELECT u.name  AS schema_name, so.name AS table_name FROM sysobjects AS so JOIN sysusers AS u ON so.uid = u.uid WHERE so.type = 'U' AND (so.sysstat2 & 1024) = 0   /* not remote */ AND (so.sysstat2 & 2048) = 0   /* not proxy */ AND u.name = ?       /* filter by schema name */ ORDER BY u.name, so.name" ,(schema,))
+                table_fetch = cursor.fetchall()
+                for row in table_fetch:
+                    schema_name = row[0]
+                    table_name = row[1]
+                    full_name = f"{schema_name}.{table_name}"
+                    cursor.execute(f"sp_spaceused '{full_name}'")
+                    result = cursor.fetchall()[0]
+                    columns = [desc[0] for desc in cursor.description]
+                    space_info = dict(zip(columns, result))
+                    space_info['owner'] = schema_name
+                    tabSizeFrame.append(space_info)
+                print(tabSizeFrame)
+        except Exception  as e:  
+                print(str(e))
+        finally:
+                if con:
+                   cursor.close()
+                   con.close()
+        return [tabSizeFrame]
+
+
+
+
 class tableList(Resource):
     def post(self):
         data = request.get_json(force=True)
@@ -4746,7 +4786,7 @@ class tableList(Resource):
                         print(collist)
                         if '.' in tabName:
                             schema, table = tabName.split('.', 1)
-                            safe_tabName = f'{schema}."{table}"'
+                            safe_tabName = f'"{schema}"."{table}"'
                         else:
                             safe_tabName = f'"{tabName}"'
                         if len(pkList) > 0:
@@ -4843,78 +4883,62 @@ class suppLog(Resource):
         dbname = data['dbname']
         val = selectConn(dbname)
         con = val[0]
-        dbver = val[1]
-        dbminver = val[2]
-        cdb_check = 'NO'
-        result = ''
-        if 'ORA-' in dbver:
-            result = dbver
-        else:
-            try:
-                if int(dbver) == 11 and int(dbminver) == 4:
-                    db_param = """select value from v$parameter where name='enable_goldengate_replication'"""
-                    supp_log = '''select LOG_MODE,SUPPLEMENTAL_LOG_DATA_MIN,SUPPLEMENTAL_LOG_DATA_PK,SUPPLEMENTAL_LOG_DATA_UI,
-                             SUPPLEMENTAL_LOG_DATA_FK,SUPPLEMENTAL_LOG_DATA_ALL,DB_UNIQUE_NAME,FORCE_LOGGING, from v$database'''
-                elif int(dbver) > 11:
-                    cdb_check = '''SELECT CDB from v$database'''
-                    cdb_check_fetch = pd.read_sql_query(cdb_check, con)
-                    cdb_check = cdb_check_fetch.to_dict('records')
-                    cdb_check = cdb_check[0]['CDB']
-                    db_param = """select value from v$parameter where name='enable_goldengate_replication'"""
-                    supp_log = '''select LOG_MODE,SUPPLEMENTAL_LOG_DATA_MIN,SUPPLEMENTAL_LOG_DATA_PK,SUPPLEMENTAL_LOG_DATA_UI,
-                             SUPPLEMENTAL_LOG_DATA_FK,SUPPLEMENTAL_LOG_DATA_ALL,DB_UNIQUE_NAME,FORCE_LOGGING from v$database'''
-                else:
-                    db_param = """select 'TRUE' value from dual"""
-                    supp_log = '''select LOG_MODE,SUPPLEMENTAL_LOG_DATA_MIN,SUPPLEMENTAL_LOG_DATA_PK,SUPPLEMENTAL_LOG_DATA_UI,
-                             SUPPLEMENTAL_LOG_DATA_FK,SUPPLEMENTAL_LOG_DATA_ALL,DB_UNIQUE_NAME,FORCE_LOGGING from v$database'''
-                supp_data_fetch = pd.read_sql_query(supp_log, con)
-                db_param_fetch = pd.read_sql_query(db_param, con)
-                result = pd.concat([supp_data_fetch, db_param_fetch], axis=1)
-                result = result.to_dict('records')
-            except cx_Oracle.DatabaseError as e:
-                result = str(e)
-            finally:
-                if con:
-                    con.close()
-        return [result, cdb_check]
+        result={} 
+        try:
+            cursor = con.cursor();
+            name = dbname.split('@')[0]
+
+            cursor.execute("use {}".format(name))
+            cursor.execute("dbcc gettrunc")
+            row = cursor.fetchone()
+
+            if row:
+                result = {
+                    "ltm_truncpage": row[0],
+                    "ltm_trunc_state": row[1],
+                    "db_rep_stat": row[2],
+                    "gen_id": row[3],
+                    "dbid": row[4],
+                    "dbname": row[5],
+                    "lti_version": row[6]
+                }
+            else:
+                result = {"error": "No DBCC result"}
+
+            if row:
+                truncation_status = (
+                    "Secondary truncation point is set" if row[1] == 1
+                    else "Secondary truncation point is NOT set"
+                )
+                result = { 'name' : row[5],'Status': row[1],'Truncation': truncation_status}
+            else:
+                result = { 'name' : 'N/A' ,'Status': 'N/A','Truncation': 'N/A'}
+            print(result)
+        except Exception as e:
+              result = str(e)
+              print(result)
+        finally:
+              if con:
+                 cursor.close()
+                 con.close()
+        return [result]
 
 
 class suppLogSchema(Resource):
     def post(self):
         data = request.get_json(force=True)
         dbname = data['dbname']
-        pdbName = data['pdbName']
-        cdbCheck = data['cdbCheck']
         val = selectConn(dbname)
         con = val[0]
-        dbver = val[1]
-        dbminver = val[2]
         schema_data_fetch = ''
-        if 'ORA-' in dbver:
-            schema_data_fetch = dbver
-        else:
-            try:
-                if cdbCheck == 'YES' and len(pdbName) > 0:
-                    cursor = con.cursor()
-                    cursor.execute('''alter session set container=''' + pdbName)
-                    schema_list = """select username from  all_users
-                            where username not in('SYS','SYSTEM','PUBLIC','ORACLE_OCM','DBSNMP','APPQOSSYS','ANONYMOUS','DBSFWUSER','SI_INFORMTN_SCHEMA',
-                         'CTXSYS','AUDSYS','OJVMSYS','REMOTE_SCHEDULER_AGENT','GSMADMIN_INTERNAL','ORDPLUGINS','MDSYS','OLAPSYS','LBACSYS','OUTLN','XDB',
-                         'WMSYS','DVF','ORDDATA','DVSYS','ORDSYS','SYSDG','SYSRAC','SYSKM','SYSBACKUP','MDDATA','GGSYS' ,
-                         'GSMCATUSER','XS$NULL','PDBADMIN','DIP','SYS$UMF')"""
-                    schema_data_fetch = pd.read_sql_query(schema_list, con)
-                    schema_data_fetch = schema_data_fetch.to_dict('records')
-                else:
-                    schema_list = """select username from  all_users
-                            where username not in('SYS','SYSTEM','PUBLIC','ORACLE_OCM','DBSNMP','APPQOSSYS','ANONYMOUS','DBSFWUSER','SI_INFORMTN_SCHEMA',
-                         'CTXSYS','AUDSYS','OJVMSYS','REMOTE_SCHEDULER_AGENT','GSMADMIN_INTERNAL','ORDPLUGINS','MDSYS','OLAPSYS','LBACSYS','OUTLN','XDB',
-                         'WMSYS','DVF','ORDDATA','DVSYS','ORDSYS','SYSDG','SYSRAC','SYSKM','SYSBACKUP','MDDATA','GGSYS' ,
-                         'GSMCATUSER','XS$NULL','PDBADMIN','DIP','SYS$UMF')"""
-                    schema_data_fetch = pd.read_sql_query(schema_list, con)
-                    schema_data_fetch = schema_data_fetch.to_dict('records')
-            except cx_Oracle.DatabaseError as e:
-                schema_data_fetch = str(e)
-            finally:
+        try:
+            schema_list = "SELECT DISTINCT ltrim(rtrim(user_name(uid))) AS username  FROM sysobjects  WHERE type = 'U'"
+            schema_data_fetch = pd.read_sql_query(schema_list, con)
+            schema_data_fetch = schema_data_fetch.to_dict('records')
+            print(schema_data_fetch)
+        except Exception as e:
+            schema_data_fetch = str(e)
+        finally:
                 if con:
                     con.close()
         return [schema_data_fetch]
@@ -8605,3 +8629,4 @@ api.add_resource(updateExcelTrigger, '/updateExcelTrigger')
 api.add_resource(getZoneDetails, '/getZoneDetails')
 api.add_resource(updateZoneDetails, '/updateZoneDetails')
 api.add_resource(automateTrigger, '/automateTrigger')
+api.add_resource(tableListOnly, '/tableListOnly')
