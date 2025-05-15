@@ -1,5 +1,5 @@
 <div class="oj-panel oj-sm-margin-2x-bottom oj-xl-margin-5x  oj-sm-padding-4x ">
-    <oj-select-single required label-hint="Choose CDB(in CDB Mode)" label-edge="inside" id="dbdet" style="max-width:18em"
+    <oj-select-single required label-hint="Choose Database Alias" label-edge="inside" id="dbdet" style="max-width:18em"
         label-hint="Database Name" data="[[DBDetDP]]" value="{{currentDB}}" on-value-changed="[[getSuppLog]]">
     </oj-select-single>
 </div>
@@ -21,7 +21,7 @@
 
 <oj-bind-for-each data="[[dbSuppInfo]]">
     <template data-oj-as="ExtMsg">
-        <oj-bind-if test="[[ExtMsg.data.SuppLog === 'YES' && ExtMsg.data.LogMode === 'ARCHIVELOG' && ExtMsg.data.FL === 'YES'  && ExtMsg.data.DB_Param === 'TRUE']]">
+        <oj-bind-if test="[[ExtMsg.data.Status === 'Secondary truncation point is NOT set']]">
             <div class="oj-panel oj-sm-margin-1x-bottom oj-xl-margin-5x  oj-sm-padding-5x">
                 <h6 class="demo-center-items oj-typography-heading-md">Schema/Table Supplemental Logging</h6>
                 <div class="oj-panel demo-center-items oj-xl-margin-5x">
@@ -39,7 +39,7 @@
                             value="{{selectedDomCategory}}" on-oj-value-updated="[[domSelectionChanged]]">
                         </oj-combobox-one>
                         <oj-label for="comboboxed2">Credential Alias</oj-label>
-                        <oj-combobox-one label-hint="Choose PDB(in CDB Mode)" label-edge="inside"  style="max-width:25em" id="comboboxed2" options="{{aliascategories}}" value="{{currentPDB}}"
+                        <oj-combobox-one label-hint="Choose Database Alias" label-edge="inside"  style="max-width:25em" id="comboboxed2" options="{{aliascategories}}" value="{{currentPDB}}"
                             on-oj-value-updated="[[suppLogSchema]]">
                         </oj-combobox-one>
                     </oj-form-layout>
@@ -152,27 +152,11 @@
             </div>
         </oj-bind-if>
 
-        <oj-bind-if test="[[ExtMsg.data.SuppLog === 'NO']]">
+        <oj-bind-if test="[[ExtMsg.data.Status === 'Secondary truncation point is NOT set']]">
             <br>
-            <span class="oj-text-color-danger">Please Enable Minimal Supplemental Logging</span>
+            <span class="oj-text-color-danger">Please Initialize the Secondary Truncation Point</span>
         </oj-bind-if>
-
-        <oj-bind-if test="[[ExtMsg.data.LogMode === 'NOARCHIVELOG']]">
-            <br>
-            <span class="oj-text-color-danger">Please Enable ARCHIVELOG Mode</span>
-        </oj-bind-if>
-
-        <oj-bind-if test="[[ExtMsg.data.FL === 'NO']]">
-            <br>
-            <span class="oj-text-color-danger">Please Enable Force Logging Mode</span>
-        </oj-bind-if>
-
-        <oj-bind-if test="[[ExtMsg.data.DB_Param === 'FALSE']]">
-            <br>
-            <span class="oj-text-color-danger">Please set Database Parameter enable_goldengate_replication=TRUE</span>
-        </oj-bind-if>
-
-    </template>
+     </template>
 </oj-bind-for-each>
 
 <oj-dialog id="SelectSchemaDialog" dialog-title="Fetching Schema Details" modality="modeless"

@@ -87,24 +87,13 @@ function (oj, ko, $, app,PagingDataProviderView, ArrayDataProvider,ArrayTreeData
                     }
                 },
                 success: function (data) {
-                    self.OPError([]);
-                    if(data[0].includes("ORA-")){
-                        self.OPError(data[0]);
-                        document.querySelector('#SuppLogDialog').close();
-                        document.querySelector('#ErrorLoad').open();
-                    }else{
-                        for (var i = 0; i < data[0].length; i++) {
-                            self.dbSuppInfo.push({ 'LogMode': data[0][i].LOG_MODE, 'SuppLog': data[0][i].SUPPLEMENTAL_LOG_DATA_MIN, 'SuppLogPK': data[0][i].SUPPLEMENTAL_LOG_DATA_PK, 'SuppLogUI': data[0][i].SUPPLEMENTAL_LOG_DATA_UI, 'SuppLogFK': data[0][i].SUPPLEMENTAL_LOG_DATA_FK, 'SuppLogAll': data[0][i].SUPPLEMENTAL_LOG_DATA_ALL, 'DBUnique': data[0][i].DB_UNIQUE_NAME, 'FL': data[0][i].FORCE_LOGGING ,'DB_Param' : data[0][i].VALUE });
-                             if (data[0][i].SUPPLEMENTAL_LOG_DATA_MIN != 'NO' &&   data[0][i].LOG_MODE != 'NOARCHIVELOG' &&  data[0][i].FORCE_LOGGING != 'NO' && data[0][i].VALUE != 'FALSE'){
+                    
+                            self.dbSuppInfo.push({ 'DBName': data[0].name , 'Status' : data[0].Truncation})
                              getDomains();
-                             }
-                         }
-                         self.CDBCheck(data[1]);
                              document.querySelector('#SuppLogDialog').close();
                              return self;
                     }
                     
-                }
             })
         }
         }
@@ -113,41 +102,13 @@ function (oj, ko, $, app,PagingDataProviderView, ArrayDataProvider,ArrayTreeData
         self.SchemaName = ko.observable();
 
         self.supplogcolumnArray = [{
-            headerText: 'Minimum SupplementalLog ',
-            field: 'SuppLog'
+            headerText: 'Database Name',
+            field: 'DBName'
         },
         {
-            headerText: 'Log Mode ',
-            field: 'LogMode'
-        },
-        {
-            headerText: 'FORCE LOGGING ',
-            field: 'FL'
-        },
-        {
-            headerText: 'ENABLE_GOLDENGATE_REPLICATION ',
-            field: 'DB_Param'
-        },
-        {
-            headerText: 'PrimaryKey Log',
-            field: 'SuppLogPK'
-        },
-        {
-            headerText: 'Unique Index Log ',
-            field: 'SuppLogUI'
-        },
-        {
-            headerText: 'ForeignKey Log ',
-            field: 'SuppLogFK'
-        },
-        {
-            headerText: 'All Column Log ',
-            field: 'SuppLogAll'
-        },
-        {
-            headerText: 'DB Name ',
-            field: 'DBUnique'
-        },
+            headerText: 'Status',
+            field: 'Status'
+        }
 
         ];
 
@@ -228,10 +189,9 @@ function (oj, ko, $, app,PagingDataProviderView, ArrayDataProvider,ArrayTreeData
 
         self.OthDomProvider = new ArrayDataProvider(self.othdom, { keyAttributes: 'value' });
 
-        self.tranlevelVal = ko.observable('schematrandata');
+        self.tranlevelVal = ko.observable('trandata');
 
         var tranlevel = [
-            { value: 'schematrandata', label: 'Schema Trandata' },
             { value: 'trandata', label: 'Trandata' }
         ];
 
@@ -271,7 +231,7 @@ function (oj, ko, $, app,PagingDataProviderView, ArrayDataProvider,ArrayTreeData
                 },
                 success: function (data) {
                     for (var i = 0; i < data[0].length; i++) {
-                        self.schemaNameList.push({ 'label': data[0][i].USERNAME, 'value': data[0][i].USERNAME });
+                        self.schemaNameList.push({ 'label': data[0][i].username, 'value': data[0][i].username });
                     }
                     self.schemaNameList.valueHasMutated();
                     return self;

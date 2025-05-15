@@ -1581,7 +1581,7 @@ self.currentExtParam = ko.computed( {
                                     'index_size': indexSize, 
                                     'unused': unused
                                 });
-                                total = total + parseInt(data[0][i].avg_space);
+                                total = total + reserved;
                             }
                             self.avg_space(total);
                             self.tableNameList.valueHasMutated();
