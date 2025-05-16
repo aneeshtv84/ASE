@@ -71,6 +71,7 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'appController',
                             self.ExtData1([]);
                             self.PmpData1([]);
                             self.RepData1([]);
+                            console.log(data)
                             for (var i = 0; i < data[0].length; i++) {
                                 if (data[0][i].extstat == 'ABENDED') {
                                     self.styleExt = { "background-color": "IndianRed" };

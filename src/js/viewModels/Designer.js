@@ -715,6 +715,7 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'appController',"ojs/ojoffcanvas", '
                             }
                         },
                         success: function (data) {
+                            console.log(data)
                             self.TGTonepDepUrl(data[0]);
                             getRmtHost();
                             return self;
@@ -744,7 +745,7 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'appController',"ojs/ojoffcanvas", '
                                     self.rmtMgrPort(data[0][i].mgrport);
                                 }
                                 self.rmttrailSubDir(data[1])
-                                //console.log(self);
+                                console.log(self);
                                 return self;
 
                             }
@@ -1011,7 +1012,7 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'appController',"ojs/ojoffcanvas", '
                                 self.dbVer(data[3][i].VERSION);
                             }
                             self.dbTgtDetList.valueHasMutated();
-                            self.trailSubDir(data[4] + '/dirdat');
+                            self.trailSubDir(data[4]);
                             document.querySelector('#SelectSchemaDialog').close();
                             queryChkTbl();
                         }
@@ -1085,10 +1086,10 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'appController',"ojs/ojoffcanvas", '
                 let LoadName = '';
 
                 self.SrcDBSchemaFetch = function (data, event) {
-                    document.querySelector('#SelectSchemaDialog').open();
+                   // document.querySelector('#SelectSchemaDialog').open();
                     self.tableNameList([]);
                     $.ajax({
-                        url: self.SRConepDepUrl() + "/tablelist",
+                        url: self.SRConepDepUrl() + "/tableListOnly",
                         type: 'POST',
                         data: JSON.stringify({
                             dbname: self.SRCcurrentPDB(),
@@ -1108,15 +1109,15 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'appController',"ojs/ojoffcanvas", '
                         },
                         success: function (data) {
                             document.querySelector('#SelectSchemaDialog').close();
-
                             document.querySelector('#TABLEExclude').open();
+                            console.log(data[0])
                             for (var i = 0; i < data[0].length; i++) {
-                                self.tableNameList.push({ 'TABLE_NAME': data[0][i].owner + '.' + data[0][i].table_name, 'ROWCNT': data[0][i].num_rows, 'AVGSPC': data[0][i].avg_space, 'ANALYZETIME': data[0][i].last_analyzed });
+                                self.tableNameList.push({ 'TABLE_NAME': data[0][i].owner + '.' + data[0][i].name, 'ROWCNT': data[0][i].rowtotal, 'AVGSPC': data[0][i].reserved });
                             }
                             self.tableNameList.valueHasMutated();
-                            self.trailSubDir(data[1] + '/dirdat');
+                            self.trailSubDir(data[1]);
                             //console.log(self);
-                            document.querySelector('#SelectSchemaDialog').close();
+                          //  document.querySelector('#SelectSchemaDialog').close();
                             return self;
                         }
 
@@ -1216,10 +1217,6 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'appController',"ojs/ojoffcanvas", '
                     {
                         headerText: 'Average Size(MB)',
                         field: 'AVGSPC'
-                    },
-                    {
-                        headerText: 'Analyze Time',
-                        field: 'ANALYZETIME'
                     }]
 
 
@@ -1488,7 +1485,7 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'appController',"ojs/ojoffcanvas", '
                             var rmthostParam = 'exttrail ' + self.SrcExtTrail() + '\n'
                         }
                         else if (self.currentTrailType() == 'rmttrail' || self.currentExtType() === 'Pump') {
-                            var rmthostParam = 'RMTHOST ' + self.rmtHostName() + ',MGRPORT ' + self.rmtMgrPort() + ' , TCPBUFSIZE  4194304,TCPFLUSHBYTES 4194304,ENCRYPT AES256' + '\n' + 'ENCRYPTTRAIL' + '\n' + 'rmttrail ' + self.trailSubDir() + self.trailSubDirSlash() + self.TrailName() + '\n';
+                            var rmthostParam = 'RMTHOST ' + self.rmtHostName() + ',MGRPORT ' + self.rmtMgrPort() + ' , TCPBUFSIZE  4194304,TCPFLUSHBYTES 4194304,ENCRYPT AES256' + '\n' + 'ENCRYPTTRAIL' + '\n' + 'rmttrail ' + self.rmttrailSubDir() + self.trailSubDirSlash() + self.TrailName() + '\n';
                         }
 
                         return rmthostParam;
@@ -1498,7 +1495,7 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'appController',"ojs/ojoffcanvas", '
 
                 self.currentExtParam = ko.computed({
                     read: function () {
-                        var currentExtParam = 'EXTRACT ' + self.ExtName() + '\n' + 'useridalias ' + self.SRCcurrentPDB() + ' domain ' + self.selectedSRCDomCategory() + '\n' + self.rmthostParam() + '\n' + 'REPORTCOUNT EVERY 5 MINUTES, RATE' + '\n' + self.currentExtOptParamList() + '\n' + self.currentSchemaParam() + self.ExtSchemaParam();
+                        var currentExtParam = 'EXTRACT ' + self.ExtName() + '\n' + 'SOURCEDB ' + self.SRCcurrentPDB() + ' , useridalias ' +self.SRCcurrentPDB() + ' , domain ' + self.selectedSRCDomCategory() + '\n' + self.rmthostParam() + '\n' + 'REPORTCOUNT EVERY 5 MINUTES, RATE' + '\n' + self.currentExtOptParamList() + '\n' + self.currentSchemaParam() + self.ExtSchemaParam();
                         return currentExtParam;
                     }
                 });
@@ -1569,16 +1566,16 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'appController',"ojs/ojoffcanvas", '
                             domain: self.selectedSRCDomCategory(),
                             alias: self.SRCcurrentPDB(),
                             mode: self.currentExtType(),
-                            threads: self.Threads(),
                             beginmode: self.currentbeginmode(),
                             trailtype: self.currentTrailType(),
                             trailsubdir: self.trailSubDir(),
+                            rmttrailSubDir : self.rmttrailSubDir(),
+                            rmtTrailName : self.rmtTrailName(),
                             trailsubdirslash: self.trailSubDirSlash(),
                             trail: self.TrailName(),
                             trailsize: self.trailSize(),
                             currentExtParamList: self.newExtParamList(),
-                            startExtChk: self.startExtChk(),
-                            regExtChk: self.regExtChk()
+                            startExtChk: self.startExtChk()
                         }),
                         dataType: 'json',
                         timeout: sessionStorage.getItem("timeInetrval"),
@@ -1861,6 +1858,7 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'appController',"ojs/ojoffcanvas", '
 
                 self.addChkptTbl = function (data, event) {
                     self.AddChkptTblMsg('');
+                    console.log(self.TGTonepDepUrl() )
                     document.querySelector('#AddCkptTblDialog').close();
                     document.querySelector('#addChkTblProgress').open();
                     //console.log(self.selectedTGTDomCategory())

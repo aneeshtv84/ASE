@@ -1,32 +1,11 @@
 {
     "nodesA": [
-     {
-        "id": "Classic Extract",
-        "label": "Classic Extract",
-        "initials": "CE",
-        "anchor": "mauve",
-        "image" : "css/images/ce-icon.png"
-      },
       {
         "id": "Parallel Replicat",
         "label": "Parallel Replicat",
         "initials": "PR",
         "anchor": "green",
         "image" : "css/images/pr-icon.png"
-      },
-      {
-        "id": "Parallel Integrated Replicat",
-        "label": "Parallel Integrated Replicat",
-        "initials": "PIR",
-        "anchor": "green",
-        "image" : "css/images/pir-icon.png"
-      },
-      {
-        "id": "Integrated Replicat",
-        "label": "Integrated Replicat",
-        "initials": "IR",
-        "anchor": "green",
-        "image" : "css/images/ir-icon.png"
       },
       {
         "id": "Coordinated Replicat",
@@ -55,15 +34,15 @@
     "anchor": "lilac",
     "image" : "css/images/source-cs-icon.png"
   },
-{
-"id": "Integrated Extract",
-"label": "Integrated Extract",
-"initials": "IE",
-"x": 200,
-"y": 205,
-"anchor": "mauve",
-"image" : "css/images/ie-icon.png"
-},
+  {
+    "id": "Classic Extract",
+    "label": "Classic Extract",
+    "initials": "CE",
+    "x": 200,
+    "y": 205,
+    "anchor": "mauve",
+    "image" : "css/images/ce-icon.png"
+  },
 {
   "id": "Target Deployment",
   "label": "Target Deployment",
@@ -109,11 +88,11 @@
   {
     "id": "L1",
     "startNode": "Source CredentialStore",
-    "endNode": "Integrated Extract"
+    "endNode": "Classic Extract"
   },
   {
     "id": "L2",
-    "startNode": "Integrated Extract",
+    "startNode": "Classic Extract",
     "endNode": "Target Deployment"
   },
   {

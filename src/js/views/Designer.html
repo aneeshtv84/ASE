@@ -135,7 +135,7 @@
 
                         <oj-label for="SRCCredentialAlias" show-required="[[isRequired]]" help.definition='[[helpDef]]'
                             help.source='[[helpSource]]'>Credential Alias</oj-label>
-                        <oj-combobox-one required label-hint="Choose CDB(in CDB Mode)" label-edge="inside"
+                        <oj-combobox-one required label-hint="Choose Database Alias" label-edge="inside"
                             id="SRCCredentialAlias" options="[[SRCaliascategories]]" value="{{SRCcurrentPDB}}"
                             on-oj-value-updated="[[CDBData]]">
                         </oj-combobox-one>
@@ -198,7 +198,7 @@
 
                         <oj-label for="TGTCredentialAlias" show-required="[[isRequired]]" help.definition='[[helpDef]]'
                             help.source='[[helpSource]]'>Credential Alias</oj-label>
-                        <oj-combobox-one required label-hint="Choose PDB(in CDB Mode)" label-edge="inside"
+                        <oj-combobox-one required label-hint="Choose Database Alias" label-edge="inside"
                             id="TGTCredentialAlias" options="[[TGTaliascategories]]" value="{{TGTcurrentPDB}}"
                             on-oj-value-updated="[[DBTgtSchema]]">
                         </oj-combobox-one>
@@ -286,7 +286,7 @@
             <oj-bind-if test="[[selectedStepValue() === 'stp1']]">
                 <div class="oj-flex">
                     <div class="oj-panel  oj-sm-margin-2x-bottom oj-xl-margin-2x oj-xl-padding-10x oj-lg-margin-2x oj-lg-padding-10x oj-md-margin-2x oj-md-padding-10x oj-sm-margin-1x oj-sm-padding-1x "
-                        style="width: 32%;text-align:left;">
+                        style="width: 40%;text-align:left;">
                         <oj-form-layout id="fl2"  readonly="[[isFormReadonly()]]" label-edge="top"
                             max-columns="1">
                             <oj-bind-if test="[[currentExtType() !== 'EXTTRAILSOURCE']]">
@@ -358,7 +358,7 @@
                     </div>
 
                     <div class="oj-panel  oj-sm-margin-2x-bottom oj-xl-margin-2x oj-xl-padding-10x oj-lg-margin-2x oj-lg-padding-10x oj-md-margin-2x oj-md-padding-10x oj-sm-margin-1x oj-sm-padding-1x "
-                        style="width: 31%;text-align: left;">
+                        style="width: 50%;text-align: left;">
                         <oj-form-layout id="fl2"  readonly="[[isFormReadonly()]]" label-edge="top"
                             max-columns="1">
                             <oj-bind-if test="[[currentExtType() === 'EXTTRAILSOURCE']]">
@@ -414,9 +414,16 @@
                                     </oj-label>
                                     <oj-input-text readonly id="rmtMgrPort" value="{{rmtMgrPort}}">
                                     </oj-input-text>
+                                    <oj-input-text required id="Trail Name" value="{{rmtTrailName}}" length.max="2">
+                                    </oj-input-text>
+                                    <oj-label for="trailsubdir-input" show-required="[[isRequired]]"
+                                        help.definition='[[helpDef]]' help.source='[[helpSource]]'>Remote Trail Directory
+                                    </oj-label>
+                                    <oj-input-text required id="trailsubdir-input" value="{{rmttrailSubDir}}">
+                                    </oj-input-text>
 
                                 </oj-bind-if>
-
+                                <oj-bind-if test="[[currentTrailType() === 'exttrail']]">
 
                                 <oj-label for="Trail Name" show-required="[[isRequired]]" help.definition='[[helpDef]]'
                                     help.source='[[helpSource]]'>Trail Name
@@ -437,7 +444,7 @@
                             </oj-input-number>
                         </oj-form-layout>
                     </div>
-
+<!-- 
                     <div class="oj-panel  oj-sm-margin-2x-bottom oj-xl-margin-2x oj-xl-padding-10x oj-lg-margin-2x oj-lg-padding-10x oj-md-margin-2x oj-md-padding-10x oj-sm-margin-1x oj-sm-padding-1x"
                         style="width: 32%;text-align:left;">
                         <oj-bind-if test="[[currentExtType() !== 'EXTTRAILSOURCE']]">
@@ -537,7 +544,7 @@
                                 </oj-input-text>
                             </oj-form-layout>
                         </oj-bind-if>
-                    </div>
+                    </div> -->
                 </div>
             </oj-bind-if>
 
