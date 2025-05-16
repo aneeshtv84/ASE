@@ -137,6 +137,8 @@ define(['knockout', 'jquery','appController',  'ojs/ojasyncvalidator-regexp', 'o
                             getTgtDomains();
                           }
                           document.querySelector('#SelectSchemaDialog').close();
+                          self.ButtonVal(true);
+                          self.ApplyMetaButtonVal(true);
                           return self;
                       }
                   })
@@ -832,7 +834,7 @@ self.addChkptTbl = function (data, event) {
      if (valid) {
         self.AddChkptTblMsg('');
         $.ajax({
-            url: self.DepName() + "/ggaddchkpttbl",
+            url: self.TGTonepDepUrl() + "/ggaddchkpttbl",
             type: 'POST',
             data: JSON.stringify({
                 domain: self.selectedTGTDomCategory(),
@@ -842,11 +844,11 @@ self.addChkptTbl = function (data, event) {
             dataType: 'json',
             timeout: sessionStorage.getItem("timeInetrval"),
             context: self,
-                        error: function (xhr, textStatus, errorThrown) {
-                            if(textStatus == 'timeout' || textStatus == 'error'){
-                                document.querySelector('#TimeoutInLoad').open();
-                            }
-                        },
+            error: function (xhr, textStatus, errorThrown) {
+                if(textStatus == 'timeout' || textStatus == 'error'){
+                    document.querySelector('#TimeoutInLoad').open();
+                }
+            },
             success: function (data) {
                 document.querySelector('#chkDlg').close();
                 document.querySelector('#ChkptTblDialog').open();
@@ -1464,12 +1466,13 @@ self.currentExtParam = ko.computed( {
                         success: function (data) {
                             
                             self.ButtonChltbl(false);
-                            self.dbTgtDetList.push({ 'dbname' : data[1].DBNAME,'product' : data[1].prodName,'prodver' : data[1].ProductVersion  ,'OSPlat' : data[1].osPlat});
+                            self.dbTgtDetList.push({ 'dbname' : data[1].DBNAME,'product' : data[1].ProductName,'prodver' : data[1].ProductVersion  ,'OSPlat' : data[1].platform, 'OSVer' : data[1].OSVer , 'OSBIT': data[1].OSBIT, 'DBFile' : data[1].DBFile ,'ServerEdition' : data[1].ServerEdition });
                             self.dbTgtDetList.valueHasMutated();
                             self.trailSubDir(data[2]);
                             queryChkTbl();
                             document.querySelector('#SelectSchemaDialog').close();
                             getGGVersion();
+                            self.ButtonVal(false);
                             return self;
                             
                         }
@@ -1648,8 +1651,8 @@ self.currentExtParam = ko.computed( {
              }
 
              self.valueChangedHandler1 = (event) => {
-                self.ButtonVal(false);
-                self.ApplyMetaButtonVal(false);
+                // self.ButtonVal(false);  
+                // self.ApplyMetaButtonVal(false);
             };
             self.valueChangedHandler = (event) => {
                 self.textVal(false);

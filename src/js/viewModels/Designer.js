@@ -1005,23 +1005,39 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'appController',"ojs/ojoffcanvas", '
                             }
                         },
                         success: function (data) {
-
-                            if(!data[1].includes('ORA-')){
-                            for (var i = 0; i < data[3].length; i++) {
-                                self.dbTgtDetList.push({ 'dbid': data[3][i].DBID, 'dbname': data[3][i].DBNAME, 'pdbname': data[3][i].PDBNAME, 'platform': data[3][i].PLATFORM_NAME, 'host': data[3][i].HOST, 'version': data[3][i].VERSION, 'dbedition': data[3][i].DB_EDITION, 'db_role': data[3][i].DATABASE_ROLE, 'current_scn': data[3][i].CURRENT_SCN, 'cdb': data[3][i].CDB });
-                                self.dbVer(data[3][i].VERSION);
+                            let serverInfo = data[1].ProductName;
+                            if(serverInfo!='PostgreSQL'){
+                                let parts = serverInfo.split('/');
+                                let productName = parts[0].trim();
+                                let productVersion = parts[1].split(' ')[0].trim();
+                                let os = parts[5].split(' ')[0].trim();
+                                let osbit = parts[4].trim();;
+                                let osVersion = parts[5].split(' ')[1].trim();
+                                let dbFile = parts[6].trim();
+                                let buildID = parts[7].trim();
+                                self.schemaNameList.valueHasMutated();
+                                self.dbTgtDetList.push({ 'DBNAME': data[1].DBNAME,'ProductName' : productName,'ProductVersion' : productVersion, 'platform': os ,'OSVer' : osVersion , 'OSBIT': osbit, 'DBFile' : dbFile ,'ServerEdition' : buildID });
                             }
-                            self.dbTgtDetList.valueHasMutated();
-                            self.trailSubDir(data[4]);
+                            else{
+                                self.dbTgtDetList.push({ 'DBNAME' : data[1].DBNAME,'ProductName' : data[1].ProductName,'ProductVersion' : data[1].ProductVersion  ,'platform' : data[1].platform, 'OSVer' : data[1].OSVer , 'OSBIT': data[1].OSBIT, 'DBFile' : data[1].DBFile ,'ServerEdition' : data[1].ServerEdition });
+                            }
                             document.querySelector('#SelectSchemaDialog').close();
-                            queryChkTbl();
-                        }
-                        else{
-                            document.querySelector('#SelectSchemaDialog').close();
-                            document.querySelector('#DBErrDialog').open();
-                            self.OPError(data[1]);
+                        //     if(!data[1].includes('ORA-')){
+                        //     for (var i = 0; i < data[3].length; i++) {
+                        //         self.dbTgtDetList.push({ 'dbid': data[3][i].DBID, 'dbname': data[3][i].DBNAME, 'pdbname': data[3][i].PDBNAME, 'platform': data[3][i].PLATFORM_NAME, 'host': data[3][i].HOST, 'version': data[3][i].VERSION, 'dbedition': data[3][i].DB_EDITION, 'db_role': data[3][i].DATABASE_ROLE, 'current_scn': data[3][i].CURRENT_SCN, 'cdb': data[3][i].CDB });
+                        //         self.dbVer(data[3][i].VERSION);
+                        //     }
+                        //     self.dbTgtDetList.valueHasMutated();
+                        //     self.trailSubDir(data[4]);
+                        //     document.querySelector('#SelectSchemaDialog').close();
+                        //     queryChkTbl();
+                        // }
+                        // else{
+                        //     document.querySelector('#SelectSchemaDialog').close();
+                        //     document.querySelector('#DBErrDialog').open();
+                        //     self.OPError(data[1]);
 
-                        }
+                        // }
 
 
                             return self;
