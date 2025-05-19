@@ -594,7 +594,9 @@ function getILFlow() {
           }
         }
 
-        //console.log(self.selectedNodesValue()[0].split(' ')[0])
+        console.log(self.selectedNodesValue()[0].split(' ')[0])
+        console.log(self.selProcType())
+        console.log(self.selectedMenuItem())
         if (self.selProcType() == 'Ext') {
           self.dialogTitle('View Extract ' + self.selectedNodesValue()[0].split(' ')[0] + ' Info');
           if (self.selectedMenuItem() == 'rpt' || self.selectedMenuItem() == 'chk' || self.selectedMenuItem() == 'stats' || self.selectedMenuItem() == 'startdef' || self.selectedMenuItem() == 'stop' || self.selectedMenuItem() == 'forcestop' || self.selectedMenuItem() == 'kill' || self.selectedMenuItem() == 'edit') {
@@ -918,6 +920,7 @@ function getILFlow() {
             }
           },
           success: function (data) {
+            console.log(self.selectedILActionMenuItem())
             document.querySelector('#RepProgress').close();
             self.ExtRpt(data[0]);
             self.popUpResizeSM('ViewExtractRptDialog');

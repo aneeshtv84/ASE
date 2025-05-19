@@ -1048,22 +1048,22 @@ self.currentExtParam = ko.computed( {
             if (self.LoadOption() === 'sqlldr')
                 {
                     self.currentRepType('SPECIALRUN');  
-                    var currentExtParam = 'EXTRACT ' + self.ExtName() + '\n' + 'useridalias '+ self.SRCcurrentPDB() + ' domain ' + self.selectedSRCDomCategory() + '\n' + self.rmthostParam()  + '\n' + 'BULKLOAD' + '\n' + 'REPORTCOUNT EVERY 1 MINUTES, RATE' + '\n'  + self.currentExtOptParamList()  + '\n' + 'SOURCECATALOG ' + self.pdbList() + '\n' + self.currentSchemaParam() + self.ExtSchemaParam() ;
+                    var currentExtParam = 'EXTRACT ' + self.ExtName() + '\n' + 'sourcedb ' + self.SRCcurrentPDB() + ' , useridalias '+ self.SRCcurrentPDB() + ' , domain ' + self.selectedSRCDomCategory() + '\n' + self.rmthostParam()  + '\n' + 'BULKLOAD' + '\n' + 'REPORTCOUNT EVERY 1 MINUTES, RATE' + '\n'  + self.currentExtOptParamList()  + '\n' + 'SOURCECATALOG ' + self.pdbList() + '\n' + self.currentSchemaParam() + self.ExtSchemaParam() ;
                 }
             else if  (self.LoadOption() === 'file')
                 {
-                    var currentExtParam = 'EXTRACT ' + self.ExtName() + '\n' + 'useridalias '+ self.SRCcurrentPDB() + ' domain ' + self.selectedSRCDomCategory() + '\n' + self.rmthostParam()  + '\n' + 'REPORTCOUNT EVERY 1 MINUTES, RATE' + '\n'  + self.currentExtOptParamList() + '\n' + 'SOURCECATALOG ' + self.pdbList() + '\n' + self.currentSchemaParam() + self.ExtSchemaParam() ;
+                    var currentExtParam = 'EXTRACT ' + self.ExtName() + '\n' + 'sourcedb ' + self.SRCcurrentPDB() + ' , useridalias '+ self.SRCcurrentPDB() + ' , domain ' + self.selectedSRCDomCategory() + '\n' + self.rmthostParam()  + '\n' + 'REPORTCOUNT EVERY 1 MINUTES, RATE' + '\n'  + self.currentExtOptParamList() + '\n' + 'SOURCECATALOG ' + self.pdbList() + '\n' + self.currentSchemaParam() + self.ExtSchemaParam() ;
                 }
             }
         else{
             if (self.LoadOption() === 'sqlldr')
             {
                 self.currentRepType('SPECIALRUN');  
-                var currentExtParam = 'EXTRACT ' + self.ExtName() + '\n' + 'useridalias '+ self.SRCcurrentPDB() + ' domain ' + self.selectedSRCDomCategory() + '\n' + self.rmthostParam()  + '\n' + 'BULKLOAD' + '\n' + 'REPORTCOUNT EVERY 1 MINUTES, RATE' + '\n'  + self.currentExtOptParamList()  + '\n' + self.currentSchemaParam() + self.ExtSchemaParam() ;
+                var currentExtParam = 'EXTRACT ' + self.ExtName() + '\n' + 'sourcedb ' + self.SRCcurrentPDB() + ' ,useridalias '+ self.SRCcurrentPDB() + ' , domain ' + self.selectedSRCDomCategory() + '\n' + self.rmthostParam()  + '\n' + 'BULKLOAD' + '\n' + 'REPORTCOUNT EVERY 1 MINUTES, RATE' + '\n'  + self.currentExtOptParamList()  + '\n' + self.currentSchemaParam() + self.ExtSchemaParam() ;
             }
             else if  (self.LoadOption() === 'file')
             {
-                var currentExtParam = 'EXTRACT ' + self.ExtName() + '\n' + 'useridalias '+ self.SRCcurrentPDB() + ' domain ' + self.selectedSRCDomCategory() + '\n' + self.rmthostParam()  + '\n' + 'REPORTCOUNT EVERY 1 MINUTES, RATE' + '\n'  + self.currentExtOptParamList()  + '\n' + self.currentSchemaParam() + self.ExtSchemaParam() ;
+                var currentExtParam = 'EXTRACT ' + self.ExtName() + '\n' + 'sourcedb ' + self.SRCcurrentPDB() + ' ,useridalias '+ self.SRCcurrentPDB() + ' , domain ' + self.selectedSRCDomCategory() + '\n' + self.rmthostParam()  + '\n' + 'REPORTCOUNT EVERY 1 MINUTES, RATE' + '\n'  + self.currentExtOptParamList()  + '\n' + self.currentSchemaParam() + self.ExtSchemaParam() ;
             }
         }
       return currentExtParam;
@@ -1081,10 +1081,10 @@ self.currentExtParam = ko.computed( {
         read:function() {
             if (self.CDBCheck()=='YES' && self.pdbList().length > 0)
             {      
-               var currentRepParam = 'REPLICAT ' + self.RepName() + '\n' + 'useridalias '+ self.TGTcurrentPDB() + ' domain ' + self.selectedTGTDomCategory() + '\n' + 'REPORTCOUNT EVERY 1 MINUTES, RATE' + '\n'  + self.currentRepOptParamList() + '\n' + 'SOURCECATALOG ' + self.pdbList() + '\n' + self.RepSchemaParam();
+               var currentRepParam = 'REPLICAT ' + self.RepName() + '\n' + 'sourcedb '+ self.TGTcurrentPDB() + ' , useridalias '+ self.TGTcurrentPDB() + ' , domain ' + self.selectedTGTDomCategory() + '\n' + 'REPORTCOUNT EVERY 1 MINUTES, RATE' + '\n'  + self.currentRepOptParamList() + '\n' + 'SOURCECATALOG ' + self.pdbList() + '\n' + self.RepSchemaParam();
             }
             else{
-                var currentRepParam = 'REPLICAT ' + self.RepName() + '\n' + 'useridalias '+ self.TGTcurrentPDB() + ' domain ' + self.selectedTGTDomCategory() + '\n' + 'REPORTCOUNT EVERY 1 MINUTES, RATE' + '\n'  + self.currentRepOptParamList() + '\n'  + self.RepSchemaParam();
+                var currentRepParam = 'REPLICAT ' + self.RepName() + '\n' + 'sourcedb ' + self.TGTcurrentPDB() + ' , useridalias '+ self.TGTcurrentPDB() + ' , domain ' + self.selectedTGTDomCategory() + '\n' + 'REPORTCOUNT EVERY 1 MINUTES, RATE' + '\n'  + self.currentRepOptParamList() + '\n'  + self.RepSchemaParam();
 
             }
           return currentRepParam;
