@@ -642,7 +642,7 @@ define([
                 }
             },
             success: function (data) {
-                self.dbTgtDetList.push({ 'DBNAME': data[1].DBNAME,'ProductName' : data[1].prodName,'ProductVersion' : data[1].ProductVersion, 'platform': data[1].osPlat ,'OSVer' : data[1].ServerVersion });
+                self.dbTgtDetList.push({ 'DBNAME': data[1].DBNAME,'ProductName' : data[1].ProductName,'ProductVersion' : data[1].ProductVersion, 'platform': data[1].platform ,'OSVer' : data[1].OSVer });
                 self.dbTgtDetList.valueHasMutated();
                 document.querySelector('#SelectSchemaProcessDialog').close();
                 self.buttonValAutomate(false)
