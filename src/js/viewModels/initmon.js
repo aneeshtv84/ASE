@@ -604,7 +604,8 @@ function getILFlow() {
             $.ajax({
               url: self.selDepname() + "/viewextractlog",
               data: JSON.stringify({
-                jobName: self.currentILJOb()
+                extops: self.selectedMenuItem(),
+                extname: self.selectedNodesValue()[0].split(' ')[0]
               }),
               type: 'POST',
               dataType: 'json',
@@ -616,6 +617,7 @@ function getILFlow() {
                 }
               },
               success: function (data) {
+                console.log(data)
                 if (self.selectedMenuItem() == 'startdef' || self.selectedMenuItem() == 'stop' || self.selectedMenuItem() == 'forcestop' || self.selectedMenuItem() == 'kill') {
                   self.popUpResizeSM("ViewExtractRptDialog");
                   document.querySelector('#ViewExtractRptDialog').open();
