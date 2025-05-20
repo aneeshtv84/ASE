@@ -656,8 +656,8 @@ function getILFlow() {
             $.ajax({
               url: self.selDepname() + "/viewreplicatlog",
               data: JSON.stringify({
-                tgtdep: self.selectedNodesValue()[0].split(' ')[1],
-                jobName : self.currentILJOb()
+                repops: self.selectedMenuItem(),
+                repname: self.selectedNodesValue()[0].split(' ')[0]
               }),
               type: 'POST',
               dataType: 'json',
