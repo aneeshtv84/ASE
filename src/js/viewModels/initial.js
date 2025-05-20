@@ -763,7 +763,7 @@ self.currentExtOptParamList = ko.computed(function() {
                             }
                         },
         success: function (data) {
-
+            
             for (var i = 0; i < data[0].length; i++) {
             self.chkTblList.push({'label':data[0][i],'value':data[0][i]});
             }
@@ -1595,6 +1595,7 @@ self.currentExtParam = ko.computed( {
                             else {
                                 self.ApplyMetaButtonVal(true);
                             }
+                            queryChkTbl();
                             return self;
             
                         }
