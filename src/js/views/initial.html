@@ -162,15 +162,21 @@
                         <oj-bind-if test="[[currentLoadOption() === 'auto']]">
                             <oj-bind-if test="[[TgtonepDepType() != 'bda']]">
                                 <oj-form-layout id="fl2" readonly="[[isFormReadonly()]]" direction="row">
-                                    <div>
-                                        <oj-select-single class="oj-flex-item oj-sm-10" id="ckpt" data="[[chkpttblDP]]"
-                                            value="{{currentChkptTbl}}" label-edge="inside"
-                                            label-hint="Checkpoint Table">
-                                        </oj-select-single>
-                                        <oj-button disabled="[[ButtonChltbl]]" display='icons'
-                                            on-oj-action="[[gotoGGAdmin]]" style="height: 4em !important;">
-                                            &nbsp;&nbsp;<span slot='startIcon'
-                                                class="demo-icon-sprite oj-flex-item oj-sm-2"></span></oj-button>
+                                    <div class="oj-flex oj-sm-12"></divclass>
+                                        <div class="oj-flex-item oj-sm-10">
+                                            <oj-select-single class="oj-flex-item oj-sm-10" id="ckpt" data="[[chkpttblDP]]"
+                                                value="{{currentChkptTbl}}" label-edge="inside"
+                                                label-hint="Checkpoint Table">
+                                            </oj-select-single>
+                                            <oj-bind-text value="[[checkPtMessage]]"></oj-bind-text>
+                                        </div>
+                                        <div class="oj-flex-item oj-sm-2 oj-sm-align-self-center">
+                                            <oj-button disabled="[[ButtonChltbl]]" display='icons'
+                                                on-oj-action="[[gotoGGAdmin]]" style="height: 4em !important;">
+                                                &nbsp;&nbsp;
+                                                <span slot='startIcon' class="demo-icon-sprite oj-flex-item oj-sm-2"></span></oj-button>
+                                        </div>
+                                        
                                     </div>
 
                                 </oj-form-layout>

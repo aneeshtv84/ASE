@@ -612,7 +612,7 @@ define([
         self.procConvertedText('');  
         document.querySelector('#SelectSchemaViewDialog').open();
         $.ajax({
-            url: self.TGTonepDepUrl() + "/convertCode",
+            url: self.TGTonepDepUrl() + "/pgconvertviewprocedure",
             data: JSON.stringify({
                 dbName : self.TGTcurrentPDB(),
                 viewProc : self.viewText()[0]
@@ -625,7 +625,8 @@ define([
             },
             success: function (data) {
                 document.querySelector('#SelectSchemaViewDialog').close();
-                self.procConvertedText(data);
+                const singleLine = data[0].replace(/[\r\n]+/g, '');
+                self.procConvertedText(singleLine);
                 return self;
             }
         })

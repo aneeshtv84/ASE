@@ -160,9 +160,9 @@ define([
                     csvContent += headers.join(',') + '\n';
                     for (var i = 0; i < data[0].length; i++) {
                         for (var j = 0; j < data[0][i].length; j++) {
-                            var rowData = [data[0][i][j]['tname'],data[0][i][j]['cname'] ,data[0][i][j]['coltype'],data[0][i][j]['width'], data[0][i][j]['syslength'],data[0][i][j]['NN'] , data[0][i][j]['in_primary_key'],data[0][i][j]['default_value'],data[0][i][j]['remarks']]
+                            var rowData = [data[0][i][j]['tname'],data[0][i][j]['cname'] ,data[0][i][j]['coltype'],data[0][i][j]['width'], data[0][i][j]['scale'],data[0][i][j]['NN'] , data[0][i][j]['in_primary_key'],data[0][i][j]['default_value'],data[0][i][j]['remarks']]
                             csvContent += rowData.join(',') + '\n';
-                            self.tableNameDetails.push({ 'tname': data[0][i][j]['tname'],'cname': data[0][i][j]['cname'] , 'coltype': data[0][i][j]['coltype'], 'width': data[0][i][j]['width'], 'syslength': data[0][i][j]['syslength'], 'NN': data[0][i][j]['NN'] , 'in_primary_key': data[0][i][j]['in_primary_key'], 'default_value': data[0][i][j]['default_value'], 'column_kind': data[0][i][j]['column_kind'], 'remarks': data[0][i][j]['remarks']});
+                            self.tableNameDetails.push({ 'tname': data[0][i][j]['tname'],'cname': data[0][i][j]['cname'] , 'coltype': data[0][i][j]['coltype'], 'width': data[0][i][j]['width'], 'syslength': data[0][i][j]['scale'], 'NN': data[0][i][j]['NN'] , 'in_primary_key': data[0][i][j]['in_primary_key'], 'default_value': data[0][i][j]['default_value'], 'column_kind': data[0][i][j]['column_kind'], 'remarks': data[0][i][j]['remarks']});
                         }
                         var blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
                         var fileName = 'Table_Report'+ '.csv';
@@ -171,7 +171,7 @@ define([
                     }
                     for (var i = 0; i < data[1].length; i++) {
                         for (var j = 0; j < data[1][i].length; j++) {
-                            self.errorTableNameDetails.push({ 'tname': data[1][i][j]['tname'],'cname': data[1][i][j]['cname'] , 'coltype': data[1][i][j]['coltype'], 'width': data[1][i][j]['width'], 'syslength': data[1][i][j]['syslength'], 'NN': data[1][i][j]['NN'] , 'in_primary_key': data[1][i][j]['in_primary_key'], 'default_value': data[1][i][j]['default_value'], 'column_kind': data[1][i][j]['column_kind'], 'remarks': data[1][i][j]['remarks']});
+                            self.errorTableNameDetails.push({ 'tname': data[1][i][j]['tname'],'cname': data[1][i][j]['cname'] , 'coltype': data[1][i][j]['coltype'], 'width': data[1][i][j]['width'], 'syslength': data[1][i][j]['scale'], 'NN': data[1][i][j]['NN'] , 'in_primary_key': data[1][i][j]['in_primary_key'], 'default_value': data[1][i][j]['default_value'], 'column_kind': data[1][i][j]['column_kind'], 'remarks': data[1][i][j]['remarks']});
                         }
                     }
                     self.buttonValReport(false)

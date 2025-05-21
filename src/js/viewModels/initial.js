@@ -2,7 +2,7 @@ define(['knockout', 'jquery','appController',  'ojs/ojasyncvalidator-regexp', 'o
 'ojs/ojconverter-number',"ojs/ojpagingdataproviderview",'ojs/ojarraydataprovider',"ojs/ojlistdataproviderview","ojs/ojkeyset", 
 'ojs/ojknockout', 'ojs/ojtrain', 'ojs/ojradioset', 'ojs/ojbutton', 'ojs/ojlabelvalue', 'ojs/ojdatetimepicker', 'ojs/ojlabel',"ojs/ojlistview", "ojs/ojlistitemlayout",
  'ojs/ojformlayout', 'ojs/ojinputtext', 'ojs/ojselectsingle', 'ojs/ojinputnumber', 'ojs/ojvalidationgroup', 'ojs/ojselectcombobox', 
- 'ojs/ojdialog', 'ojs/ojswitch','ojs/ojcheckboxset','ojs/ojprogress-bar','ojs/ojtable','ojs/ojhighlighttext',"ojs/ojpagingcontrol","ojs/ojgauge"],
+ 'ojs/ojdialog', 'ojs/ojswitch','ojs/ojcheckboxset','ojs/ojprogress-bar','ojs/ojtable','ojs/ojhighlighttext',"ojs/ojpagingcontrol","ojs/ojgauge",  "ojs/ojmessages"],
         function (ko, $,app,AsyncRegExpValidator, ConverterUtilsI18n, DateTimeConverter, NumberConverter, PagingDataProviderView,ArrayDataProvider,ListDataProviderView,ojkeyset_1) {
 
             class InitialLoadViewModel {
@@ -917,11 +917,17 @@ self.newRepParamList =  ko.observable('');
 
 ////console.log(selectedData[1]);
 
-
+self.checkPtMessage = ko.observable('');
 self.addAutoILProc = function (data, event) {
+    if(!self.currentChkptTbl() || self.currentChkptTbl()==""){
+        self.checkPtMessage('Please select a valid checkpoint from the list.')
+        return;
+    }
+    self.checkPtMessage("")
     self.AddExtractMsg([]);
     self.dialogTitle('Preparing Processes for InitialLoad')
     document.querySelector('#CreateExtractDialog').open();
+    console.log(self.currentChkptTbl())
     $.ajax({
         url: self.SRConepDepUrl() + "/addautoilproc",
         type: 'POST',
