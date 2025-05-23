@@ -164,10 +164,9 @@ define([
                         // self.viewNameDet.push({ 'vname': data[0][i][j][0]});
                         // }
                     }
-                    fetchAutomateResults();
-                    self.viewNameDet.valueHasMutated();
-                    console.log(self.viewNameDet())
                     document.querySelector('#SelectSchemaViewDialog').close();
+                    // fetchAutomateResults();
+                    self.viewNameDet.valueHasMutated();
                     self.buttonValAutomate(false)
                     return self;
                     
@@ -611,11 +610,12 @@ define([
     self.clickConvert = function (data, event) {
         self.procConvertedText('');  
         document.querySelector('#SelectSchemaViewDialog').open();
+        const viewProcString = self.viewText().join(' ')
         $.ajax({
-            url: self.TGTonepDepUrl() + "/pgconvertviewprocedure",
+            url: self.TGTonepDepUrl() + "/convertView",
             data: JSON.stringify({
                 dbName : self.TGTcurrentPDB(),
-                viewProc : self.viewText()[0]
+                viewProc : viewProcString
             }),
             type: 'POST',
             dataType: 'json',

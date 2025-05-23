@@ -150,12 +150,12 @@ define([
                 dataType: 'json',
                 timeout: sessionStorage.getItem("timeInetrval"),
                 context: self,
-                            error: function (xhr, textStatus, errorThrown) {
-                                if(textStatus == 'timeout' || textStatus == 'error'){
-                                    document.querySelector('#SelectSchemaProcessDialog').close();
-                                    document.querySelector('#TimeoutInLoad').open();
-                                }
-                            },
+                    error: function (xhr, textStatus, errorThrown) {
+                        if(textStatus == 'timeout' || textStatus == 'error'){
+                            document.querySelector('#SelectSchemaProcessDialog').close();
+                            document.querySelector('#TimeoutInLoad').open();
+                        }
+                    },
                 success: function (data) {
                     // console.log(data[0])
                     self.viewNameDet([]);
@@ -165,7 +165,7 @@ define([
                         // self.viewNameDet.push({ 'vname': data[0][i][j][0], 'output': 'none'});
                         // }
                     }
-                    fetchAutomateResults();
+                    // fetchAutomateResults();
                     self.viewNameDet.valueHasMutated();
                     // (self.viewNameDet())
                     document.querySelector('#SelectSchemaProcessDialog').close();
@@ -761,11 +761,12 @@ define([
         self.clickConvert = function (data, event) {
             self.procConvertedText('');  
             document.querySelector('#SelectSchemaProcessDialog').open();
+            const viewProcString = self.viewText().join(' ')
             $.ajax({
-                url: self.TGTonepDepUrl() + "/convertCode",
+                url: self.TGTonepDepUrl() + "/convertProcedure",
                 data: JSON.stringify({
                     dbName : self.TGTcurrentPDB(),
-                    viewProc : self.viewText()[0]
+                    viewProc : viewProcString
                 }),
                 type: 'POST',
                 dataType: 'json',
@@ -776,7 +777,8 @@ define([
                 success: function (data) {
                     console.log(data)
                     document.querySelector('#SelectSchemaProcessDialog').close();
-                    self.procConvertedText(data);
+                    const singleLine = data[0].replace(/[\r\n]+/g, '');
+                    self.procConvertedText(singleLine);
                     ////(self);
                     return self;
                 }

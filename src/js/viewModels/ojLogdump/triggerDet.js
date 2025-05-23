@@ -376,7 +376,7 @@ define([
                 }
             },
             success: function (data) {
-                self.dbTgtDetList.push({ 'DBNAME': data[1].DBNAME,'ProductName' : data[1].prodName,'ProductVersion' : data[1].ProductVersion, 'platform': data[1].osPlat ,'OSVer' : data[1].ServerVersion });
+                self.dbTgtDetList.push({ 'DBNAME': data[1].DBNAME,'ProductName' : data[1].ProductName,'ProductVersion' : data[1].ProductVersion, 'platform': data[1].platform ,'OSVer' : data[1].OSVer });
                 self.dbTgtDetList.valueHasMutated();
                 document.querySelector('#SelectSchemaTriggerDialog').close();
                 console.log(self.dbTgtDetList())
@@ -576,11 +576,15 @@ define([
          self.pgSaveView = function (data, event) {
             self.saveViewMsg('');  
             document.querySelector('#SelectSchemaTriggerDialog').open();
+            let procConvertedText = self.procConvertedText();
+            if (Array.isArray(procConvertedText)) {
+                procConvertedText = procConvertedText.join(' ');
+            }
             $.ajax({
                 url: self.TGTonepDepUrl() + "/pgcreateprocedure",
                 data: JSON.stringify({
                     dbName : self.TGTcurrentPDB(),
-                    procText : self.procConvertedText()
+                    procText : procConvertedText
                 }),
                 type: 'POST',
                 dataType: 'json',
@@ -625,7 +629,7 @@ define([
             self.procConvertedText('');  
             document.querySelector('#SelectSchemaTriggerDialog').open();
             $.ajax({
-                url: self.TGTonepDepUrl() + "/convertCode",
+                url: self.TGTonepDepUrl() + "/convertTrigger",
                 data: JSON.stringify({
                     dbName : self.TGTcurrentPDB(),
                     viewProc : self.viewText()[0]
