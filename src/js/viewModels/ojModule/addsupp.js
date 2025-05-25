@@ -1,6 +1,6 @@
 
 define(['ojs/ojcore', 'knockout', 'jquery', 'appController',"ojs/ojpagingdataproviderview", 'ojs/ojarraydataprovider', 'ojs/ojarraytreedataprovider',"ojs/ojkeyset", 
-'ojs/ojbutton', 'ojs/ojtable', 'ojs/ojdialog', 'ojs/ojinputtext', 'ojs/ojselectsingle','ojs/ojprogress-bar','ojs/ojtable','ojs/ojhighlighttext',
+'ojs/ojbutton', 'ojs/ojtable', 'ojs/ojdialog', 'ojs/ojinputtext', 'ojs/ojselectsingle','ojs/ojprogress-bar','ojs/ojtable','ojs/ojhighlighttext','ojs/ojselectcombobox',
 "ojs/ojpagingcontrol",'ojs/ojvalidationgroup'],
 function (oj, ko, $, app,PagingDataProviderView, ArrayDataProvider,ArrayTreeDataProvider,ojkeyset_1) {
 
@@ -97,7 +97,7 @@ function (oj, ko, $, app,PagingDataProviderView, ArrayDataProvider,ArrayTreeData
         }
         }
 
-        self.dbsupplogDP = new ArrayDataProvider(self.dbSuppInfo, { keyAttributes: 'DBUnique' });
+        self.dbsupplogDP = new ArrayDataProvider(self.dbSuppInfo, { keyAttributes: 'DBName' });
         self.SchemaName = ko.observable();
 
         self.supplogcolumnArray = [{
