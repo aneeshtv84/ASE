@@ -262,6 +262,7 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'appController',"ojs/ojoffcanvas", '
                             self.dialogTitle('Add Classic Replicat')
                             document.querySelector('#addReplicat').open();
                             getExtTrails();
+                            queryChkTbl();
                         }
                         else if (self.selectedMenuItem() == 'Parallel Replicat') {
                             self.currentRepType('PARALLEL');
@@ -745,7 +746,7 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'appController',"ojs/ojoffcanvas", '
                                     self.rmtMgrPort(data[0][i].mgrport);
                                 }
                                 self.rmttrailSubDir(data[1])
-                                console.log(data[1]);
+                                console.log(self);
                                 return self;
 
                             }

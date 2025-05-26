@@ -39,7 +39,8 @@ define(['ojs/ojcore', 'knockout', 'jquery','appController','ojs/ojconverter-numb
 
                 self.onepDepList = ko.observableArray([]);
 
-        
+
+
                 function getOnepDep() {
                     self.onepDepList([]);
                     self.NodeData([]);
@@ -56,10 +57,11 @@ define(['ojs/ojcore', 'knockout', 'jquery','appController','ojs/ojconverter-numb
                             for (var i = 0; i < data[0].length; i++) {
                             self.onepDepList.push({'dep' : data[0][i].dep , 'dep_url' :  data[0][i].dep_url} );
                             getReplionFlow(data[0][i].dep,data[0][i].dep_url);
+                            console.log(data[0][i].dep , data[0][i].dep_url)
                              }             
                              self.NodeData.push({'id' : 'Extracts' , 'nodes' : self.NodeExt()},{'id' : 'Pumps'  , 'nodes' :  self.NodePmp()},{'id' : 'Replicats' , 'nodes' :  self.NodeRep()});
 
-                             //console.log(self.NodeData())
+                    //         console.log(self.NodeData())
                             self.onepDepList.valueHasMutated();
                             return self;
                         }
@@ -68,12 +70,19 @@ define(['ojs/ojcore', 'knockout', 'jquery','appController','ojs/ojconverter-numb
                 }
         
 
-
+                self.NodeExtTemp = ko.observableArray([]);
+                self.NodePmpTemp = ko.observableArray([]);
+                self.NodePmpRmtTemp = ko.observableArray([]);
+                self.NodeRepTemp = ko.observableArray([]);
 
                 function getReplionFlow(dep,dep_url) {
                   self.NodeExt([]);
                   self.NodePmp([]);
                   self.NodeRep([]);
+                  self.NodeExtTemp([]);
+                  self.NodePmpTemp([]);
+                  self.NodePmpRmtTemp([]);
+                  self.NodeRepTemp([]);
                   $.ajax({
                        url: dep_url + '/gginfodiag',
                       type: 'GET',
@@ -84,6 +93,30 @@ define(['ojs/ojcore', 'knockout', 'jquery','appController','ojs/ojconverter-numb
                       },
                       success: function (data) {
                         
+                        for (var i = 0; i < data[2].length; i++) {
+                        self.NodeExtTemp.push({'id' : data[2][i].id , 'category' : data[2][i].category});
+                        }
+
+                        for (var i = 0; i < data[3].length; i++) {
+                          self.NodePmpTemp.push({'id' : data[3][i].id , 'category' : data[3][i].category});
+                          }
+                          for (var i = 0; i < data[4].length; i++) {
+                            self.NodePmpRmtTemp.push({'id' : data[4][i].id , 'category' : data[4][i].category});
+                            }
+                            for (var i = 0; i < data[5].length; i++) {
+                              self.NodeRepTemp.push({'id' : data[5][i].id , 'category' : data[5][i].category});
+                              }
+
+
+                              const merged = self.NodeExtTemp().map(item1 => {
+                                const match = self.NodePmpTemp().find(item2 => item2.category === item1.category);
+                                return match ? { ...item1, ...match } : null;
+                              }).filter(item => item !== null);
+                              
+                              console.log(merged);
+                  //            console.log(self.NodeTemp())
+
+
                         for(var key in data[0]['nodeext'] ){
                         self.NodeExt.push({'id' : key+ ' '+ dep});
                         }

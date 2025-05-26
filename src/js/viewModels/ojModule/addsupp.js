@@ -200,8 +200,9 @@ function (oj, ko, $, app,PagingDataProviderView, ArrayDataProvider,ArrayTreeData
         self.STVal = ko.observable('');
 
         var STOptions = [
-            { value: 'ALLCOLS', label: 'ALLCOLS' },
-            { value: 'NOSCHEDULINGCOLS', label: 'NOSCHEDULINGCOLS' },
+            { value: 'LOBSNEVER', label: 'LOBSNEVER' },
+            { value: 'LOBSALWAYS', label: 'LOBSALWAYS' },
+            { value: 'LOBSALWAYSNOINDEX', label: 'LOBSALWAYSNOINDEX' },
             { value: '', label: 'Default' },
         ];
 
