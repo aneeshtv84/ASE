@@ -149,25 +149,23 @@ define([
                 dataType: 'json',
                 timeout: sessionStorage.getItem("timeInetrval"),
                 context: self,
-                            error: function (xhr, textStatus, errorThrown) {
-                                if(textStatus == 'timeout' || textStatus == 'error'){
-                                    document.querySelector('#SelectSchemaViewDialog').close();
-                                    document.querySelector('#TimeoutInLoad').open();
-                                }
-                            },
+                error: function (xhr, textStatus, errorThrown) {
+                    if(textStatus == 'timeout' || textStatus == 'error'){
+                        document.querySelector('#SelectSchemaViewDialog').close();
+                        document.querySelector('#TimeoutInLoad').open();
+                    }
+                },
                 success: function (data) {
                     console.log(data)
                     self.viewNameDet([]);
                     for (var i = 0; i < data.length; i++) {
-                        self.viewNameDet.push({ 'vname': data[i]});
-                        // for (var j = 0; j < data[i].length; j++) {
-                        // self.viewNameDet.push({ 'vname': data[0][i][j][0]});
-                        // }
+                        self.viewNameDet.push({ 'vname': data[i].owner, 'output': 'none'});
                     }
+                    console.log(self.viewNameDet())
                     document.querySelector('#SelectSchemaViewDialog').close();
-                    // fetchAutomateResults();
                     self.viewNameDet.valueHasMutated();
                     self.buttonValAutomate(false)
+                    fetchAutomateResults();
                     return self;
                     
                 }
@@ -313,46 +311,51 @@ define([
                 dataType: 'json',
                 timeout: sessionStorage.getItem("timeInetrval"),
                 context: self,
-                            error: function (xhr, textStatus, errorThrown) {
-                                if(textStatus == 'timeout' || textStatus == 'error'){
-                                    document.querySelector('#SelectSchemaViewDialog').close();
-                                    document.querySelector('#TimeoutInLoad').open();
-                                }
-                            },
+                error: function (xhr, textStatus, errorThrown) {
+                    if(textStatus == 'timeout' || textStatus == 'error'){
+                        document.querySelector('#SelectSchemaViewDialog').close();
+                        document.querySelector('#TimeoutInLoad').open();
+                    }
+                },
                 success: function (data) {
-                    console.log(data)
-                   self.listFunction([])
-                   var csvContent = '';
+                    self.listFunction([])
+                    var csvContent = '';
                     var headers = ['No', 'Function', 'Result'];
                     csvContent += headers.join(',') + '\n';
-                   for (var i =0; i<data.length;i++) {
-                    if(data[i].Function == self.viewNameDet()[i].vname) {
-                        if(data[i].Output == "Created" ||  data[i].Output == "Already Exist") {
-                            self.viewNameDet()[i].output = 'Success';
-                        } else if (data[i].Output == "Error"){
-                            self.viewNameDet()[i].output = 'Error';
-                        }
-                    } else {
-                        for (var j =0; j<self.viewNameDet().length;j++) {
-                            if (self.viewNameDet()[j].vname =data[i].Function ) {
-                                if(data[i].Output == "Created" ||  data[i].Output == "Already Exist") {
-                                    self.viewNameDet()[j].output = 'Success';
-                                } else if (data[i].Output == "Error"){
-                                    self.viewNameDet()[j].output = 'Error';
+                    for (var i =0; i<data.length;i++) {
+                        if(data[i].Function == self.viewNameDet()[i].vname) {
+                            if(data[i].Output == "Created" ||  data[i].Output == "Already Exist") {
+                                self.viewNameDet()[i].output = 'Success';
+                            } else if (data[i].Output == "Error"){
+                                self.viewNameDet()[i].output = 'Error';
+                            } else{
+                                self.viewNameDet()[i].output = 'Error';
+                            }
+                        } else {
+                            for (var j =0; j<self.viewNameDet().length;j++) {
+                                if (self.viewNameDet()[j].vname == data[i].Function ) {
+                                    if(data[i].Output == "Created" ||  data[i].Output == "Already Exist") {
+                                        self.viewNameDet()[j].output = 'Success';
+                                    } else if (data[i].Output == "Error"){
+                                        self.viewNameDet()[j].output = 'Error';
+                                    }
+                                    else{
+                                        self.viewNameDet()[i].output = 'Error';
+                                    }
                                 }
                             }
                         }
+                        self.viewNameDet.valueHasMutated();
+                        var rowData = [i+1, data[i].Function,data[i].Output]
+                        csvContent += rowData.join(',') + '\n';
+                        self.listFunction.push({ 'No': i+1,'Funcation Name': data[i].Function,'Output':data[i].Output});
+                        self.listFunction.valueHasMutated();
                     }
-                    self.viewNameDet.valueHasMutated();
-                    var rowData = [i+1, data[i].Function,data[i].Output]
-                    csvContent += rowData.join(',') + '\n';
-                    self.listFunction.push({ 'No': i+1,'Funcation Name': data[i].Function,'Output':data[i].Output});
-                    self.listFunction.valueHasMutated();
-                   }
                     var blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
                     var fileName = 'DBA_View_Report'+ '.csv';
                     self.excelBlob(blob);
                     self.excelFileName(fileName);
+                    document.querySelector('#SelectSchemaViewDialog').close();
                 }
             })
         }
@@ -441,19 +444,18 @@ define([
                 dataType: 'json',
                 timeout: sessionStorage.getItem("timeInetrval"),
                 context: self,
-                            error: function (xhr, textStatus, errorThrown) {
-                                if(textStatus == 'timeout' || textStatus == 'error'){
-                                    document.querySelector('#SelectSchemaViewDialog').close();
-                                    document.querySelector('#TimeoutInLoad').open();
-                                }
-                            },
+                error: function (xhr, textStatus, errorThrown) {
+                    if(textStatus == 'timeout' || textStatus == 'error'){
+                        document.querySelector('#SelectSchemaViewDialog').close();
+                        document.querySelector('#TimeoutInLoad').open();
+                    }
+                },
                 success: function (data) {
-                    console.log(data[0])
-                         self.viewText('');
-                         self.viewText(data[0]);
-                document.querySelector('#SelectSchemaViewDialog').close();
-                    return self;
-                    
+                    self.viewText('');
+                    self.procConvertedText('');
+                    self.viewText(data[0]);
+                    document.querySelector('#SelectSchemaViewDialog').close();
+                    return self;                    
                 }
 
             })
@@ -637,7 +639,7 @@ define([
         self.procConvertedText('');  
         document.querySelector('#SelectSchemaViewDialog').open();
         $.ajax({
-            url: self.TGTonepDepUrl() + "/pgretryconvertproc",
+            url: self.TGTonepDepUrl() + "/pgRetryConvert",
             data: JSON.stringify({
                 dbName : self.TGTcurrentPDB(),
                 viewProc : self.viewText()[0]

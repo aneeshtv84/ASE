@@ -790,8 +790,9 @@ define([
             document.querySelector('#openDialog').close();
             self.procConvertedText('');  
             document.querySelector('#SelectSchemaProcessDialog').open();
+            console.log(self.viewText()[0])
             $.ajax({
-                url: self.TGTonepDepUrl() + "/pgretryconvertproc",
+                url: self.TGTonepDepUrl() + "/pgRetryConvert",
                 data: JSON.stringify({
                     dbName : self.TGTcurrentPDB(),
                     viewProc : self.viewText()[0]

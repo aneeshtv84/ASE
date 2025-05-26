@@ -648,6 +648,31 @@ define([
             })
         };
 
+        self.clickRetryConvert = function (data, event) {
+            document.querySelector('#openDialog').close();
+            self.procConvertedText('');  
+            document.querySelector('#SelectSchemaProcessDialog').open();
+            $.ajax({
+                url: self.TGTonepDepUrl() + "/pgRetryConvert",
+                data: JSON.stringify({
+                    dbName : self.TGTcurrentPDB(),
+                    viewProc : self.viewText()[0]
+                }),
+                type: 'POST',
+                dataType: 'json',
+                context: self,
+                error: function (e) {
+                    //console.log(e);
+                },
+                success: function (data) {
+                    document.querySelector('#SelectSchemaProcessDialog').close();
+                    self.procConvertedText(data[0]);
+                    //console.log(self);
+                    return self;
+                }
+            })
+        };
+
         self.clickUpload = function (data, event) {
             console.log(self.procConvertedText())
             document.querySelector('#openDialog').close();

@@ -121,12 +121,19 @@ style="display:none;width:350px;min-width:240px;max-width:450px;">
    <oj-bind-text value="{{saveViewMsg}}" ></oj-bind-text>
 </div>
 <div slot="footer">
-    <oj-button id="okdelButton" chroming='solid' class="oj-flex-bar-start" on-oj-action="[[clickUpload]]">
-        Upload
-    </oj-button>
-    <oj-button id="okdelButton" chroming='solid'  on-oj-action="[[saveOKView]]">
-        OK
-    </oj-button>
+    <div class="oj-panel  oj-sm-margin-4x-bottom" style="width: 100%;">
+        <div class="oj-flex-bar">
+            <oj-button id="okdelButton" chroming='borderless' class="oj-flex-bar-start" on-oj-action="[[clickRetryConvert]]">
+                Retry
+            </oj-button>
+            <oj-button id="okdelButton" chroming='solid' class="oj-flex-bar-start" on-oj-action="[[clickUpload]]">
+                Upload
+            </oj-button>
+            <oj-button id="okdelButton" chroming='solid' class="oj-flex-bar-end" on-oj-action="[[saveOKView]]">
+                OK
+            </oj-button>
+        </div>
+    </div>
     </div>
 </oj-dialog>
 
