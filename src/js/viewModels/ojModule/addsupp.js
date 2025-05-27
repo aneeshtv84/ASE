@@ -271,7 +271,7 @@ function (oj, ko, $, app,PagingDataProviderView, ArrayDataProvider,ArrayTreeData
                 success: function (data) {
                     document.getElementById('tableTrandata').refresh();
                     for (var i = 0; i < data[0].length; i++) {
-                        self.tableNameList.push({'TABLE_NAME': data[0][i].owner + '.' + data[0][i].name , 'ROWCNT' : data[0][i].rowtotal ,'AVGSPC': data[0][i].avg_space,'ANALYZETIME' : data[0][i].last_analyzed});
+                        self.tableNameList.push({'TABLE_NAME': data[0][i].owner + '.' + data[0][i].name , 'ROWCNT' : data[0][i].rowtotal ,'AVGSPC': data[0][i].reserved});
                     }
                     self.tableNameList.valueHasMutated();
                     document.querySelector('#SelectSchemaDialog').close();
@@ -289,10 +289,8 @@ function (oj, ko, $, app,PagingDataProviderView, ArrayDataProvider,ArrayTreeData
             field: 'TABLE_NAME'},
             {headerText: 'Row Count',
             field: 'ROWCNT'},
-            {headerText: 'Average Size(MB)',
-            field: 'AVGSPC'},
-            {headerText: 'Analyze Time',
-            field: 'ANALYZETIME'} ]
+            {headerText: 'Average Size(KB)',
+            field: 'AVGSPC'} ]
 
 
             self.popUpResizeSM = (value) => {
