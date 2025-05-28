@@ -169,7 +169,7 @@ define([
                     self.viewNameDet.valueHasMutated();
                     // (self.viewNameDet())
                     document.querySelector('#SelectSchemaProcessDialog').close();
-                 //   self.buttonValAutomate(false)
+                    self.buttonValAutomate(false)
                     return self;
                     
                 }
@@ -425,7 +425,7 @@ define([
         // var intervalId = setInterval(fetchAutomateResults, intervalTime);
 
         var intervalId = setInterval(fetchAutomateResults, 1000);
-
+        self.automateClose();
         $.ajax({
             url: self.DepName()  + "/automateProcess",
             type: 'POST',
@@ -439,21 +439,18 @@ define([
             dataType: 'json',
             timeout: sessionStorage.getItem("timeInetrval"),
             context: self,
-                        error: function (xhr, textStatus, errorThrown) {
-                            if(textStatus == 'timeout' || textStatus == 'error'){
-                                document.querySelector('#SelectSchemaProcessDialog').close();
-                                document.querySelector('#TimeoutInLoad').open();
-                            }
-                        },
+            error: function (xhr, textStatus, errorThrown) {
+                if(textStatus == 'timeout' || textStatus == 'error'){
+                    document.querySelector('#SelectSchemaProcessDialog').close();
+                    document.querySelector('#TimeoutInLoad').open();
+                }
+            },
             success: function (data) {
-               console.log("out====") 
-            //    console.log(data)
-               fetchAutomateResults();
-               clearInterval(intervalId);
-               setTimeout(() => {
-                self.progressValue(100)
-               }, 3000);
-               
+                fetchAutomateResults();
+                clearInterval(intervalId);
+                setTimeout(() => {
+                    self.progressValue(100)
+                }, 3000);
                self.buttonValReport(false)
             }
         })
@@ -642,6 +639,7 @@ define([
                 }
             },
             success: function (data) {
+                self.dbTgtDetList([])
                 self.dbTgtDetList.push({ 'DBNAME': data[1].DBNAME,'ProductName' : data[1].ProductName,'ProductVersion' : data[1].ProductVersion, 'platform': data[1].platform ,'OSVer' : data[1].OSVer });
                 self.dbTgtDetList.valueHasMutated();
                 document.querySelector('#SelectSchemaProcessDialog').close();
@@ -763,7 +761,7 @@ define([
             document.querySelector('#SelectSchemaProcessDialog').open();
             const viewProcString = self.viewText().join(' ')
             $.ajax({
-                url: self.TGTonepDepUrl() + "/convertProcedure",
+                url: self.TGTonepDepUrl() + "/convertProcedureProc",
                 data: JSON.stringify({
                     dbName : self.TGTcurrentPDB(),
                     viewProc : viewProcString

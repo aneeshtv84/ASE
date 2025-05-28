@@ -324,6 +324,7 @@ define([
                     csvContent += headers.join(',') + '\n';
                     for (var i =0; i<data.length;i++) {
                         if(data[i].Function == self.viewNameDet()[i].vname) {
+                            console.log(data[i].Output)
                             if(data[i].Output == "Created" ||  data[i].Output == "Already Exist") {
                                 self.viewNameDet()[i].output = 'Success';
                             } else if (data[i].Output == "Error"){
@@ -496,7 +497,6 @@ define([
         self.TgtDBDet = ko.observableArray([]);
 
         function getTgtDB(depurl) {
-           
            $.ajax({
                url: depurl + "/dbdet",
                type: 'GET',
@@ -614,7 +614,7 @@ define([
         document.querySelector('#SelectSchemaViewDialog').open();
         const viewProcString = self.viewText().join(' ')
         $.ajax({
-            url: self.TGTonepDepUrl() + "/convertView",
+            url: self.TGTonepDepUrl() + "/convertViewProc",
             data: JSON.stringify({
                 dbName : self.TGTcurrentPDB(),
                 viewProc : viewProcString

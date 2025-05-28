@@ -228,6 +228,14 @@ define([
              field: 'remarks' }    
         ];
 
+        self.automateModal =  function(data, event) {
+            document.querySelector('#autoMateDlg').open();
+        }
+
+        self.automateClose =  function(data, event) {
+            document.querySelector('#autoMateDlg').close();
+            // fetchAutomateResults();
+        }
      
         self.viewText = ko.observable();
 
@@ -539,6 +547,7 @@ define([
          self.automateGetDetails  =  function(data, event) {
             var intervalId = setInterval(fetchAutomateResults, 3000);
             self.progressValue(-1)
+            self.automateClose();
             $.ajax({
                 url: self.DepName()  + "/automateTrigger",
                 type: 'POST',
@@ -552,15 +561,13 @@ define([
                 dataType: 'json',
                 timeout: sessionStorage.getItem("timeInetrval"),
                 context: self,
-                            error: function (xhr, textStatus, errorThrown) {
-                                if(textStatus == 'timeout' || textStatus == 'error'){
-                                    document.querySelector('#SelectSchemaViewDialog').close();
-                                    document.querySelector('#TimeoutInLoad').open();
-                                }
-                            },
+                error: function (xhr, textStatus, errorThrown) {
+                    if(textStatus == 'timeout' || textStatus == 'error'){
+                        document.querySelector('#SelectSchemaViewDialog').close();
+                        document.querySelector('#TimeoutInLoad').open();
+                    }
+                },
                 success: function (data) {
-                   console.log("out====") 
-                   console.log(data)
                    setTimeout(() => {
                         self.progressValue(100)
                    }, 3000);
@@ -629,7 +636,7 @@ define([
             self.procConvertedText('');  
             document.querySelector('#SelectSchemaTriggerDialog').open();
             $.ajax({
-                url: self.TGTonepDepUrl() + "/convertTrigger",
+                url: self.TGTonepDepUrl() + "/convertTriggerProc",
                 data: JSON.stringify({
                     dbName : self.TGTcurrentPDB(),
                     viewProc : self.viewText()[0]

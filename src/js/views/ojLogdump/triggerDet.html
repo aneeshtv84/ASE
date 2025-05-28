@@ -25,9 +25,12 @@
             label-edge="inside" options="{{schemaListDP}}" value="{{schemaListSelected}}" on-value-changed="[[valueChangedHandler]]">
         </oj-select-many>
         <oj-button disabled="[[buttonVal]]" class="oj-button-sm oj-flex-bar-end" chroming="solid"
-                on-oj-action='[[clickViewGetDetails]]'>Get Details</oj-button>&nbsp;&nbsp;
-        <oj-button    disabled="[[buttonValAutomate]]" class="oj-button-sm " chroming="solid"
-        on-oj-action='[[automateGetDetails]]'    >Convert</oj-button>&nbsp;&nbsp;
+            on-oj-action='[[clickViewGetDetails]]'>Get Details</oj-button>&nbsp;&nbsp;
+        
+        <oj-button  disabled="[[buttonValAutomate]]" class="oj-button-sm " chroming="solid"
+            on-oj-action='[[automateModal]]'    >Automate</oj-button>&nbsp;&nbsp;
+        <!-- <oj-button    disabled="[[buttonValAutomate]]" class="oj-button-sm " chroming="solid"
+        on-oj-action='[[automateGetDetails]]'    >Convert</oj-button>&nbsp;&nbsp; -->
         <oj-button disabled="[[buttonValReport]]"  class="oj-button-sm " chroming="solid"
         on-oj-action='[[viewReportModal]]'    >Report</oj-button>
         </div>
@@ -166,5 +169,34 @@ style="display:none;width:350px;min-width:240px;max-width:450px;">
     <div slot="body">
         <oj-progress-bar id="createbar" class="oj-progress-bar-embedded" value="-1">
         </oj-progress-bar>
+    </div>
+</oj-dialog>
+
+<oj-dialog id="autoMateDlg" title="Enter Target Details" modality="modeless"
+style="display:none;width:350px;min-width:240px;max-width:450px;" cancel-behavior="[[CancelBehaviorOpt]]">
+<div slot="body">
+    <div class="oj-panel ">
+        <oj-form-layout id="fl1" readonly="[[isFormReadonly()]]">
+            <div class="oj-panel io-color demo-center-items">
+                <h7>Target Deployment</h7>
+            </div>
+            <oj-select-single required id="tgtschema" label-hint="Choose Target Deployment" class="oj-form-control-max-width" 
+                label-edge="inside" data="{{onepDepListDP}}" value="{{TgtOnePDepName}}"
+                on-value-changed="[[SelectTGTDeployment]]">
+            </oj-select-single>
+                <oj-select-single required label-hint="Choose Credential Alias" label-edge="inside" class="oj-form-control-max-width-md" 
+                    id="CredentialAlias" data="[[TgtDBDetDP]]" value="{{TGTcurrentPDB}}"
+                    on-value-changed="[[DBTgtSchema]]">
+                </oj-select-single>
+        </oj-form-layout>
+    </div>
+</div>
+<div slot="footer">
+    <oj-button id="okdelButton" chroming='solid'  on-oj-action="[[automateClose]]">
+        Cancel
+    </oj-button>
+    <oj-button id="okdelButton" chroming='solid'  on-oj-action='[[automateGetDetails]]'>
+        Automate
+    </oj-button>
     </div>
 </oj-dialog>
