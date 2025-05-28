@@ -483,6 +483,7 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'appController',"ojs/ojoffcanvas", '
                 self.ExtTrailName = ko.observable();
                 self.queryExtPrm = function (event, data) {
                   //  self.ExtPrmList([]);
+                  self.ExtPrmListREP([]);
                     self.ExtTrailName('');
                     $.ajax({
                         url: self.SRConepDepUrl() + "/gggetextprm",
@@ -506,27 +507,37 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'appController',"ojs/ojoffcanvas", '
                                 }
                             }
                             self.ExtPrmList(data[0]);
-                            //console.log(data[0])
+                            console.log(data[0])
+                            var output = '';
                             for (var j = 0; j < data[0].length; j++) {
-                                if (data[0][j].search("TABLE") != "-1") {
-                                   //var upper = data[0][j].toUpperCase();
-                                    var res = data[0][j].split(",");
-                                    if(res.length > 1){
-                                     data[0][j] = res[0]+";\n";
-                                    }
-                                    //console.log(data[0][j])
-                                    var temp = data[0][j].replace("TABLE", "MAP")
-                                    var temp = temp.replace(";\n", ",")
-                                    var temp1 = data[0][j].replace("TABLE", "TARGET")
-                                    var new_temp = temp + temp1;
-                                    data[0][j] =  new_temp.replace(/,\s*$/, "");
-                                }
+                                // if (data[0][j].search("TABLE") != "-1") {
+                                //    //var upper = data[0][j].toUpperCase();
+                                //     var res = data[0][j].split(",");
+                                //     if(res.length > 1){
+                                //      data[0][j] = res[0]+";\n";
+                                //     }
+                                //     //console.log(data[0][j])
+                                //     var temp = data[0][j].replace("TABLE", "MAP")
+                                //     var temp = temp.replace(";\n", ",")
+                                //     var temp1 = data[0][j].replace("TABLE", "TARGET")
+                                //     var new_temp = temp + temp1;
+                                //     data[0][j] =  new_temp.replace(/,\s*$/, "");
+                                // }
 
+                       
+                                if (data[0][j].startsWith('TABLEEXCLUDE')) {
+                                    data[0][j] =  data[0][j].replace('TABLEEXCLUDE', 'MAPEXCLUDE');
+                                } else if (data[0][j].startsWith('TABLE')) {
+                                  const tableName = data[0][j].match(/TABLE\s+(.+);?/)[1].replace(/;$/, '');
+                                  data[0][j] = `MAP ${tableName}, TARGET ${tableName};`;
+                                } else {
+                                    data[0][j] = data[0][j];
+                                }
+                                self.ExtPrmListREP.push(data[0][j]);
                             }
-                        
-                            self.ExtPrmListREP(data[0]);
+                            
                             //self.ExtTrailName(data[1]);
-                            console.log(self.ExtPrmListREP())
+                            console.log(output)
                             return self;
                         }
                     })
@@ -1741,13 +1752,13 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'appController',"ojs/ojoffcanvas", '
                 self.currentRepParamList = ko.computed({
                     read: function () {
                         if (self.ExtName() && !self.PmpName()) {
-                            var currentRepParam = 'REPLICAT ' + self.RepName() + '\n' + 'useridalias ' + self.TGTcurrentPDB() + ' domain ' + self.selectedTGTDomCategory() + '\n' + 'REPORTCOUNT EVERY 5 MINUTES, RATE' + '\n' + self.currentRepOptParamList() + '\n' + self.RepSchemaParam();
+                            var currentRepParam = 'REPLICAT ' + self.RepName() + '\n' + 'TARGETDB ' + self.TGTcurrentPDB() + ' , useridalias ' + self.TGTcurrentPDB() + ' , domain ' + self.selectedTGTDomCategory() + '\n' + 'REPORTCOUNT EVERY 5 MINUTES, RATE' + '\n' + self.currentRepOptParamList() + '\n' + self.RepSchemaParam();
                         }
                         else if (self.ExtName() && self.PmpName()) {
-                            var currentRepParam = 'REPLICAT ' + self.RepName() + '\n' + 'useridalias ' + self.TGTcurrentPDB() + ' domain ' + self.selectedTGTDomCategory() + '\n' + 'REPORTCOUNT EVERY 5 MINUTES, RATE' + '\n' + self.currentRepOptParamList() + '\n' + self.RepSchemaParam();
+                            var currentRepParam = 'REPLICAT ' + self.RepName() + '\n' + 'TARGETDB ' + self.TGTcurrentPDB() + ' , useridalias ' + self.TGTcurrentPDB() + ' , domain ' + self.selectedTGTDomCategory() + '\n' + 'REPORTCOUNT EVERY 5 MINUTES, RATE' + '\n' + self.currentRepOptParamList() + '\n' + self.RepSchemaParam();
                         }
                         else {
-                            var currentRepParam = 'REPLICAT ' + self.RepName() + '\n' + 'useridalias ' + self.TGTcurrentPDB() + ' domain ' + self.selectedTGTDomCategory() + '\n' + 'REPORTCOUNT EVERY 5 MINUTES, RATE' + '\n' + self.currentRepOptParamList() + '\n' + self.ExtPrmListREP1();
+                            var currentRepParam = 'REPLICAT ' + self.RepName() + '\n' + 'TARGETDB ' + self.TGTcurrentPDB() + ' , useridalias ' + self.TGTcurrentPDB() + ' , domain ' + self.selectedTGTDomCategory() + '\n' + 'REPORTCOUNT EVERY 5 MINUTES, RATE' + '\n' + self.currentRepOptParamList() + '\n' + self.ExtPrmListREP1();
                         }
                         // //console.log(currentRepParam)
                         return currentRepParam;
