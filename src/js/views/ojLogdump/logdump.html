@@ -1,0 +1,267 @@
+<div class="oj-flex">
+    <div class="oj-panel oj-sm-2" >
+        <h6>Select Process</h6>
+        <oj-bind-if test="[[ProcessName().length > 0 ]]">
+            <oj-checkboxset required id="checkboxset1" options="{{processDP}}" value="{{processVal}}">
+            </oj-checkboxset>
+        </oj-bind-if>
+    </div>
+    <div class="oj-panel oj-sm-6" >
+        <div class="oj-panel oj-flex-bar">
+            <oj-button disabled="[[loadtrail]]" class="oj-button-sm oj-flex-bar-start" chroming="callToAction"
+                on-oj-action='[[getTrailFiles]]'>Load TrailFiles</oj-button>
+            <oj-button disabled="[[gettraildet]]" class="oj-button-sm oj-flex-bar-end" chroming="solid"
+                on-oj-action='[[clickGetDet]]'>Get Details</oj-button>
+        </div>
+        <oj-list-view id="listview" aria-label="list all trail files"  data="[[trailfileDP]]" 
+            selected="{{selectedItems}}" selection-mode="single" on-selected-changed="[[handleSelectedChanged]]"
+            first-selected-item="{{firstSelectedItem}}" class="demo-ldump-list">
+            <template slot="itemTemplate" data-oj-as="item">
+                <li>
+                    <oj-list-item-layout>
+                        <span class="oj-typography-body-md oj-text-color-primary">
+                            <oj-bind-text value="[[item.data.trail]]"></oj-bind-text>
+                        </span>
+                        <span
+                        slot="secondary"
+                        class="oj-typography-body-sm oj-text-color-secondary">Size
+                        <oj-bind-text value="[[item.data.size]]"></oj-bind-text></span>
+                        <span 
+                        slot="trailing"  
+                        class="oj-typography-body-sm oj-text-color-primary">Last modified on
+                        <oj-bind-text value="[[item.data.mtime]]"></oj-bind-text></span>
+                    </oj-list-item-layout>
+                </li>
+            </template>
+        </oj-list-view>
+    </div>
+    <div class="oj-panel oj-margin oj-panel-alt2 oj-panel-shadow-lg oj-sm-4" >
+        <h6> Trailfile Header Details</h6>
+        <p>OS Platform : <span>
+                <oj-bind-text value="[[OSPlat]]"></oj-bind-text>
+            </span></p>
+        <p>Node Name : <span>
+                <oj-bind-text value="[[NodeName]]"></oj-bind-text>
+            </span></p>
+        <p>OS Kernel : <span>
+                <oj-bind-text value="[[OSKern]]"></oj-bind-text>
+            </span></p>
+        <p>DB Name : <span>
+                <oj-bind-text value="[[DBName]]"></oj-bind-text>
+            </span></p>
+        <p>DB Version : <span>
+                <oj-bind-text value="[[DBVer]]"></oj-bind-text>
+            </span></p>
+        <p>DB Client Version : <span>
+                <oj-bind-text value="[[DBClientVer]]"></oj-bind-text>
+            </span></p>
+        <p>Extract Name : <span>
+                <oj-bind-text value="[[ExtName]]"></oj-bind-text>
+            </span></p>
+        <p>GG Version : <span>
+                <oj-bind-text value="[[GGVer]]"></oj-bind-text>
+            </span></p>
+        <p>First CSN : <span>
+                <oj-bind-text value="[[FirstCSN]]"></oj-bind-text>
+            </span></p>
+        <p>Last CSN : <span>
+                <oj-bind-text value="[[LastCSN]]"></oj-bind-text>
+            </span></p>
+        <p>Oldest Uncommited Transaction CSN @ Source : <span>
+                <oj-bind-text value="[[LogBSN]]"></oj-bind-text>
+            </span></p>
+    </div>
+</div>
+<div class="oj-panel oj-margin oj-panel-alt1 oj-panel-shadow-lg">
+    <oj-label for="select1">
+        <h6>Trail Content Summary </h6>
+    </oj-label>
+    
+    <oj-table id='table' aria-label='All Table' data='[[CountDataProvider]]' display='grid'
+        selection-mode='{"row": "single"}' columns='{{CountDetailcolumnArray}}' style='width: 100%;'>
+    </oj-table>
+</div>
+
+<div class="oj-panel">
+
+    <div class="oj-flex-bar">
+
+        <oj-input-text class="oj-flex-bar-start" label-edge="inside" style="width: 18em;" label-hint="RBA"
+            aria-label="str" value="{{RBA}}"></oj-input-text>
+        <oj-radioset id="filtmatch" class="oj-flex-bar-center-absolute" labelled-by="mainlabelid" value="{{filtmatch}}">
+            <oj-option id="matchAll" value="filter match all">filter match all</oj-option>
+            <oj-option id="matchAny" value="filter match any">filter match any</oj-option>
+        </oj-radioset>
+        <oj-table id='filttab' aria-label='Filter List' class='oj-flex-bar-end' data='[[filterDP]]'
+            columns='{{filterArray}}' selection-mode='{"row": "single"}' columns-default='{"sortable": "disabled"}'>
+        </oj-table>
+    </div>
+
+</div>
+</div>
+
+<div class="oj-panel">
+    <div class="oj-flex-bar">
+        <oj-button id='button1' class="oj-button-sm oj-flex-bar-start" chroming="solid" on-oj-action='[[clickPrev]]'>
+            &lt; Previous
+            Record</oj-button>
+            <oj-menu-button id="menuButton" class="oj-button-sm oj-flex-bar-center-absolute">Filter
+            <oj-menu id="myMenu" slot="menu" on-oj-action="[[menuItemAction]]">
+                <oj-option id="efilter" value="enable">
+                    <span class="oj-ux-ico-email-reply" slot="startIcon"></span>Enable Filters
+                </oj-option>
+                <oj-option id="cfilter" value="clear">
+                    <span class="oj-ux-ico-email-reply" slot="startIcon"></span>Clear Filters
+                </oj-option>
+            </oj-menu>
+            </oj-menu-button>
+        <oj-button id='button1' class="oj-button-sm oj-flex-bar-end" chroming="solid" on-oj-action='[[clickNext]]'>Next
+            Record &gt;
+        </oj-button>
+    </div>
+
+    <oj-dialog id="FilterOpts" dialog-title="Filter Options" modality="modeless" style="display:none;width:700px;min-width:700px;max-width:700px;">
+        <div slot="body">
+            <oj-form-layout id="fl1" label-edge="start" max-columns="2" direction="row">
+                <oj-radioset id="filttab" class="oj-choice-direction-row" labelled-by="filttab" value="{{filtTab}}">
+                    <oj-option id="tabInc" value="Inc">Include</oj-option>
+                    <oj-option id="tabExc" value="Exc">Exclude</oj-option>
+                </oj-radioset>
+                <oj-input-text help-hints.definition="Example: SCHEMA.TABLENAME" label-hint="Filter Table"
+                    label-edge="inside" aria-label="Filter Table" value="{{tabName}}">
+                </oj-input-text>
+                <oj-radioset id="filtstr" class="oj-choice-direction-row" labelled-by="filtstr" value="{{filtStr}}">
+                    <oj-option id="strInc" value="Inc">Include</oj-option>
+                    <oj-option id="strExc" value="Exc">Exclude</oj-option>
+                </oj-radioset>
+                <oj-input-text help-hints.definition="Example: goldengate" label-edge="inside"
+                    label-hint="Filter String" aria-label="str" value="{{filterStr}}">
+                </oj-input-text>
+                <oj-radioset id="filtrectype" class="oj-choice-direction-row" labelled-by="filtrectype"
+                    value="{{filtRecType}}">
+                    <oj-option id="recInc" value="Inc">Include</oj-option>
+                    <oj-option id="recExc" value="Exc">Exclude</oj-option>
+                </oj-radioset>
+                <oj-input-text help-hints.definition="Example: insert,update,delete" label-edge="inside"
+                    label-hint="Filter Record Type" aria-label="str" value="{{filterRecType}}">
+                </oj-input-text>
+                <oj-radioset id="filtaudrba" class="oj-choice-direction-row" labelled-by="filtaudrba"
+                    value="{{filtAuditRBA}}">
+                    <oj-option id="audrbaInc" value="Inc">Include</oj-option>
+                    <oj-option id="audrbaExc" value="Exc">Exclude</oj-option>
+                </oj-radioset>
+                <oj-input-text help-hints.definition="Operators =,<,<=,>,>=,<> , Example = 123456" label-edge="inside"
+                    label-hint="Filter AuditRBA" aria-label="RBA" value="{{filterAuditRBA}}">
+                </oj-input-text>
+                <oj-radioset id="filtlogcsn" class="oj-choice-direction-row" labelled-by="filtlogcsn"
+                    value="{{filtLogCSN}}">
+                    <oj-option id="logcsnInc" value="Inc">Include</oj-option>
+                    <oj-option id="logcsnExc" value="Exc">Exclude</oj-option>
+                </oj-radioset>
+                <oj-input-text help-hints.definition="Operators =,<,<=,>,>=,<> , Example: = 123456" label-edge="inside"
+                    label-hint="Filter LOGCSN" aria-label="RBA" value="{{filterLogCSN}}">
+                </oj-input-text>
+                <oj-radioset id="filtstarttime" class="oj-choice-direction-row" labelled-by="filtstarttime"
+                    value="{{filtSTARTTIME}}">
+                    <oj-option id="starttimeInc" value="Inc">Include</oj-option>
+                    <oj-option id="starttimeExc" value="Exc">Exclude</oj-option>
+                </oj-radioset>
+                <oj-input-text help-hints.definition="Example: 2011-01-31 23:59:59" label-edge="inside"
+                    label-hint="Filter Start Time" aria-label="RBA" value="{{filterSTARTTIME}}">
+                </oj-input-text>
+                <oj-radioset id="filtendtime" class="oj-choice-direction-row" labelled-by="filtendtime"
+                    value="{{filtENDTIME}}">
+                    <oj-option id="endtimeInc" value="Inc">Include</oj-option>
+                    <oj-option id="endtimeExc" value="Exc">Exclude</oj-option>
+                </oj-radioset>
+                <oj-input-text help-hints.definition="Example: 2011-01-31 23:59:59" label-edge="inside"
+                    label-hint="Filter End Time" aria-label="RBA" value="{{filterENDTIME}}">
+                </oj-input-text>
+                <oj-radioset id="filtggstoken" class="oj-choice-direction-row" labelled-by="filtggstoken"
+                    value="{{filtGGSTOKEN}}">
+                    <oj-option id="ggstokenInc" value="Inc">Include</oj-option>
+                    <oj-option id="ggstokenExc" value="Exc">Exclude</oj-option>
+                </oj-radioset>
+                <oj-input-text help-hints.definition="Operators =,<,<=,>,>=,<> , Example: = 123456" label-edge="inside"
+                    label-hint="Filter GGSTOKEN" aria-label="GGSTOKEN" value="{{filterGGSTOKEN}}">
+                </oj-input-text>
+
+                <oj-radioset id="filtusertoken" class="oj-choice-direction-row" labelled-by="filtusertoken"
+                    value="{{filtUSERTOKEN}}">
+                    <oj-option id="usertokenInc" value="Inc">Include</oj-option>
+                    <oj-option id="usertokenExc" value="Exc">Exclude</oj-option>
+                </oj-radioset>
+                <oj-input-text help-hints.definition="Operators =,<,<=,>,>=,<> , Example: = 123456" label-edge="inside"
+                    label-hint="Filter USERTOKEN" aria-label="USERTOKEN" value="{{filterUSERTOKEN}}">
+                </oj-input-text>
+                <oj-radioset id="filtxid" class="oj-choice-direction-row" labelled-by="filtxid" value="{{filtXID}}">
+                    <oj-option id="xidInc" value="Inc">Include</oj-option>
+                    <oj-option id="xidExc" value="Exc">Exclude</oj-option>
+                </oj-radioset>
+                <oj-input-text help-hints.definition="Example: 92.16.1234" label-edge="inside"
+                    label-hint="Filter Transaction ID" aria-label="XID" value="{{filterXID}}">
+                </oj-input-text>
+
+                <oj-radioset id="filttransind" class="oj-choice-direction-row" labelled-by="filttransind"
+                    value="{{filtTRANSIND}}">
+                    <oj-option id="transindInc" value="Inc">Include</oj-option>
+                    <oj-option id="transindExc" value="Exc">Exclude</oj-option>
+                </oj-radioset>
+                <oj-input-text help-hints.definition="Operators =,<,<=,>,>=,<> , Example: = 0 , 1 ,2 ,3 "
+                    label-edge="inside" label-hint="Filter Transaction Indicator" aria-label="Transaction Indicator"
+                    value="{{filterTRANSIND}}">
+                </oj-input-text>
+            </oj-form-layout>
+        </div>
+        <div slot="footer">
+            <div class="oj-panel oj-margin oj-panel-alt1 oj-panel-shadow-lg" style="width:100%;">
+                <div class="oj-flex-bar">
+                    <oj-button id="okcancelButton" class="oj-button-cancel oj-flex-bar-start" on-oj-action="[[cancel]]">
+                        Cancel
+                    </oj-button>
+                    <oj-button id="okfilterButton" chroming="callToAction" class="oj-button-confirm oj-flex-bar-end"
+                        on-oj-action="[[submitFilter]]">
+                        Apply Filter
+                    </oj-button>
+                </div>
+            </div>
+        </div>
+    </oj-dialog>
+
+    <oj-dialog style="display:none;width:350px;" id="dialog1" title="Trail Details" cancel-behavior="[[CancelBehaviorOpt]]">
+        <div slot="body">
+            <oj-progress-bar id="progressbar" class="oj-progress-bar-embedded"  value="-1">
+            </oj-progress-bar>
+            Loading .....
+        </div>
+    </oj-dialog>
+    <div class="oj-flex">
+        <oj-bind-if test="[[buttonVal()==='next']]">
+            <div class="oj-panel oj-margin oj-panel-alt2 oj-panel-shadow-lg"
+                style="width: 50%;">
+                <oj-table id='table' aria-label='All Table' data='[[allDataProvider]]' columns='{{allcolumnArray}}'  display='grid'
+                    selection-mode='{"row": "single"}' columns-default='{"sortable": "disabled"}' class='oj-bg-info-10 oj-sm-width-full' scroll-policy='loadAll'>
+                </oj-table> 
+            </div>
+            <div class="oj-panel oj-margin oj-panel-alt2 oj-panel-shadow-lg"
+                style="width: 50%;">
+                <oj-table id='table' aria-label='All Table' data='[[allDataProvider1]]' columns='{{allcolumnArray1}}' display='grid'
+                    selection-mode='{"row": "single"}' columns-default='{"sortable": "disabled"}' class='oj-bg-info-10 oj-sm-width-full'  scroll-policy='loadAll'>
+                </oj-table>
+            </div>
+        </oj-bind-if>
+        <oj-bind-if test="[[buttonVal()==='prev']]">
+            <div class="oj-panel oj-margin oj-panel-alt2 oj-panel-shadow-lg"
+                style="width: 50%;text-align: left;white-space: pre-wrap;font-size: 15px;">
+                <oj-table id='table' aria-label='All Table' data='[[prev2DP]]' columns='{{prevcolumnArray2}}' display='grid'
+                    selection-mode='{"row": "single"}' columns-default='{"sortable": "disabled"}'class='oj-bg-info-10 oj-sm-width-full'  scroll-policy='loadAll'>
+                </oj-table>
+            </div>
+            <div class="oj-panel oj-margin oj-panel-alt2 oj-panel-shadow-lg"
+                style="width: 50%;text-align: left;white-space: pre-wrap;font-size: 15px;">
+                <oj-table id='table' aria-label='All Table' data='[[prev1DP]]' columns='{{prevcolumnArray1}}' display='grid'
+                    selection-mode='{"row": "single"}' columns-default='{"sortable": "disabled"}' class='oj-bg-info-10 oj-sm-width-full'  scroll-policy='loadAll'>
+                </oj-table>
+            </div>
+        </oj-bind-if>
+    </div>

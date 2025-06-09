@@ -59,7 +59,8 @@ define([ 'ojs/ojoffcanvas' , 'knockout', 'ojs/ojmodule-element-utils', 'ojs/ojre
        { path: 'initmon', detail : {label: 'Hetro Initial Load Monitor',iconClass: 'oj-navigationlist-item-icon fa fa-file-code-o',dep_url : self.onepDepUrl} }, 
        { path: 'expdp', detail : {label: 'Homogeneous Initial Load',iconClass: 'oj-navigationlist-item-icon fa fa-cloud-upload',dep_url : self.onepDepUrl} },
        { path: 'expinitmon', detail : {label: 'Homo Initial Load Monitor',iconClass: 'oj-navigationlist-item-icon fa fa-file-code-o',dep_url : self.onepDepUrl} }, 
-       { path: 'dumplog', detail : {label: 'Analyze Objects',iconClass: 'oj-navigationlist-item-icon demo-icon-font-24 demo-chart-icon-24 font15',dep_url : self.onepDepUrl} }, 
+       { path: 'migrate', detail : {label: 'Analyze Objects',iconClass: 'oj-navigationlist-item-icon demo-icon-font-24 demo-chart-icon-24 font15',dep_url : self.onepDepUrl} }, 
+        { path: 'dumplog', detail : {label: 'LogDump',iconClass: 'oj-navigationlist-item-icon demo-icon-font-24 demo-chart-icon-24 font15',dep_url : self.onepDepUrl} }, 
        { path: 'zoneinfo', detail : {label: 'Zone Info',iconClass: 'oj-navigationlist-item-icon demo-icon-font-24 demo-chart-icon-24 font15',dep_url : self.onepDepUrl} }, 
 	   { path: 'zoneinfo1', detail : {label: 'Zone Info1',iconClass: 'oj-navigationlist-item-icon demo-icon-font-24 demo-chart-icon-24 font15',dep_url : self.onepDepUrl} }, 
 	   { path: 'ggadmin', detail : {label: 'Setup',iconClass: 'oj-navigationlist-item-icon fa fa-cogs',dep_url : self.onepDepUrl} }, 
@@ -156,7 +157,7 @@ define([ 'ojs/ojoffcanvas' , 'knockout', 'ojs/ojmodule-element-utils', 'ojs/ojre
         document.querySelector('#RemoteDeploymentDialog').open();
         self.onepDeployList([]);
         $.ajax({
-          url: "http://34.253.51.207:9010/onepdep",
+          url: "http://54.171.153.71:9010/onepdep",
           // url: "/onepdep",
           type: 'GET',
           dataType: 'json',
@@ -184,7 +185,7 @@ define([ 'ojs/ojoffcanvas' , 'knockout', 'ojs/ojmodule-element-utils', 'ojs/ojre
     self.SwitchDeployment = (event) =>{
       self.onepDepUrl('');
       $.ajax({
-        url: "http://34.253.51.207:9010/onepdepurl",
+        url: "http://54.171.153.71:9010/onepdepurl",
         // url: "/onepdepurl",
         type: 'POST',
         data: JSON.stringify({

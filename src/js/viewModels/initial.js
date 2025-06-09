@@ -1352,7 +1352,7 @@ self.currentExtParam = ko.computed( {
                     self.CDBCheck('');
                     self.OPError();
                     self.PDBNameList([]);
-                    self.dbDetList([]);
+                    
                     self.schemaNameList([]);
                     self.schemaList([]);
                     self.pdbList('');
@@ -1387,6 +1387,7 @@ self.currentExtParam = ko.computed( {
                             let dbFile = parts[6].trim();
                             let buildID = parts[7].trim();
                             self.schemaNameList.valueHasMutated();
+                            self.dbDetList([]);
                             self.dbDetList.push({ 'DBNAME': data[1].DBNAME,'ProductName' : productName,'ProductVersion' : productVersion, 'platform': os ,'OSVer' : osVersion , 'OSBIT': osbit, 'DBFile' : dbFile ,'ServerEdition' : buildID });
                             self.dbDetList.valueHasMutated();
                             document.querySelector('#SelectSchemaDialog').close();

@@ -322,12 +322,13 @@ function (oj, ko, $, app,PagingDataProviderView, ArrayDataProvider,ArrayTreeData
                     for(var i=0;i<row.length;i++) {
                         selectionText = selectionText +  row[i].TABLE_NAME + ", " ;
                     }
-                    if(event.detail.value.row._keys.size>0){
-                        event.detail.value.row._keys.forEach(function (key) {
+                        const iterator = event.detail.value.row.deletedValues();
+                    
+                    if (iterator.size > 0) {
+                        iterator.forEach(function (key) {
                             selectionText = selectionText.replace(key+",", "");
                         });
-                        
-                       }
+                    }
                        selectionText = selectionText.replace(/,\s*$/,"");
                 }
                 else {

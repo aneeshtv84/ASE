@@ -21,8 +21,9 @@ define(['knockout','ojs/ojmoduleanimations','ojs/ojmodule-element-utils', 'ojs/o
       
       var self = this;
       self.DepName = context.routerState.detail.dep_url;
-      self.currentModule = ko.observable("viewDet");
+      self.currentModule = ko.observable("logdump");
       self.moduleConfig = ko.observable({'view':[],'viewModel':null});
+      
       resolveVVM(self.currentModule(), self.moduleConfig);
       self.currentModule.subscribe(function(name) {
         resolveVVM(name, self.moduleConfig);

@@ -1040,11 +1040,15 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'appController',
                     document.getElementById(value).style.height = "45vh";
                 }
 
+                self.extPrmRead = ko.observableArray([]);
+                self.extPrmWrite = ko.observableArray([]);
+
+
                 self.menuItemAction = function (event) {
                     self.selectedMenuItem(event.target.value);
                     if (self.selectedMenuItem() == 'extrpt' || self.selectedMenuItem() == 'extchk' || self.selectedMenuItem() == 'extstats' || self.selectedMenuItem() == 'extstartdef' || self.selectedMenuItem() == 'extstop' || self.selectedMenuItem() == 'extforcestop' || self.selectedMenuItem() == 'extkill' || self.selectedMenuItem() == 'cachemgr' || self.selectedMenuItem() == 'extstatus') {
                         document.querySelector('#Progress').open();
-                        self.extStats([]);
+                        //self.extStats([]);
                         self.ExtRpt([]);
                         self.delTitle('');
                         //console.log(self.selectedMenuItem())
@@ -1074,10 +1078,11 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'appController',
                                 else if (self.selectedMenuItem() == 'extstats')
                                 {
                                     self.delTitle('Extract ' + self.ExtName + ' Statistics');
-                                    
+                                    self.extStats([]);
                                     for (var key in data[2]){
                                         self.extStats.push({'TabName' : key ,'Inserts' : data[2][key]['Totalinserts'] ,'Updates' :  data[2][key]['Totalupdates'],'Deletes' : data[2][key]['Totaldeletes'] ,'Discards' : data[2][key]['Totaldiscards'] , 'Operations' : data[2][key]['Totaloperations']})
                                     }
+                                    self.extStats.valueHasMutated();
                                     console.log(self.extStats())
                                     self.popUpResize("ViewExtractStatDialog");
                                     document.querySelector('#ViewExtractStatDialog').open();
@@ -1095,6 +1100,38 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'appController',
 
                         })
                     }
+
+
+                    else if (self.selectedMenuItem() == 'extedit') {
+                        document.querySelector('#Progress').open();
+                        self.extPrmRead([]);
+                        $.ajax({
+                            url: self.DepName() + "/ggextops",
+                        data: JSON.stringify({
+                                extname: self.ExtName,
+                                extops: self.selectedMenuItem()
+                            }),
+                            type: 'POST',
+                            dataType: 'json',
+                            timeout: sessionStorage.getItem("timeInetrval"),
+                            context: self,
+                            error: function (xhr, textStatus, errorThrown) {
+                                if (textStatus == 'TimeoutManage' || textStatus == 'error') {
+                                    document.querySelector('#Progress').close();
+                                    document.querySelector('#TimeoutManage').open();
+                                }
+                            },
+                            success: function (data) {
+                                self.popUpResizeSM("ViewExtractRptDialog");
+                                document.querySelector('#Progress').close();
+                                document.querySelector('#EditExtDialog').open();
+                                self.extPrmRead(data[1]);
+                                console.log(data[1]);
+                                return self;
+                            }
+                        })
+                    }
+
 
 
                     //Extract Start ATCSN  
@@ -1260,6 +1297,36 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'appController',
                         }
                     })
                 };
+
+
+
+                self.saveExtPrm = function (event, data) {
+                    $.ajax({
+                        url: self.DepName() + "/saveprm",
+                        type: 'POST',
+                        dataType: 'json',
+                        data: JSON.stringify({
+                            procName: self.ExtName,
+                            currentParams: self.extPrmWrite()
+                        }),
+                        timeout: sessionStorage.getItem("timeInetrval"),
+                        context: self,
+                        error: function (xhr, textStatus, errorThrown) {
+                            if (textStatus == 'TimeoutManage' || textStatus == 'error') {
+                                document.querySelector('#SuppLogDialog').close();
+                                document.querySelector('#TimeoutManage').open();
+                            }
+                        },
+                        success: function (data) {
+                            document.querySelector('#EditExtDialog').close();
+                            self.popUpResizeSM("ViewExtractRptDialog");
+                            document.querySelector('#ViewExtractRptDialog').open();
+                            self.ExtRpt(data[0]);   
+                            return self;
+                        }
+                    })
+                }
+
 
 
                 self.unregisterExtract = function (event) {
@@ -1770,7 +1837,6 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'appController',
                     self.selectedPmpMenuItem(event.target.value);
                     if (self.selectedPmpMenuItem() == 'extrpt' || self.selectedPmpMenuItem() == 'extchk' || self.selectedPmpMenuItem() == 'extstats' || self.selectedPmpMenuItem() == 'extstartdef' || self.selectedPmpMenuItem() == 'extstop' || self.selectedPmpMenuItem() == 'extforcestop' || self.selectedPmpMenuItem() == 'extkill' || self.selectedPmpMenuItem() == 'cachemgr' || self.selectedPmpMenuItem() == 'extstatus') {
                         document.querySelector('#Progress').open();
-                        self.extStats([]);
                         self.PmpRpt([]);
                         self.delTitle('');
                         $.ajax({
@@ -1803,7 +1869,7 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'appController',
                                 else if (self.selectedPmpMenuItem() == 'extstats')
                                 {
                                     self.delTitle('Extract ' + self.PmpName + ' Statistics');
-                                    
+                                     self.extStats([]);
                                     for (var key in data[2]){
                                         self.extStats.push({'TabName' : key ,'Inserts' : data[2][key]['Totalinserts'] ,'Updates' :  data[2][key]['Totalupdates'],'Deletes' : data[2][key]['Totaldeletes'] ,'Discards' : data[2][key]['Totaldiscards'] , 'Operations' : data[2][key]['Totaloperations']})
                                     }

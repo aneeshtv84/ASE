@@ -877,7 +877,7 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'appController',"ojs/ojoffcanvas", '
                 self.CDBData = function (data, event) {
                     self.CDBCheck('');
                     self.PDBNameList([]);
-                    self.dbDetList([]);
+               //     self.dbDetList([]);
                     self.schemaNameList([]);
                     self.schemaList([]);
                     self.PDBName('');
@@ -1115,7 +1115,7 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'appController',"ojs/ojoffcanvas", '
 
                 self.SrcDBSchemaFetch = function (data, event) {
                    // document.querySelector('#SelectSchemaDialog').open();
-                    self.tableNameList([]);
+              //      self.tableNameList([]);
                     self.trailSubDir('');
                     $.ajax({
                         url: self.SRConepDepUrl() + "/tableListOnly",
@@ -1140,6 +1140,7 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'appController',"ojs/ojoffcanvas", '
                             document.querySelector('#SelectSchemaDialog').close();
                             document.querySelector('#TABLEExclude').open();
                 //            console.log(data[0])
+                            self.tableNameList([]);
                             for (var i = 0; i < data[0].length; i++) {
                                 self.tableNameList.push({ 'TABLE_NAME': data[0][i].owner + '.' + data[0][i].name, 'ROWCNT': data[0][i].rowtotal, 'AVGSPC': data[0][i].reserved });
                             }

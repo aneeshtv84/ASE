@@ -107,6 +107,19 @@
         </div>
     </oj-dialog>
 
+    <oj-dialog id="EditExtDialog" dialog-title="Edit Extract Pramater File" modality="modeless"
+        cancel-behavior="[[CancelBehaviorOpt]]" style="display:none;width:550px;min-width:550px;max-width:550px;">
+        <div slot="body">
+            <oj-text-area class="demo-percentage-width" value="{{extPrmRead}}" raw-value={{extPrmWrite}}
+                label-hint="Extract Parameterfile" max-rows="1000" rows="13"></oj-text-area>
+        </div>
+        <div slot="footer">
+            <oj-button id="saveMgrBtn" chroming="callToAction" on-oj-action="[[saveExtPrm]]">
+                Save
+            </oj-button>
+        </div>
+    </oj-dialog>
+
 
     <oj-dialog id="StopMgrDialog" dialog-title="Stop Manager" modality="modeless"
         cancel-behavior="[[CancelBehaviorOpt]]" style="display:none;width:550px;min-width:550px;max-width:550px;">
@@ -189,20 +202,21 @@ cancel-behavior="[[CancelBehaviorOpt]]" style="display:none;width:550px;min-widt
                             <div class="oj-panel oj-bg-warning-10 oj-selected oj-panel-shadow-lg demo-expanded-content">
                                 <oj-menu-button id="extMenuButton" chroming="borderless" display="icons">
                                     <oj-menu id="extMenu" slot="menu" on-oj-action="[[menuItemAction]]">
+                                       <oj-option id="editExtract" value="extedit">
+                                                    <span class="fa fa-pencil" slot="startIcon"></span>Edit Extract Params
+                                       </oj-option>
+                                        <oj-option>---------------------------------</oj-option>
                                         <oj-option id="startext">
-                                            <span class="fa fa-eye " slot="startIcon"></span>View
+                                            <span class="fa fa-eye " slot="startIcon"></span>View 
                                             <oj-menu id="view">
                                                 <oj-option id="extrpt" value="extrpt">
-                                                    <span class="oj-ux-ico-email-reply" slot="startIcon"></span>View
-                                                    Report
+                                                    <span class="oj-ux-ico-email-reply" slot="startIcon"></span>View Report
                                                 </oj-option>
                                                 <oj-option id="extchk" value="extchk">
-                                                    <span class="oj-ux-ico-email-reply-all" slot="startIcon"></span>View
-                                                    Checkpoint
+                                                    <span class="oj-ux-ico-email-reply-all" slot="startIcon"></span>View Checkpoint
                                                 </oj-option>
                                                 <oj-option id="extstats" value="extstats">
-                                                    <span class="oj-ux-ico-email-forward" slot="startIcon"></span>View
-                                                    Stats
+                                                    <span class="oj-ux-ico-email-forward" slot="startIcon"></span>View Stats
                                                 </oj-option>
                                             </oj-menu>
                                         </oj-option>
@@ -1055,8 +1069,7 @@ cancel-behavior="[[CancelBehaviorOpt]]" style="display:none;width:550px;min-widt
             <oj-validation-group id="ReplicatBeginForm" role="group" valid="{{groupValid}}" aria-labelledby="grouplabelid">
                 <oj-form-layout id="ReplicatBeginForm" readonly="[[isFormReadonly()]]" label-edge="start"
                     max-columns="1" direction="row">
-            <div class="oj-panel  oj-sm-margin-4x-bottom  style=" text-align: left">
-                    direction="row">
+            <div class="oj-panel  oj-sm-margin-4x-bottom  style="text-align:left">
                     <oj-label for="repcreddombegin" show-required="[[isRequired]]" help.definition='[[helpDef]]'
                         help.source='[[helpSource]]'>Credential Domain
                     </oj-label>
