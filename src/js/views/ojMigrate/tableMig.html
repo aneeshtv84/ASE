@@ -2,43 +2,44 @@
     <div class="oj-panel oj-sm-2" >
         <div class="oj-panel">
             <oj-form-layout id="fl1" >
-            <oj-select-single required id="Database" label-hint="Select Database Alias"  class="oj-form-control-max-width-md" label-edge="inside" data="[[DBDetDP]]" value="{{currentDB}}" on-oj-value-action="[[dbchangeActionHandler]]" >
-            </oj-select-single>
+                <oj-select-single required id="Database" label-hint="Select Database Alias"  class="oj-form-control-max-width-md" label-edge="inside" data="[[DBDetDP]]" value="{{currentDB}}" on-oj-value-action="[[dbchangeActionHandler]]" >
+                </oj-select-single>
 
-         <oj-select-many required id="srcschema" label-hint="Choose Schema Name" class="oj-form-control-max-width-md" 
-            label-edge="inside" options="{{schemaListDP}}" value="{{schemaListSelected}}" on-value-changed="[[schemachangeActionHandler]]">
-        </oj-select-many>
-    <oj-bind-if test="[[tableDetail().length > 0 ]]">
-           <oj-select-single
-                  label-hint="Selection Mode"
-                  id="selection-mode"
-                  value="{{selectedSelectionMode}}"
-                  data="[[selectionModeDP]]"
-                  class="demo-table-select-single"></oj-select-single>
-</oj-bind-if>
-        </oj-form-layout>
+                <oj-select-many required id="srcschema" label-hint="Choose Schema Name" class="oj-form-control-max-width-md" 
+                    label-edge="inside" options="{{schemaListDP}}" value="{{schemaListSelected}}" on-value-changed="[[schemachangeActionHandler]]">
+                </oj-select-many>
+                <oj-bind-if test="[[tableDetail().length > 0 ]]">
+                    <oj-select-single
+                        label-hint="Selection Mode"
+                        id="selection-mode"
+                        value="{{selectedSelectionMode}}"
+                        data="[[selectionModeDP]]"
+                        class="demo-table-select-single"></oj-select-single>
+                </oj-bind-if>
+            </oj-form-layout>
         </div>
-
-    
 
 </div>
     <div class="oj-panel oj-sm-10" >
         <div class="oj-panel oj-flex-bar">
-        <oj-button disabled="[[buttonVal]]" class="oj-button-sm oj-flex-bar-end" chroming="solid"
+            <oj-input-text id="filter" class="oj-form-control-max-width-md" label-hint="Filter"
+                label-edge="inside" placeholder="Type to filter" on-raw-value-changed="[[handleValueChanged]]"
+                value="{{filter}}" clear-icon="always"></oj-input-text>
+            <oj-button disabled="[[buttonVal]]" class="oj-button-sm oj-flex-bar-end" chroming="solid"
                 on-oj-action='[[clickTableGetDetails]]'>Analyze</oj-button>
                 &nbsp;
-        <oj-button disabled="[[buttonValReport]]" class="oj-button-sm oj-flex" chroming="solid"
+            <oj-button disabled="[[buttonValReport]]" class="oj-button-sm oj-flex" chroming="solid"
                 on-oj-action='[[viewReportModal]]'>Summary</oj-button>
                 &nbsp;
-        <oj-button disabled="[[buttonValReport]]" class="oj-button-sm oj-flex" chroming="solid"
+            <oj-button disabled="[[buttonValReport]]" class="oj-button-sm oj-flex" chroming="solid"
                 on-oj-action='[[downloadTableReport]]'>Download Report</oj-button>
         </div>
         <div class="oj-panel oj-margin oj-panel-alt1 oj-panel-shadow-lg">
-    <oj-table id='table' aria-label='All Table' data='[[tableDetailDP]]' display='grid'
-         columns='{{CountDetailcolumnArray}}' selected='{{selectedItems}}'
-                                selection-mode=[[selectedSelectionMode]]
-                                on-selected-changed='{{selectedChangedListener}}' scroll-policy="loadAll" display='grid'
-                                 style='width: 100%;'>
+            <oj-table id='table' aria-label='All Table' data='[[tableDetailDP]]' display='grid'
+                columns='{{CountDetailcolumnArray}}' selected='{{selectedItems}}'
+                selection-mode=[[selectedSelectionMode]]
+                on-selected-changed='{{selectedChangedListener}}' scroll-policy="loadAll"
+                style='width: 100%;'>
     </oj-table>
     <oj-paging-control id="paging" data="[[tableDetailDP]]" page-size="20"
     slot="bottom">
@@ -79,7 +80,9 @@
         </div> 
 
         <oj-table id='dbTgtDetList' aria-label='All Table' data='[[dbTgtDetListDP]]' display='grid'
-            selection-mode='{"row": "single"}' columns='{{TgtdbDetcolumnArray}}' style='width: 100%;'>
+            scroll-policy="loadMoreOnScroll"
+            selection-mode='{"row": "single"}' columns='{{TgtdbDetcolumnArray}}' class="demo-table-container"
+            style='width: 100%;'>
         </oj-table>
     </div>
         <div class="oj-panel oj-flex-bar">

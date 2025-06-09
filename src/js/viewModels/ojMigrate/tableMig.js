@@ -3,16 +3,18 @@ define([
     'jquery',
     'appController',"ojs/ojconverter-number","ojs/ojpagingdataproviderview",
     'ojs/ojarraydataprovider', 
-        "ojs/ojkeyset",
+    "ojs/ojlistdataproviderview", 
+    "ojs/ojkeyset",
+    "ojs/ojdataprovider",
     'ojs/ojknockout',
     'ojs/ojinputtext',
     'ojs/ojtable',
     'ojs/ojlabel',
-    'ojs/ojformlayout','ojs/ojdialog','ojs/ojprogress-bar' ,"ojs/ojpagingcontrol",'ojs/ojselectsingle','ojs/ojselectcombobox'],
-        function (ko, $,app,ojconverter_number_1, PagingDataProviderView,ArrayDataProvider ,ojkeyset_1) {
-
-            class tableMigrateViewModel {
-                constructor(context) {
+    'ojs/ojformlayout','ojs/ojdialog','ojs/ojprogress-bar' ,"ojs/ojpagingcontrol",
+    'ojs/ojselectsingle','ojs/ojselectcombobox', "ojs/ojlistview"],
+    function (ko, $,app,ojconverter_number_1, PagingDataProviderView, ArrayDataProvider, ListDataProviderView, ojkeyset_1, ojdataprovider_1) {
+        class tableMigrateViewModel {
+            constructor(context) {
                 var self = this;
                 self.DepName = context.DepName;
                 self.trailfile = ko.observable();
@@ -128,8 +130,21 @@ define([
 
         };
 
-
-        self.tableDetailDP = new PagingDataProviderView(new ArrayDataProvider(self.tableDetail, {keyAttributes: 'tabname'}));
+        self.filter = ko.observable('');
+        self.handleValueChanged = () => {
+            self.filter(document.getElementById('filter').rawValue);
+        };
+        self.tableDetailDP = ko.computed(function () {
+            let filterCriterion = null;
+            if (self.filter() && self.filter() != '') {
+                filterCriterion = ojdataprovider_1.FilterFactory.getFilter({
+                    filterDef: { text: self.filter() }
+                });
+            }
+            const arrayDataProvider = new ArrayDataProvider(self.tableDetail, { keyAttributes: 'tabname' });
+            return new PagingDataProviderView(new ListDataProviderView(arrayDataProvider, { filterCriterion: filterCriterion }));
+        }, self);
+        // self.tableDetailDP = new PagingDataProviderView(new ArrayDataProvider(self.tableDetail, {keyAttributes: 'tabname'}));
 
         self.schemaListDP = new ArrayDataProvider(self.schemaList, {keyAttributes: 'value'});
 
@@ -160,52 +175,56 @@ define([
                   keyAttributes: 'value'
               });
 
-              self.selectedChangedListener = (event) => {
-                   self.buttonVal(false);
-                  let selectionText = '';
-                  if (event.detail.value.row.isAddAll()) {
-                      self.isDisabled(false);
-                      const iterator = event.detail.value.row.deletedValues();
-                     const row=self.tableDetail();
+            self.selectedChangedListener = (event) => {
+                self.buttonVal(false);
+                let selectionText = '';
+                self.tableDDL('');
+                if (event.detail.value.row.isAddAll()) {
+                    self.isDisabled(false);
+                    const iterator = event.detail.value.row.deletedValues();
+                    const row=self.tableDetail();
                     for(var i=0;i<row.length;i++) {
                         selectionText = selectionText +  row[i].TABLE_NAME + ", " ;
                     }
-                   if(event.detail.value.row._keys.size>0){
-                    event.detail.value.row._keys.forEach(function (key) {
-                        selectionText = selectionText.replace(key+",", "");
-                    });
-                    
-                   }
-                   selectionText = selectionText.replace(/,\s*$/,"");
-                  }
-                  else {
-                      const row = event.detail.value.row;
-                      const column = event.detail.value.column;
-                      if (row.values().size > 0) {
-                          row.values().forEach(function (key) {
-                              selectionText += selectionText.length === 0 ? key : ', ' + key;
-                          });
-                          selectionText =  selectionText;
-                      }
-                      if (column.values().size > 0) {
-                          column.values().forEach(function (key) {
-                              selectionText += selectionText.length === 0 ? key : ', ' + key;
-                          });
-                          selectionText = 'Column Keys: ' + selectionText;
-                      }
-                      self.isDisabled(row.values().size === 0 && column.values().size === 0);
-                     
-                  }
-                  self.selectionInfo(selectionText);
-        
-              };
-              self.clearSelection = () => {
-                  self.selectedItems({ row: new ojkeyset_1.KeySetImpl(), column: new ojkeyset_1.KeySetImpl() });
-              };
-              this.selectedSelectionMode.subscribe((newValue) => {
-                  // Reset selected Items on selection mode change.
-                  self.selectedItems({ row: new ojkeyset_1.KeySetImpl(), column: new ojkeyset_1.KeySetImpl() });
-              });
+                    if(event.detail.value.row._keys.size>0){
+                        event.detail.value.row._keys.forEach(function (key) {
+                            selectionText = selectionText.replace(key+",", "");
+                        });                    
+                    }
+                    selectionText = selectionText.replace(/,\s*$/,"");
+                }
+                else {
+                    const row = event.detail.value.row;
+                    const column = event.detail.value.column;
+                    const rowKeys = []
+                    if (row.values().size > 0) {
+                        row.values().forEach(function (key) {
+                            rowKeys.push(key)
+                            selectionText += selectionText.length === 0 ? key : ', ' + key;
+                        });
+                        selectionText =  selectionText;
+                    }
+                    if (column.values().size > 0) {
+                        column.values().forEach(function (key) {
+                            selectionText += selectionText.length === 0 ? key : ', ' + key;
+                        });
+                        selectionText = 'Column Keys: ' + selectionText;
+                    }
+                    self.isDisabled(row.values().size === 0 && column.values().size === 0);   
+                    if(rowKeys.length===1){
+                        self.selectionInfo(selectionText)  
+                        self.clickTableGetDetails()        
+                    }
+                }
+                self.selectionInfo(selectionText);
+            };
+            self.clearSelection = () => {
+                self.selectedItems({ row: new ojkeyset_1.KeySetImpl(), column: new ojkeyset_1.KeySetImpl() });
+            };
+            this.selectedSelectionMode.subscribe((newValue) => {
+                // Reset selected Items on selection mode change.
+                self.selectedItems({ row: new ojkeyset_1.KeySetImpl(), column: new ojkeyset_1.KeySetImpl() });
+            });
 
 
 
@@ -216,28 +235,30 @@ define([
 
         self.clickTableGetDetails  =  function(data, event) {
             document.querySelector('#SelectSchemaDialog').open();
-            $.ajax({
-                url: self.DepName()  + "/getddlfromtable",
-                type: 'POST',
-                data: JSON.stringify({
-                    dbname : self.currentDB(),
-                    tableName : self.selectionInfo(),
-                }),
-                dataType: 'json',
-                timeout: sessionStorage.getItem("timeInetrval"),
-                context: self,
-                            error: function (xhr, textStatus, errorThrown) {
-                                if(textStatus == 'timeout' || textStatus == 'error'){
-                                    document.querySelector('#SelectSchemaDialog').close();
-                                    document.querySelector('#TimeoutInLoad').open();
-                                }
-                            },
-                success: function (data) {
-                    self.tableDDL(data);
-                    document.querySelector('#SelectSchemaDialog').close();
-                    return self;
-                }
-            })
+            if(self.selectionInfo()!=="" && self.currentDB()!==""){
+                $.ajax({
+                    url: self.DepName()  + "/getddlfromtable",
+                    type: 'POST',
+                    data: JSON.stringify({
+                        dbname : self.currentDB(),
+                        tableName : self.selectionInfo(),
+                    }),
+                    dataType: 'json',
+                    timeout: sessionStorage.getItem("timeInetrval"),
+                    context: self,
+                    error: function (xhr, textStatus, errorThrown) {
+                        if(textStatus == 'timeout' || textStatus == 'error'){
+                            document.querySelector('#SelectSchemaDialog').close();
+                            document.querySelector('#TimeoutInLoad').open();
+                        }
+                    },
+                    success: function (data) {
+                        self.tableDDL(data);
+                        document.querySelector('#SelectSchemaDialog').close();
+                        return self;
+                    }
+                })
+            }
         }
 
         self.downloadTableReport = ()=>{
@@ -257,7 +278,7 @@ define([
         }
 
    //     self.tableNameDetailsDP = new PagingDataProviderView(new ArrayDataProvider(self.tableNameDetails, {keyAttributes: 'id'}));     
-        self.filter = ko.observable('');
+        
         // self.tableNameDetailsDP = ko.computed(function () {
         //     let filterCriterion = null;
         //     if (self.filter() && self.filter() != '') {
@@ -268,11 +289,7 @@ define([
         
         //     const arrayDataProvider = new ArrayDataProvider(self.tableNameDetails, { keyAttributes: 'tname' });
         //     return new PagingDataProviderView(new ListDataProviderView(arrayDataProvider, { filterCriterion: filterCriterion }));
-        // });
-
-        self.handleValueChanged = () => {
-            self.filter(document.getElementById('filter').rawValue);
-        };
+        // });        
         
         self.errorTableNameDetailsDP = new PagingDataProviderView(new ArrayDataProvider(self.errorTableNameDetails, {keyAttributes: 'id'}));     
         
@@ -478,30 +495,18 @@ define([
     }
 
 
-
-
-           
     self.dbTgtDetListDP = new ArrayDataProvider(self.dbTgtDetList, {keyAttributes: 'dbid'});    
-
-              self.TgtdbDetcolumnArray = [{headerText: 'DB Name',
-                field: 'dbname'},
-                {headerText: 'PDB Name',
-                field: 'pdbname'},
-                {headerText: 'Platform',
-                field: 'platform'},
-                {headerText: 'Host',
-                field: 'host'},
-                {headerText: 'Version',
-                field: 'version'} ,
-                {headerText: 'DB Edition',
-                field: 'dbedition'} ,
-                {headerText: 'DB Role',
-                field: 'db_role'} ,
-                {headerText: 'Current SCN',
-                field: 'current_scn'} ,
-                {headerText: 'CDB',
-                field: 'cdb'} ,
-             ]
+    self.TgtdbDetcolumnArray = [
+        {headerText: 'DB Name', field: 'dbname'},
+        {headerText: 'PDB Name', field: 'pdbname'},
+        {headerText: 'Platform', field: 'platform'},
+        {headerText: 'Host', field: 'host'},
+        {headerText: 'Version', field: 'version'} ,
+        {headerText: 'DB Edition', field: 'dbedition'} ,
+        {headerText: 'DB Role', field: 'db_role'} ,
+        {headerText: 'Current SCN', field: 'current_scn'} ,
+        {headerText: 'CDB', field: 'cdb'} ,
+    ]
 
     self.tableDDLConvertedText = ko.observable('');
         
