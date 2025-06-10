@@ -60,12 +60,10 @@ define([
                     //console.log(e);
                 },
                 success: function (data) {
-                    // console.log(data)
                     for (var i = 0; i < data[0].length; i++) {
                         self.DBDet.push({'value' : data[0][i].dbname, 'label' : data[0][i].dbname});
+                    }
                 }
-                // console.log(self.DBDet())
-            }
             })
         }
 
@@ -76,7 +74,6 @@ define([
         self.schemaList = ko.observableArray([]);
 
         self.dbchangeActionHandler = function (data, event) {
-            console.log(self.DepName() )
             $.ajax({
                 url: self.DepName() + "/getschemaname",
                 data: JSON.stringify({
@@ -89,8 +86,6 @@ define([
                     console.log(e);
                 },
                 success: function (data) {
-                    console.log(data)
-                    // console.log(self.tableDetail())
                     self.schemaList([]);
                     for (var i = 0; i < data[0].length; i++) {
                         self.schemaList.push({'label': data[0][i], 'value': data[0][i]})
@@ -102,7 +97,6 @@ define([
         };
 
         self.schemachangeActionHandler = function (data, event) {
-            console.log(self.DepName() )
             $.ajax({
                 url: self.DepName() + "/gettablename",
                 data: JSON.stringify({
@@ -115,16 +109,14 @@ define([
                     console.log(e);
                 },
                 success: function (data) {
-                    console.log(data)
                     self.tableDetail([]);
-                 for (var key in data[0]) {
-                     for (var newkey in data[0][key]){
-                        //  console.log(newkey)
-                        self.tableDetail.push({'tabname': data[0][key][newkey] + '.' +  key });
-                     }
+                    for (var key in data[0]) {
+                        for (var newkey in data[0][key]){
+                            self.tableDetail.push({'tabname': data[0][key][newkey] + '.' +  key });
+                        }
                     }
-                  
-                   return self;
+                    fetchAutomateResults();
+                    return self;
                 }
             })
 
@@ -157,76 +149,116 @@ define([
         field: 'tabname' }
         ];
 
-               self.selectedItems = ko.observable({
-                  row: new ojkeyset_1.KeySetImpl(),
-                  column: new ojkeyset_1.KeySetImpl()
-              });
-              self.isDisabled = ko.observable(true);
-              self.selectionInfo = ko.observable('');
-              self.selectedSelectionMode = ko.observable({
-                  row: 'multiple',
-                  column: 'none'
-              });
-           self.selectionModes = [
-                  { value: { row: 'single', column: 'none' }, label: 'No Exclusion Mode' },
-                  { value: { row: 'multiple', column: 'none' }, label: 'Exclusion Mode' }
-              ];
-              self.selectionModeDP = new ArrayDataProvider(this.selectionModes, {
-                  keyAttributes: 'value'
-              });
+        self.selectedItems = ko.observable({
+            row: new ojkeyset_1.KeySetImpl(),
+            column: new ojkeyset_1.KeySetImpl()
+        });
+        self.isDisabled = ko.observable(true);
+        self.selectionInfo = ko.observable('');
+        self.selectedSelectionMode = ko.observable({
+            row: 'multiple',
+            column: 'none'
+        });
+        self.selectionModes = [
+            { value: { row: 'single', column: 'none' }, label: 'No Exclusion Mode' },
+            { value: { row: 'multiple', column: 'none' }, label: 'Exclusion Mode' }
+        ];
+        self.selectionModeDP = new ArrayDataProvider(this.selectionModes, {
+            keyAttributes: 'value'
+        });
 
-            self.selectedChangedListener = (event) => {
-                self.buttonVal(false);
-                let selectionText = '';
-                self.tableDDL('');
-                if (event.detail.value.row.isAddAll()) {
-                    self.isDisabled(false);
-                    const iterator = event.detail.value.row.deletedValues();
-                    const row=self.tableDetail();
-                    for(var i=0;i<row.length;i++) {
-                        selectionText = selectionText +  row[i].TABLE_NAME + ", " ;
-                    }
-                    if(event.detail.value.row._keys.size>0){
-                        event.detail.value.row._keys.forEach(function (key) {
-                            selectionText = selectionText.replace(key+",", "");
-                        });                    
-                    }
-                    selectionText = selectionText.replace(/,\s*$/,"");
+        self.excludeData = ko.observableArray();
+        self.includedData = ko.observableArray();
+
+        self.selectedChangedListener = (event) => {
+            if(self.selectedSelectionMode().row === 'multiple'){
+                self.excludeButtonVal(false);
+            }
+            self.buttonVal(false);
+            let selectionText = '';
+            self.tableDDL('');
+            self.excludeData([]);
+            self.includedData([]);
+            if (event.detail.value.row.isAddAll()) {
+                self.isDisabled(false);
+                const iterator = event.detail.value.row.deletedValues();
+                const row=self.tableDetail();
+                const newExclude = [];
+                const newInclude = [];
+                for(var i=0;i<row.length;i++) {
+                    selectionText = selectionText +  row[i].tabname + ", " ;
                 }
-                else {
-                    const row = event.detail.value.row;
-                    const column = event.detail.value.column;
-                    const rowKeys = []
-                    if (row.values().size > 0) {
-                        row.values().forEach(function (key) {
-                            rowKeys.push(key)
-                            selectionText += selectionText.length === 0 ? key : ', ' + key;
-                        });
-                        selectionText =  selectionText;
-                    }
-                    if (column.values().size > 0) {
-                        column.values().forEach(function (key) {
-                            selectionText += selectionText.length === 0 ? key : ', ' + key;
-                        });
-                        selectionText = 'Column Keys: ' + selectionText;
-                    }
-                    self.isDisabled(row.values().size === 0 && column.values().size === 0);   
-                    if(rowKeys.length===1){
-                        self.selectionInfo(selectionText)  
-                        self.clickTableGetDetails()        
+                if(event.detail.value.row._keys.size>0){
+                    event.detail.value.row._keys.forEach(function (key) {
+                        newInclude.push({ tabname: key })
+                        selectionText = selectionText.replace(key+",", "");
+                    });                    
+                }
+                const excludeItems = selectionText.split(',').map(item => item.trim()).filter(item => item !== '');
+                excludeItems.forEach(item => {
+                    newExclude.push({ name: item });
+                });            
+                selectionText = selectionText.replace(/,\s*$/,"");
+                if(self.selectedSelectionMode().row === 'multiple'){
+                    self.excludeData(newExclude);
+                    self.includedData(newInclude)
+                }
+            }
+            else {
+                const row = event.detail.value.row;
+                const column = event.detail.value.column;
+                const rowKeys = []      
+                const newExclude = [];    
+                const newInclude = [];   
+                const tables=self.tableDetail(); 
+                for(var i=0;i<tables.length;i++) {
+                    newInclude.push({ tabname: tables[i].tabname }); 
+                }  
+                if (row.values().size > 0) {
+                    row.values().forEach(function (key) {
+                        rowKeys.push(key)
+                        newExclude.push({ name: key });
+                        const index = newInclude.findIndex(obj => obj.tabname === key);
+                        if (index > -1) {
+                            newInclude.splice(index, 1);
+                        }
+                        selectionText += selectionText.length === 0 ? key : ', ' + key;
+                    });
+                    if(self.selectedSelectionMode().row === 'multiple'){
+                        self.excludeData(newExclude);
+                        self.includedData(newInclude)
                     }
                 }
-                self.selectionInfo(selectionText);
-            };
-            self.clearSelection = () => {
-                self.selectedItems({ row: new ojkeyset_1.KeySetImpl(), column: new ojkeyset_1.KeySetImpl() });
-            };
-            this.selectedSelectionMode.subscribe((newValue) => {
-                // Reset selected Items on selection mode change.
-                self.selectedItems({ row: new ojkeyset_1.KeySetImpl(), column: new ojkeyset_1.KeySetImpl() });
-            });
+                if (column.values().size > 0) {
+                    column.values().forEach(function (key) {
+                        selectionText += selectionText.length === 0 ? key : ', ' + key;
+                    });
+                    selectionText = 'Column Keys: ' + selectionText;
+                }
+                self.isDisabled(row.values().size === 0 && column.values().size === 0);   
+                if(rowKeys.length===1){
+                    self.selectionInfo(selectionText)  
+                    self.clickTableGetDetails()        
+                }               
+            }
+            self.selectionInfo(selectionText);
+        };
+        self.clearSelection = () => {
+            self.selectedItems({ row: new ojkeyset_1.KeySetImpl(), column: new ojkeyset_1.KeySetImpl() });
+        };
+        this.selectedSelectionMode.subscribe((newValue) => {
+            // Reset selected Items on selection mode change.
+            self.selectedItems({ row: new ojkeyset_1.KeySetImpl(), column: new ojkeyset_1.KeySetImpl() });
+        });
 
-
+        self.excludeDataProvider = new ArrayDataProvider(self.excludeData, {
+            keyAttributes: 'name'
+        });
+        
+        self.ExcludeTableGetDetails = ()=>{
+            document.querySelector('#autoMateExcludeDlg').close();
+            self.automateTable(self.includedData())
+        }
 
         self.tableDDL = ko.observable();
 
@@ -253,12 +285,130 @@ define([
                         }
                     },
                     success: function (data) {
-                        self.tableDDL(data);
+                        self.tableDDL(data.ddl);
+                        self.tableDDLConvertedText('');
                         document.querySelector('#SelectSchemaDialog').close();
                         return self;
                     }
                 })
             }
+        }
+
+        self.buttonValAutomate = ko.observable(false)
+        
+        self.automateModal =  (data, event) => {
+            document.querySelector('#autoMateDlg').open();
+        }
+
+        self.automateExcludeModal = (data, event) => {
+            document.querySelector('#autoMateExcludeDlg').open();
+        }
+
+        self.automateClose =  function(data, event) {
+            document.querySelector('#autoMateDlg').close();
+        }
+
+        self.automateExcludeClose =  function(data, event) {
+            document.querySelector('#autoMateExcludeDlg').close();
+        }
+
+        self.progressValue = ko.observable(0);
+        self.automateTable = (tableList)=>{
+            document.querySelector('#autoMateDlg').close();            
+            var intervalId = setInterval(fetchAutomateResults, 1000);
+            self.progressValue(-1)
+            let procNameList = self.tableDetail()
+            if(tableList && tableList.length > 0){
+                procNameList = tableList
+            }
+            $.ajax({
+                url: self.DepName()  + "/automateTable",
+                type: 'POST',
+                data: JSON.stringify({
+                    sourceDbname : self.currentDB(),
+                    targetDbname : self.TGTcurrentPDB(),
+                    procNameList : procNameList,
+                    targetDep : self.TGTonepDepUrl(),
+                    sourceDep : self.DepName(),
+                }),
+                dataType: 'json',
+                timeout: sessionStorage.getItem("timeInetrval"),
+                context: self,
+                error: function (xhr, textStatus, errorThrown) {
+                    if(textStatus == 'timeout' || textStatus == 'error'){
+                        document.querySelector('#SelectSchemaViewDialog').close();
+                        document.querySelector('#TimeoutInLoad').open();
+                    }
+                },
+                success: function (data) {
+                    setTimeout(() => {
+                        self.progressValue(100)
+                    }, 3000);
+                    fetchAutomateResults();
+                    clearInterval(intervalId);
+                    self.buttonValReport(false)
+                }
+            })
+        }
+
+        self.listFunction = ko.observableArray([]);
+        function fetchAutomateResults() {
+            $.ajax({
+                url: self.DepName()  + "/fetchAutomateTableExcel",
+                type: 'POST',
+                data: JSON.stringify({
+                    sourceDbname : self.currentDB(),
+                }),
+                dataType: 'json',
+                timeout: sessionStorage.getItem("timeInetrval"),
+                context: self,
+                error: function (xhr, textStatus, errorThrown) {
+                    if(textStatus == 'timeout' || textStatus == 'error'){
+                        document.querySelector('#SelectSchemaViewDialog').close();
+                        document.querySelector('#TimeoutInLoad').open();
+                    }
+                },
+                success: function (data) {
+                    self.listFunction([])
+                    var csvContent = '';
+                    var headers = ['No', 'Function', 'Result'];
+                    csvContent += headers.join(',') + '\n';
+                    for (var i =0; i<data.length;i++) {
+                        if(data[i].Function == self.tableDetail()[i].tabname) {
+                            if(data[i].Output == "Created" ||  data[i].Output == "Already Exist") {
+                                self.tableDetail()[i].output = 'Success';
+                            } else if (data[i].Output == "Error"){
+                                self.tableDetail()[i].output = 'Error';
+                            } else{
+                                self.tableDetail()[i].output = 'Error';
+                            }
+                        } else {
+                            for (var j =0; j<self.tableDetail().length;j++) {
+                                if (self.tableDetail()[j].tabname == data[i].Function ) {
+                                    if(data[i].Output == "Created" ||  data[i].Output == "Already Exist") {
+                                        self.tableDetail()[j].output = 'Success';
+                                    } else if (data[i].Output == "Error"){
+                                        self.tableDetail()[j].output = 'Error';
+                                    }
+                                    else{
+                                        self.tableDetail()[i].output = 'Error';
+                                    }
+                                }
+                            }
+                        }
+                        self.tableDetail.valueHasMutated();
+                        var rowData = [i+1, data[i].Function,data[i].Output]
+                        csvContent += rowData.join(',') + '\n';
+                        self.listFunction.push({ 'No': i+1,'Function Name': data[i].Function,'Output':data[i].Output});
+                        self.listFunction.valueHasMutated();
+                    }
+                    var blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                    var fileName = 'DBA_Table_Report'+ '.csv';
+                    self.excelBlob(blob);
+                    self.excelFileName(fileName);
+                    document.querySelector('#SelectSchemaViewDialog').close();
+                }
+            })
         }
 
         self.downloadTableReport = ()=>{
@@ -349,18 +499,18 @@ define([
         
         
 
+        self.excludeButtonVal = ko.observable(true);
         self.buttonVal = ko.observable(true);
-        
         self.valueChangedHandler = (event) => {
             self.buttonVal(false);
         };
 
 
                
-                self.TgtOnePDepName = ko.observable();
-                self.TGTcurrentPDB = ko.observable();
+        self.TgtOnePDepName = ko.observable();
+        self.TGTcurrentPDB = ko.observable();
 
-                self.isFormReadonly = ko.observable(false);
+        self.isFormReadonly = ko.observable(false);
 
        self.SelectTGTDeployment = (event,data) =>{
           if (self.TgtOnePDepName()){
@@ -403,11 +553,11 @@ define([
                 dataType: 'json',
                 timeout: sessionStorage.getItem("timeInetrval"),
                 context: self,
-                            error: function (xhr, textStatus, errorThrown) {
-                                if(textStatus == 'timeout' || textStatus == 'error'){
-                                    document.querySelector('#TimeoutInLoad').open();
-                                }
-                            },
+                error: function (xhr, textStatus, errorThrown) {
+                    if(textStatus == 'timeout' || textStatus == 'error'){
+                        document.querySelector('#TimeoutInLoad').open();
+                    }
+                },
                 success: function (data) {
                     for (var i = 0; i < data[0].length; i++) {
                     self.onepDepList.push({'label' : data[0][i].dep , value :  data[0][i].dep} );
@@ -445,7 +595,6 @@ define([
                }
 
                self.TgtDBDet.valueHasMutated();
-               console.log( self.TgtDBDet())
                return self;
            }
            })
@@ -485,7 +634,6 @@ define([
                             }
                 self.dbTgtDetList.valueHasMutated();
                 document.querySelector('#SelectSchemaViewDialog').close();
-                console.log(self.dbTgtDetList())
                 return self;
                 
             }
@@ -526,8 +674,8 @@ define([
             },
             success: function (data) {
                 document.querySelector('#SelectSchemaViewDialog').close();
-                const singleLine = data[0].replace(/[\r\n]+/g, '');
-                self.tableDDLConvertedText(singleLine);
+                const singleLine = data.converted_lines.replace(/[\r\n]+/g, '');
+                self.tableDDLConvertedText(data.converted_lines);
                 return self;
             }
         })
@@ -538,6 +686,8 @@ define([
          self.SaveDDL = function (data, event) {
             self.saveDDLMsg('');  
             document.querySelector('#SelectSchemaViewDialog').open();
+            console.log(self.tableDDLConvertedText())
+            console.log(self.TGTcurrentPDB())
             $.ajax({
                 url: self.TGTonepDepUrl() + "/saveddl",
                 data: JSON.stringify({
@@ -553,8 +703,8 @@ define([
                 success: function (data) {
                     document.querySelector('#SelectSchemaViewDialog').close();
                     document.querySelector('#openDialog').open();
-                    self.saveDDLMsg(data[0]);
-                    updateExcel(data[0])
+                    self.saveDDLMsg(data.msg);
+                    updateExcel(data.msg)
                     return self;
                 }
             })
