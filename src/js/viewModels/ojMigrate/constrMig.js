@@ -13,7 +13,7 @@ define([
     'ojs/ojformlayout','ojs/ojdialog','ojs/ojprogress-bar' ,"ojs/ojpagingcontrol",
     'ojs/ojselectsingle','ojs/ojselectcombobox', "ojs/ojlistview"],
     function (ko, $,app,ojconverter_number_1, PagingDataProviderView, ArrayDataProvider, ListDataProviderView, ojkeyset_1, ojdataprovider_1) {
-        class tableMigrateViewModel {
+        class ConstraintMigrateViewModel {
             constructor(context) {
                 var self = this;
                 self.DepName = context.DepName;
@@ -98,24 +98,19 @@ define([
 
         self.schemachangeActionHandler = function (data, event) {
             $.ajax({
-                url: self.DepName() + "/gettablename",
-                data: JSON.stringify({
-                    dbname: self.currentDB()
-                }),
-                type: 'POST',
+                url: self.DepName() + "/getKeyConstrants",
+                type: 'GET',
                 dataType: 'json',
                 context: self,
                 error: function (e) {
                     console.log(e);
                 },
-                success: function (data) {
+                success: function (data) {               
                     self.tableDetail([]);
-                    for (var key in data[0]) {
-                        for (var newkey in data[0][key]){
-                            self.tableDetail.push({'tabname': data[0][key][newkey] + '.' +  key });
-                        }
+                    for (var i=0; i<=data.length; i++) {
+                        self.tableDetail.push({'tabname': data[i]});
                     }
-                    fetchAutomateResults();
+                    console.log(self.tableDetail());                    
                     return self;
                 }
             })
@@ -171,20 +166,13 @@ define([
         self.includedData = ko.observableArray();
 
         self.selectedChangedListener = (event) => {
-            if(self.selectedSelectionMode().row === 'multiple'){
-                self.excludeButtonVal(false);
-            }
             self.buttonVal(false);
             let selectionText = '';
-            self.tableDDL('');
-            self.excludeData([]);
-            self.includedData([]);
+            self.constraintDDL('');
             if (event.detail.value.row.isAddAll()) {
                 self.isDisabled(false);
                 const iterator = event.detail.value.row.deletedValues();
                 const row=self.tableDetail();
-                const newExclude = [];
-                const newInclude = [];
                 for(var i=0;i<row.length;i++) {
                     selectionText = selectionText +  row[i].tabname + ", " ;
                 }
@@ -260,16 +248,17 @@ define([
             self.automateTable(self.includedData())
         }
 
-        self.tableDDL = ko.observable();
+        self.constraintDDL = ko.observable();
 
         self.excelBlob = ko.observable();
         self.excelFileName = ko.observable();
 
         self.clickTableGetDetails  =  function(data, event) {
             document.querySelector('#SelectSchemaDialog').open();
+            console.log(self.selectionInfo());            
             if(self.selectionInfo()!=="" && self.currentDB()!==""){
                 $.ajax({
-                    url: self.DepName()  + "/getddlfromtable",
+                    url: self.DepName()  + "/getKeyConstraintsLines",
                     type: 'POST',
                     data: JSON.stringify({
                         dbname : self.currentDB(),
@@ -285,8 +274,9 @@ define([
                         }
                     },
                     success: function (data) {
-                        self.tableDDL(data.ddl);
-                        self.tableDDLConvertedText('');
+                        let cleanLines = data.map(line => line.trim()).filter(line => line.length);
+                        self.constraintDDL(cleanLines);
+                        self.constraintDDLConvertedText('');
                         document.querySelector('#SelectSchemaDialog').close();
                         return self;
                     }
@@ -630,8 +620,8 @@ define([
             success: function (data) {
                 self.dbTgtDetList([]);
                 for (var i = 0; i < data[3].length; i++) {
-                    self.dbTgtDetList.push({ 'dbid': data[3][i].DBID,'dbname' : data[3][i].DBNAME,'pdbname' : data[3][i].PDBNAME,'platform' : data[3][i].PLATFORM_NAME  ,'host' : data[3][i].HOST,'version' : data[3][i].VERSION,'dbedition' : data[3][i].DB_EDITION , 'db_role' : data[3][i].DATABASE_ROLE , 'current_scn' : data[3][i].CURRENT_SCN , 'cdb' : data[3][i].CDB});
-                }
+                                self.dbTgtDetList.push({ 'dbid': data[3][i].DBID,'dbname' : data[3][i].DBNAME,'pdbname' : data[3][i].PDBNAME,'platform' : data[3][i].PLATFORM_NAME  ,'host' : data[3][i].HOST,'version' : data[3][i].VERSION,'dbedition' : data[3][i].DB_EDITION , 'db_role' : data[3][i].DATABASE_ROLE , 'current_scn' : data[3][i].CURRENT_SCN , 'cdb' : data[3][i].CDB});
+                            }
                 self.dbTgtDetList.valueHasMutated();
                 document.querySelector('#SelectSchemaViewDialog').close();
                 return self;
@@ -656,15 +646,16 @@ define([
         {headerText: 'CDB', field: 'cdb'} ,
     ]
 
-    self.tableDDLConvertedText = ko.observable('');
+    self.constraintDDLConvertedText = ko.observable('');
         
     self.clickConvert = function (data, event) {
-        self.tableDDLConvertedText('');  
+        self.constraintDDLConvertedText('');  
         document.querySelector('#SelectSchemaViewDialog').open();
+        // const output = self.constraintDDL().map(line => line.replace(/\b\w+\.(dbo\.\w+)/g, '$1'));
         $.ajax({
-            url: self.DepName() + "/tableDDLGenAi",
+            url: self.DepName() + "/constraintDDLGenAi",
             data: JSON.stringify({
-                tableDDL  : self.tableDDL()
+                constraintDDL : self.constraintDDL()
             }),
             type: 'POST',
             dataType: 'json',
@@ -674,8 +665,22 @@ define([
             },
             success: function (data) {
                 document.querySelector('#SelectSchemaViewDialog').close();
-                const singleLine = data.converted_lines.replace(/[\r\n]+/g, '');
-                self.tableDDLConvertedText(data.converted_lines);
+                // const singleLine = data.converted_lines.replace(/[\r\n]+/g, '');
+                const updatedLines = data.converted_lines.map(line => {
+                    let cleanedLine = line.replace(/\bmy_db\./g, '');
+
+                    cleanedLine = cleanedLine.replace(
+                        /\b(ALTER TABLE|REFERENCES)\s+([a-zA-Z0-9_\.]+)/gi,
+                        (match, clause, fullTable) => {
+                            if (fullTable.includes('.')) return `${clause} ${fullTable}`;
+                            return `${clause} dbo.${fullTable}`;
+                        }
+                    );
+
+                    return cleanedLine;
+                });
+                const singleLine = updatedLines.join(',').replace(/[\r\n]+/g, '');
+                self.constraintDDLConvertedText(singleLine);
                 return self;
             }
         })
@@ -686,13 +691,13 @@ define([
          self.SaveDDL = function (data, event) {
             self.saveDDLMsg('');  
             document.querySelector('#SelectSchemaViewDialog').open();
-            console.log(self.tableDDLConvertedText())
+            console.log(self.constraintDDLConvertedText())
             console.log(self.TGTcurrentPDB())
             $.ajax({
-                url: self.TGTonepDepUrl() + "/saveddl",
+                url: self.TGTonepDepUrl() + "/saveConstraints",
                 data: JSON.stringify({
                     dbname : self.TGTcurrentPDB(),
-                    tableDDLConvertedText : self.tableDDLConvertedText()
+                    constraintDDLConvertedText : self.constraintDDLConvertedText()
                 }),
                 type: 'POST',
                 dataType: 'json',
@@ -717,7 +722,7 @@ define([
 
         self.connected = function () {
             getDB();
-                        getOnepDep();
+            getOnepDep();
         }
 
 
@@ -737,6 +742,6 @@ define([
          * return a constructor for the ViewModel so that the ViewModel is constructed
          * each time the view is displayed.
          */
-        return tableMigrateViewModel;
+        return ConstraintMigrateViewModel;
     }
 );

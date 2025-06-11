@@ -260,13 +260,13 @@ define([
         }
 
         function updateExcel (data) {
-            console.log("herrrrrrrr")
+            console.log(data)
             for (var j =0; j<self.viewNameDet().length;j++) {
                 if (self.viewNameDet()[j].vname == self.firstSelectedItem().data.vname ) {
-                    if (data == "Created Succesfully" || data.includes("already exists")) {
+                    if (data == "Created" || data.includes("already used")) {
                         self.viewNameDet()[j].output = "Success";
                         var output = 'Created';
-                        if(data.includes("already exists")) {
+                        if(data.includes("already used")) {
                             var output = 'Already Exist';
                         }
                     }
@@ -292,7 +292,6 @@ define([
                     ////(e);
                 },
                 success: function (data) {
-                    console.log(data)
                     return self;
                 }
             })
@@ -365,10 +364,13 @@ define([
             document.querySelector('#autoMateDlg').close();            
             var intervalId = setInterval(fetchAutomateResults, 1000);
             self.progressValue(-1)
+            console.log(self.viewNameDet());
+            
             $.ajax({
-                url: self.DepName()  + "/automateView",
+                url: self.DepName()  + "/automateOracleView",
                 type: 'POST',
                 data: JSON.stringify({
+                    sourceDep : self.DepName(),
                     sourceDbname : self.currentDB(),
                     targetDbname : self.TGTcurrentPDB(),
                     procNameList : self.viewNameDet(),
@@ -454,7 +456,7 @@ define([
                 success: function (data) {
                     self.viewText('');
                     self.procConvertedText('');
-                    self.viewText(data[0]);
+                    self.viewText(data.viewText);
                     document.querySelector('#SelectSchemaViewDialog').close();
                     return self;                    
                 }
@@ -578,7 +580,10 @@ define([
                         },
             success: function (data) {
                 self.dbTgtDetList([]);
-                self.dbTgtDetList.push({ 'DBNAME': data[1].DBNAME,'ProductName' : data[1].ProductName,'ProductVersion' : data[1].ProductVersion, 'platform': data[1].platform ,'OSVer' : data[1].OSVer });
+                for (var i = 0; i < data[3].length; i++) {
+                    self.dbTgtDetList.push({ 'dbid': data[3][i].DBID,'dbname' : data[3][i].DBNAME,'pdbname' : data[3][i].PDBNAME,'platform' : data[3][i].PLATFORM_NAME  ,'host' : data[3][i].HOST,'version' : data[3][i].VERSION,'dbedition' : data[3][i].DB_EDITION , 'db_role' : data[3][i].DATABASE_ROLE , 'current_scn' : data[3][i].CURRENT_SCN , 'cdb' : data[3][i].CDB});
+                }
+                // self.dbTgtDetList.push({ 'DBNAME': data[1].DBNAME,'ProductName' : data[1].ProductName,'ProductVersion' : data[1].ProductVersion, 'platform': data[1].platform ,'OSVer' : data[1].OSVer });
                 self.dbTgtDetList.valueHasMutated();
                 document.querySelector('#SelectSchemaViewDialog').close();
                 console.log(self.dbTgtDetList())
@@ -591,17 +596,16 @@ define([
     }
 
     self.TgtdbDetcolumnArray = [
-        {headerText: 'Product Name',
-        field: 'ProductName'},
-        {headerText: 'DB Name',
-     field: 'DBNAME'},
-     {headerText: 'Product Version',
-     field: 'ProductVersion'},
-     {headerText: 'OS Platform',
-     field: 'platform'},
-     {headerText: 'OS Version',
-     field: 'OSVer'} 
-  ]
+        {headerText: 'DB Name', field: 'dbname'},
+        {headerText: 'PDB Name', field: 'pdbname'},
+        {headerText: 'Platform', field: 'platform'},
+        {headerText: 'Host', field: 'host'},
+        {headerText: 'Version', field: 'version'} ,
+        {headerText: 'DB Edition', field: 'dbedition'} ,
+        {headerText: 'DB Role', field: 'db_role'} ,
+        {headerText: 'Current SCN', field: 'current_scn'} ,
+        {headerText: 'CDB', field: 'cdb'} ,
+    ]
 
 
            
@@ -614,7 +618,8 @@ define([
         document.querySelector('#SelectSchemaViewDialog').open();
         const viewProcString = self.viewText().join(' ')
         $.ajax({
-            url: self.TGTonepDepUrl() + "/convertViewProc",
+            // url: self.TGTonepDepUrl() + "/convertViewProc",
+            url: self.DepName() + "/viewDDLGenAi",
             data: JSON.stringify({
                 dbName : self.TGTcurrentPDB(),
                 viewProc : viewProcString
@@ -627,8 +632,8 @@ define([
             },
             success: function (data) {
                 document.querySelector('#SelectSchemaViewDialog').close();
-                const singleLine = data[0].replace(/[\r\n]+/g, '');
-                self.procConvertedText(singleLine);
+                // const singleLine = data.converted_lines.replace(/[\r\n]+/g, '');
+                self.procConvertedText(data.converted_lines);
                 return self;
             }
         })
@@ -704,7 +709,7 @@ define([
             self.saveViewMsg('');  
             document.querySelector('#SelectSchemaViewDialog').open();
             $.ajax({
-                url: self.TGTonepDepUrl() + "/pgcreateview",
+                url: self.TGTonepDepUrl() + "/pgCreateView",
                 data: JSON.stringify({
                     dbName : self.TGTcurrentPDB(),
                     viewText : self.procConvertedText()
@@ -718,8 +723,8 @@ define([
                 success: function (data) {
                     document.querySelector('#SelectSchemaViewDialog').close();
                     document.querySelector('#openDialog').open();
-                    self.saveViewMsg(data[0]);
-                    updateExcel(data[0])
+                    self.saveViewMsg(data.msg);
+                    updateExcel(data.msg)
                     return self;
                 }
             })
