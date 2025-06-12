@@ -156,7 +156,7 @@ define([
         self.isDisabled = ko.observable(true);
         self.selectionInfo = ko.observable('');
         self.selectedSelectionMode = ko.observable({
-            row: 'multiple',
+            row: 'single',
             column: 'none'
         });
         self.selectionModes = [
@@ -169,7 +169,7 @@ define([
 
         self.excludeData = ko.observableArray();
         self.includedData = ko.observableArray();
-
+        self.firstSelectedItem = ko.observable();
         self.selectedChangedListener = (event) => {
             if(self.selectedSelectionMode().row === 'multiple'){
                 self.excludeButtonVal(false);
@@ -218,6 +218,7 @@ define([
                     row.values().forEach(function (key) {
                         rowKeys.push(key)
                         newExclude.push({ name: key });
+                        self.firstSelectedItem({ tabname: key })
                         const index = newInclude.findIndex(obj => obj.tabname === key);
                         if (index > -1) {
                             newInclude.splice(index, 1);
@@ -680,6 +681,45 @@ define([
             }
         })
     };
+        
+        function updateExcel (data) {
+            console.log(data)
+            console.log(self.firstSelectedItem())
+            for (var j =0; j<self.tableDetail().length;j++) {
+                if (self.tableDetail()[j].tabname == self.firstSelectedItem().tabname ) {
+                    if (data == "Created" || data.includes("already used")) {
+                        self.tableDetail()[j].output = "Success";
+                        var output = 'Created';
+                        if(data.includes("already used")) {
+                            var output = 'Already Exist';
+                        }
+                    }
+                    else { 
+                        self.tableDetail()[j].output = 'Error';
+                        var output = 'Error';
+                    }
+                } 
+            }
+            self.tableDetail.valueHasMutated();
+            $.ajax({
+                url: self.DepName()  + "/updateExcelTable",
+                data: JSON.stringify({
+                    functionName : self.firstSelectedItem().tabname,
+                    output : output,
+                    sourceDbname : self.currentDB(),
+                    schemaName : self.schemaListSelected()[0],
+                }),
+                type: 'POST',
+                dataType: 'json',
+                context: self,
+                error: function (e) {
+                    ////(e);
+                },
+                success: function (data) {
+                    return self;
+                }
+            })
+        }
 
          self.saveDDLMsg = ko.observable();
 

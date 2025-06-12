@@ -47,7 +47,7 @@
                 &nbsp;
             <oj-bind-if test="[[selectedSelectionMode().row === 'multiple' ]]">
                 <oj-button disabled="[[excludeButtonVal]]" class="oj-button-sm oj-flex-bar-end" chroming="solid"
-                    on-oj-action='[[automateExcludeModal]]'>Exclude</oj-button>
+                    on-oj-action='[[automateExcludeModal]]'>Automate</oj-button>
                     &nbsp;
             </oj-bind-if>
             <oj-bind-if test="[[selectedSelectionMode().row === 'single' ]]">
@@ -68,6 +68,7 @@
             <oj-table id='table' aria-label='All Table' data='[[tableDetailDP]]' display='grid'
                 columns='{{CountDetailcolumnArray}}' selected='{{selectedItems}}'
                 selection-mode=[[selectedSelectionMode]]
+                
                 on-selected-changed='{{selectedChangedListener}}' scroll-policy="loadAll"
                 style='width: 100%;'>
                 <template slot="rowTemplate" data-oj-as="row">

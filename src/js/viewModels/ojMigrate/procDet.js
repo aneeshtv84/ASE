@@ -287,7 +287,7 @@ define([
     function updateExcel (data) {
         for (var j =0; j<self.viewNameDet().length;j++) {
             if (self.viewNameDet()[j].vname == self.firstSelectedItem().data.vname ) {
-                if (data == "Created Succesfully" || data.includes("already exists")) {
+                if (data == "Created" || data.includes("already used")) {
                     self.viewNameDet()[j].output = "Success";
                     var output = 'Created';
                     if(data.includes("already exists")) {
@@ -326,7 +326,7 @@ define([
 
     function fetchAutomateResults() {
         $.ajax({
-            url: self.DepName()  + "/fetchAutomateExcel",
+            url: self.DepName()  + "/fetchAutomateProcExcel",
             type: 'POST',
             data: JSON.stringify({
                 sourceDbname : self.currentDB(),
@@ -335,50 +335,48 @@ define([
             dataType: 'json',
             timeout: sessionStorage.getItem("timeInetrval"),
             context: self,
-                        error: function (xhr, textStatus, errorThrown) {
-                            if(textStatus == 'timeout' || textStatus == 'error'){
-                                document.querySelector('#SelectSchemaProcessDialog').close();
-                                // document.querySelector('#TimeoutInLoad').open();
-                            }
-                        },
+            error: function (xhr, textStatus, errorThrown) {
+                if(textStatus == 'timeout' || textStatus == 'error'){
+                    document.querySelector('#SelectSchemaProcessDialog').close();
+                    // document.querySelector('#TimeoutInLoad').open();
+                }
+            },
             success: function (data) {
                 self.listFunction([])
-              // console.log("excel====") 
-            //   console.log(data)
-               var csvContent = '';
+                var csvContent = '';
                 var headers = ['No', 'Function', 'Result'];
                 csvContent += headers.join(',') + '\n';
-               for (var i =0; i<data.length;i++) {
-                if(data[i].Function == self.viewNameDet()[i].vname) {
-                    if(data[i].Output == "Created" ||  data[i].Output == "Already Exist") {
-                        self.viewNameDet()[i].output = 'Success';
-                    } else if (data[i].Output == "Error"){
-                        self.viewNameDet()[i].output = 'Error';
-                    }  else if (data[i].Output == "Not Loaded"){
-                        self.viewNameDet()[i].output = 'Not Loaded';
-                    }
-                } else {
-                    for (var j =0; j<self.viewNameDet().length;j++) {
-                        if (self.viewNameDet()[j].vname =data[i].Function ) {
-                            if(data[i].Output == "Created" ||  data[i].Output == "Already Exist") {
-                                self.viewNameDet()[j].output = 'Success';
-                            } else if (data[i].Output == "Error"){
-                                self.viewNameDet()[j].output = 'Error';
-                            }  else if (data[i].Output == "Not Loaded"){
-                                self.viewNameDet()[i].output = 'Not Loaded';
+                for (var i =0; i<data.length;i++) {
+                    if(data[i].Function == self.viewNameDet()[i].vname) {
+                        if(data[i].Output == "Created" ||  data[i].Output == "Already Exist") {
+                            self.viewNameDet()[i].output = 'Success';
+                        } else if (data[i].Output == "Error"){
+                            self.viewNameDet()[i].output = 'Error';
+                        }  else if (data[i].Output == "Not Loaded"){
+                            self.viewNameDet()[i].output = 'Not Loaded';
+                        }
+                    } else {
+                        for (var j =0; j<self.viewNameDet().length;j++) {
+                            if (self.viewNameDet()[j].vname == data[i].Function ) {
+                                if(data[i].Output == "Created" ||  data[i].Output == "Already Exist") {
+                                    self.viewNameDet()[j].output = 'Success';
+                                } else if (data[i].Output == "Error"){
+                                    self.viewNameDet()[j].output = 'Error';
+                                }  else if (data[i].Output == "Not Loaded"){
+                                    self.viewNameDet()[i].output = 'Not Loaded';
+                                }
                             }
                         }
                     }
+                    self.viewNameDet.valueHasMutated();
+                    var rowData = [i+1, data[i].Function,data[i].Output]
+                    csvContent += rowData.join(',') + '\n';
+                    self.listFunction.push({'No': i+1, 'Funcation Name': data[i].Function,'Output':data[i].Output});
+                    self.listFunction.valueHasMutated();
                 }
-                self.viewNameDet.valueHasMutated();
-                var rowData = [i+1, data[i].Function,data[i].Output]
-                csvContent += rowData.join(',') + '\n';
-                self.listFunction.push({'No': i+1, 'Funcation Name': data[i].Function,'Output':data[i].Output});
-                self.listFunction.valueHasMutated();
-               }
-               var blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-               var fileName = 'DBA_Report'+ '.csv';
-               self.excelBlob(blob);
+                var blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                var fileName = 'DBA_Report'+ '.csv';
+                self.excelBlob(blob);
                 self.excelFileName(fileName);
                 self.buttonValAutomate(false)
                 self.buttonValReport(false)
@@ -427,9 +425,10 @@ define([
         var intervalId = setInterval(fetchAutomateResults, 1000);
         self.automateClose();
         $.ajax({
-            url: self.DepName()  + "/automateProcess",
+            url: self.DepName()  + "/automateOracleProc",
             type: 'POST',
             data: JSON.stringify({
+                sourceDep: self.DepName(),
                 sourceDbname : self.currentDB(),
                 targetDbname : self.TGTcurrentPDB(),
                 procNameList : self.viewNameDet(),
@@ -505,19 +504,18 @@ define([
                 dataType: 'json',
                 timeout: sessionStorage.getItem("timeInetrval"),
                 context: self,
-                            error: function (xhr, textStatus, errorThrown) {
-                                if(textStatus == 'timeout' || textStatus == 'error'){
-                                    document.querySelector('#SelectSchemaProcessDialog').close();
-                                    document.querySelector('#TimeoutInLoad').open();
-                                }
-                            },
+                error: function (xhr, textStatus, errorThrown) {
+                    if(textStatus == 'timeout' || textStatus == 'error'){
+                        document.querySelector('#SelectSchemaProcessDialog').close();
+                        document.querySelector('#TimeoutInLoad').open();
+                    }
+                },
                 success: function (data) {
                     // console.log(data)
-                         self.viewText('');
-                         self.viewText(data[0]);
-                // document.querySelector('#SelectSchemaProcessDialog').close();
+                    self.viewText('');
+                    self.viewText(data.procText);
+                    // document.querySelector('#SelectSchemaProcessDialog').close();
                     return data;
-                    
                 }
 
             })
@@ -712,7 +710,7 @@ define([
             self.saveViewMsg('');  
             document.querySelector('#SelectSchemaProcessDialog').open();
             $.ajax({
-                url: self.TGTonepDepUrl() + "/pgcreateprocedure",
+                url: self.TGTonepDepUrl() + "/pgCreateProcedure",
                 data: JSON.stringify({
                     dbName : self.TGTcurrentPDB(),
                     procText : self.procConvertedText()
@@ -726,8 +724,8 @@ define([
                 success: function (data) {
                     document.querySelector('#SelectSchemaProcessDialog').close();
                     document.querySelector('#openDialog').open();
-                    self.saveViewMsg(data[0]);
-                    updateExcel(data[0])
+                    self.saveViewMsg(data.msg);
+                    updateExcel(data.msg)
                     ////(self);
                     return self;
                 }
@@ -761,7 +759,7 @@ define([
             document.querySelector('#SelectSchemaProcessDialog').open();
             const viewProcString = self.viewText().join(' ')
             $.ajax({
-                url: self.TGTonepDepUrl() + "/convertProcedureProc",
+                url: self.DepName() + "/procDDLGenAi",
                 data: JSON.stringify({
                     dbName : self.TGTcurrentPDB(),
                     viewProc : viewProcString
@@ -773,10 +771,10 @@ define([
                     console.log(e);
                 },
                 success: function (data) {
-                    console.log(data)
+                    console.log(data.converted_lines)
                     document.querySelector('#SelectSchemaProcessDialog').close();
-                    const singleLine = data[0].replace(/[\r\n]+/g, '');
-                    self.procConvertedText(singleLine);
+                    // const singleLine = data.converted_lines.replace(/[\r\n]+/g, '');
+                    self.procConvertedText(data.converted_lines);
                     ////(self);
                     return self;
                 }
