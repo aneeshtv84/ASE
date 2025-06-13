@@ -260,7 +260,7 @@ define([
                 },
                 success: function (data) {
                     self.viewText('');
-                    self.viewText(data[0]);
+                    self.viewText(data.trigText);
                     document.querySelector('#SelectSchemaTriggerDialog').close();
                     return self;                    
                 }
@@ -452,10 +452,10 @@ define([
          function updateExcel (data) {
             for (var j =0; j<self.viewNameDet().length;j++) {
                 if (self.viewNameDet()[j].vname == self.firstSelectedItem().data.vname ) {
-                    if (data == "Created Succesfully" || data.includes("already exists")) {
+                    if (data == "Created Succesfully" || data.includes("already used")) {
                         self.viewNameDet()[j].output = "Success";
                         var output = 'Created';
-                        if(data.includes("already exists")) {
+                        if(data.includes("already used")) {
                             var output = 'Already Exist';
                         }
                     }
@@ -549,9 +549,10 @@ define([
             self.progressValue(-1)
             self.automateClose();
             $.ajax({
-                url: self.DepName()  + "/automateTrigger",
+                url: self.DepName()  + "/automateOracleTrig",
                 type: 'POST',
                 data: JSON.stringify({
+                    sourceDep : self.DepName(),
                     sourceDbname : self.currentDB(),
                     targetDbname : self.TGTcurrentPDB(),
                     procNameList : self.viewNameDet(),
@@ -588,7 +589,7 @@ define([
                 procConvertedText = procConvertedText.join(' ');
             }
             $.ajax({
-                url: self.TGTonepDepUrl() + "/pgcreateprocedure",
+                url: self.TGTonepDepUrl() + "/pgCreateTrigger",
                 data: JSON.stringify({
                     dbName : self.TGTcurrentPDB(),
                     procText : procConvertedText
@@ -602,7 +603,7 @@ define([
                 success: function (data) {
                     document.querySelector('#SelectSchemaTriggerDialog').close();
                     document.querySelector('#openDialog').open();
-                    self.saveViewMsg(data[0]);
+                    self.saveViewMsg(data.msg);
                     updateExcel(data[0])
                     //console.log(self);
                     return self;
@@ -636,7 +637,7 @@ define([
             self.procConvertedText('');  
             document.querySelector('#SelectSchemaTriggerDialog').open();
             $.ajax({
-                url: self.TGTonepDepUrl() + "/convertTriggerProc",
+                url: self.DepName() + "/trigDDLGenAi",
                 data: JSON.stringify({
                     dbName : self.TGTcurrentPDB(),
                     viewProc : self.viewText()[0]
@@ -649,7 +650,7 @@ define([
                 },
                 success: function (data) {
                     document.querySelector('#SelectSchemaTriggerDialog').close();
-                    self.procConvertedText(data);
+                    self.procConvertedText(data.converted_lines);
                     return self;
                 }
             })

@@ -687,7 +687,7 @@ define([
             console.log(self.firstSelectedItem())
             for (var j =0; j<self.tableDetail().length;j++) {
                 if (self.tableDetail()[j].tabname == self.firstSelectedItem().tabname ) {
-                    if (data == "Created" || data.includes("already used")) {
+                    if (data == "Table Created" || data.includes("already used")) {
                         self.tableDetail()[j].output = "Success";
                         var output = 'Created';
                         if(data.includes("already used")) {

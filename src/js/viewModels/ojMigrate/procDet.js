@@ -290,7 +290,7 @@ define([
                 if (data == "Created" || data.includes("already used")) {
                     self.viewNameDet()[j].output = "Success";
                     var output = 'Created';
-                    if(data.includes("already exists")) {
+                    if(data.includes("already used")) {
                         var output = 'Already Exist';
                     }
                 }
