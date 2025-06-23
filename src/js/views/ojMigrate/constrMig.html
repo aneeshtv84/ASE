@@ -13,17 +13,19 @@
     </div>
 
     <div class="oj-panel oj-sm-10" >
-        <div class="oj-panel oj-flex-bar">
+        <div class="oj-panel oj-flex-bar oj-sm-justify-content-space-between">
             <oj-input-text id="filter" class="oj-form-control-max-width-md" label-hint="Filter"
                 label-edge="inside" placeholder="Type to filter" on-raw-value-changed="[[handleValueChanged]]"
                 value="{{filter}}" clear-icon="always"></oj-input-text>
                 &nbsp;            
             
-            <!-- <oj-button disabled="[[buttonValReport]]" class="oj-button-sm oj-flex" chroming="solid"
-                on-oj-action='[[viewReportModal]]'>Summary</oj-button>
-                &nbsp;
-            <oj-button disabled="[[buttonValReport]]" class="oj-button-sm oj-flex" chroming="solid"
-                on-oj-action='[[downloadTableReport]]'>Download Report</oj-button> -->
+                <div class="oj-flex oj-sm-align-items-center">
+                    <oj-button disabled="[[buttonValAutomate]]" class="oj-button-sm oj-flex" chroming="solid"
+                        on-oj-action='[[automateModal]]'>Automate</oj-button>
+                        &nbsp;
+                    <oj-button disabled="[[buttonValReport]]" class="oj-button-sm oj-flex" chroming="solid"
+                        on-oj-action='[[downloadTableReport]]'>Download Report</oj-button>
+                </div>
         </div>
         <div><oj-progress-bar id="progressBar" value="{{progressValue}}"></oj-progress-bar></div>
         <div class="oj-panel oj-margin oj-panel-alt1 oj-panel-shadow-lg">
@@ -35,12 +37,12 @@
                 <template slot="rowTemplate" data-oj-as="row">
                     <td>
                         <oj-bind-text value="[[row.data.tabname]]"></oj-bind-text>
-                        <!-- <oj-bind-if test="[[row.data.output === 'Success']]">
+                        <oj-bind-if test="[[row.data.output === 'Success']]">
                             <oj-bind-text ><span class="check" style="float:right">&#10004</span></oj-bind-text>
                         </oj-bind-if>
                         <oj-bind-if test="[[row.data.output === 'Error']]">
                             <oj-bind-text ><span class="cross" style="float:right">&#10006</span></oj-bind-text>
-                        </oj-bind-if> -->
+                        </oj-bind-if>
                     </td>
                 </template>
             </oj-table>
@@ -151,7 +153,7 @@ style="display:none;width:350px;min-width:240px;max-width:450px;" cancel-behavio
     <oj-button id="okdelButton" chroming='solid'  on-oj-action="[[automateClose]]">
         Cancel
     </oj-button>
-    <oj-button id="okdelButton" chroming='solid'  on-oj-action='[[automateTable]]'>
+    <oj-button id="okdelButton" chroming='solid'  on-oj-action='[[automateConstraints]]'>
         Automate
     </oj-button>
     </div>

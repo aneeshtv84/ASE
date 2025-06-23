@@ -753,12 +753,45 @@ define([
         self.CountDataProvider = new ArrayDataProvider(self.TrailCount, {idAttribute: 'id'});
 
         self.procConvertedText = ko.observable('');
+        self.showConvertProgress = ko.observable(true); 
         
+        self.convertResult = ko.observable('');
+        function fetchConvertResult() {
+            $.ajax({
+                url: self.DepName()  + "/readConvertFile",
+                type: 'GET',
+                dataType: 'json',
+                timeout: sessionStorage.getItem("timeInetrval"),
+                context: self,
+                error: function (xhr, textStatus, errorThrown) {
+                    console.log(textStatus)
+                },
+                success: function (data) {
+                    if (data && data.length !== 0) {
+                        document.querySelector('#SelectSchemaProcessDialog').close();
+                        document.querySelector('#convertResultDialog').open();
+                        let formattedText = Array.isArray(data)
+                            ? data.join('\n')
+                            : data.toString().replace(/\r?\n/g, '\n');
+                        self.convertResult(formattedText)
+
+                        setTimeout(function () {
+                            const dialogBody = document.getElementById("convertResultDialog");
+                            dialogBody.scrollTop = dialogBody.scrollHeight;
+                        }, 100);
+                    }   
+                    else{
+                        document.querySelector('#SelectSchemaProcessDialog').open();   
+                    }
+                }
+            })
+        }
 
         self.clickConvert = function (data, event) {
             self.procConvertedText('');  
             document.querySelector('#SelectSchemaProcessDialog').open();
            // const viewProcString = self.viewText().join(' ')
+            var intervalId = setInterval(fetchConvertResult, 1000);
             $.ajax({
                 url: self.DepName() + "/procDDLGenAi",
                 data: JSON.stringify({
@@ -772,10 +805,14 @@ define([
                     console.log(e);
                 },
                 success: function (data) {
-                    console.log(data.converted_lines)
-                    document.querySelector('#SelectSchemaProcessDialog').close();
+                    clearInterval(intervalId);
+                    // document.querySelector('#SelectSchemaProcessDialog').close();
                     // const singleLine = data.converted_lines.replace(/[\r\n]+/g, '');
                     self.procConvertedText(data.converted_lines);
+                    document.querySelector('#convertResultDialog').close();
+                    setTimeout(()=>{
+                        document.querySelector('#convertResultDialog').close();
+                    }, 1000)
                     ////(self);
                     return self;
                 }

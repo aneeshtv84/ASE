@@ -107,7 +107,10 @@ define([
                 },
                 success: function (data) {               
                     self.tableDetail([]);
+                    self.buttonValAutomate(false);
                     for (var i=0; i<=data.length; i++) {
+                        if(data[i] == undefined || data[i]== "")
+                            continue;
                         self.tableDetail.push({'tabname': data[i]});
                     }
                     console.log(self.tableDetail());                    
@@ -245,7 +248,7 @@ define([
         
         self.ExcludeTableGetDetails = ()=>{
             document.querySelector('#autoMateExcludeDlg').close();
-            self.automateTable(self.includedData())
+            self.automateConstraints(self.includedData())
         }
 
         self.constraintDDL = ko.observable();
@@ -274,7 +277,9 @@ define([
                         }
                     },
                     success: function (data) {
-                        let cleanLines = data.map(line => line.trim()).filter(line => line.length);
+                        let constraint_lines = data.constraintText;
+                        console.log(constraint_lines)
+                        let cleanLines = constraint_lines.map(line => line.trim()).filter(line => line.length);
                         self.constraintDDL(cleanLines);
                         self.constraintDDLConvertedText('');
                         document.querySelector('#SelectSchemaDialog').close();
@@ -284,7 +289,7 @@ define([
             }
         }
 
-        self.buttonValAutomate = ko.observable(false)
+        self.buttonValAutomate = ko.observable(true)
         
         self.automateModal =  (data, event) => {
             document.querySelector('#autoMateDlg').open();
@@ -303,7 +308,7 @@ define([
         }
 
         self.progressValue = ko.observable(0);
-        self.automateTable = (tableList)=>{
+        self.automateConstraints = (tableList)=>{
             document.querySelector('#autoMateDlg').close();            
             var intervalId = setInterval(fetchAutomateResults, 1000);
             self.progressValue(-1)
@@ -312,7 +317,7 @@ define([
                 procNameList = tableList
             }
             $.ajax({
-                url: self.DepName()  + "/automateTable",
+                url: self.DepName()  + "/automateConstraints",
                 type: 'POST',
                 data: JSON.stringify({
                     sourceDbname : self.currentDB(),
@@ -344,7 +349,7 @@ define([
         self.listFunction = ko.observableArray([]);
         function fetchAutomateResults() {
             $.ajax({
-                url: self.DepName()  + "/fetchAutomateTableExcel",
+                url: self.DepName()  + "/fetchAutomateConstraintsExcel",
                 type: 'POST',
                 data: JSON.stringify({
                     sourceDbname : self.currentDB(),
@@ -686,9 +691,46 @@ define([
         })
     };
 
-         self.saveDDLMsg = ko.observable();
+    function updateExcel (data) {
+        for (var j =0; j<self.tableDetail().length;j++) {
+            if (self.tableDetail()[j].tabname == self.firstSelectedItem().tabname ) {
+                if (data == "Created" || data.includes("already exists")) {
+                    self.tableDetail()[j].output = "Success";
+                    var output = 'Created';
+                    if(data.includes("already used")) {
+                        var output = 'Already Exist';
+                    }
+                }
+                else { 
+                    self.tableDetail()[j].output = 'Error';
+                    var output = 'Error';
+                }
+            } 
+        }
+        self.tableDetail.valueHasMutated();
+        $.ajax({
+            url: self.DepName()  + "/updateExcelConstraints",
+            data: JSON.stringify({
+                functionName : self.firstSelectedItem().tabname,
+                output : output,
+                sourceDbname : self.currentDB(),
+                schemaName : self.schemaListSelected()[0],
+            }),
+            type: 'POST',
+            dataType: 'json',
+            context: self,
+            error: function (e) {
+                ////(e);
+            },
+            success: function (data) {
+                return self;
+            }
+        })
+    }
 
-         self.SaveDDL = function (data, event) {
+    self.saveDDLMsg = ko.observable();
+
+        self.SaveDDL = function (data, event) {
             self.saveDDLMsg('');  
             document.querySelector('#SelectSchemaViewDialog').open();
             console.log(self.constraintDDLConvertedText())
