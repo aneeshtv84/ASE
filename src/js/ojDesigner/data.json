@@ -13,6 +13,20 @@
         "initials": "COR",
         "anchor": "green",
         "image" : "css/images/cr-icon.png"
+      },
+       {
+        "id": "Parallel Integrated Replicat",
+        "label": "Parallel Integrated Replicat",
+        "initials": "PIR",
+        "anchor": "green",
+        "image" : "css/images/pir-icon.png"
+      },
+      {
+        "id": "Integrated Replicat",
+        "label": "Integrated Replicat",
+        "initials": "IR",
+        "anchor": "green",
+        "image" : "css/images/ir-icon.png"
       }
     ],
 "nodesB": [

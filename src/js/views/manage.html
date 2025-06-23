@@ -114,7 +114,34 @@
                 label-hint="Extract Parameterfile" max-rows="1000" rows="13"></oj-text-area>
         </div>
         <div slot="footer">
-            <oj-button id="saveMgrBtn" chroming="callToAction" on-oj-action="[[saveExtPrm]]">
+            <oj-button id="saveExtBtn" chroming="callToAction" on-oj-action="[[saveExtPrm]]">
+                Save
+            </oj-button>
+        </div>
+    </oj-dialog>
+
+    <oj-dialog id="EditPmpDialog" dialog-title="Edit Pump Pramater File" modality="modeless"
+        cancel-behavior="[[CancelBehaviorOpt]]" style="display:none;width:550px;min-width:550px;max-width:550px;">
+        <div slot="body">
+            <oj-text-area class="demo-percentage-width" value="{{pmpPrmRead}}" raw-value={{pmpPrmWrite}}
+                label-hint="Extract Parameterfile" max-rows="1000" rows="13"></oj-text-area>
+        </div>
+        <div slot="footer">
+            <oj-button id="savePmpBtn" chroming="callToAction" on-oj-action="[[savePmpPrm]]">
+                Save
+            </oj-button>
+        </div>
+    </oj-dialog>
+
+
+    <oj-dialog id="EditRepDialog" dialog-title="Edit Replicat Pramater File" modality="modeless"
+        cancel-behavior="[[CancelBehaviorOpt]]" style="display:none;width:550px;min-width:550px;max-width:550px;">
+        <div slot="body">
+            <oj-text-area class="demo-percentage-width" value="{{repPrmRead}}" raw-value={{repPrmWrite}}
+                label-hint="Replicat Parameterfile" max-rows="1000" rows="13"></oj-text-area>
+        </div>
+        <div slot="footer">
+            <oj-button id="saveRepBtn" chroming="callToAction" on-oj-action="[[saveRepPrm]]">
                 Save
             </oj-button>
         </div>
@@ -686,6 +713,10 @@ cancel-behavior="[[CancelBehaviorOpt]]" style="display:none;width:550px;min-widt
                             <div class="oj-panel oj-bg-warning-10 oj-selected oj-panel-shadow-lg demo-expanded-content">
                                 <oj-menu-button id="menuButton" chroming="borderless" display="icons">
                                     <oj-menu id="myMenu" slot="menu" on-oj-action="[[menuPmpItemAction]]">
+                                            <oj-option id="editPmp" value="extedit">
+                                                    <span class="fa fa-pencil" slot="startIcon"></span>Edit Pump Params
+                                       </oj-option>
+                                       <oj-option>---------------------------------</oj-option>
                                         <oj-option id="pmpview">
                                             <span class="fa fa-eye " slot="startIcon"></span>View
                                            <oj-menu id="pmpviewmenu">
@@ -941,6 +972,10 @@ cancel-behavior="[[CancelBehaviorOpt]]" style="display:none;width:550px;min-widt
                                         <oj-menu-button id="menuButton" chroming="borderless" display="icons">
                                             <oj-menu id="myMenu" slot="menu"
                                                 on-oj-action="[[menuRepItemAction]]">
+                                                                                           <oj-option id="editRep" value="repedit">
+                                                    <span class="fa fa-pencil" slot="startIcon"></span>Edit Replicat Params
+                                       </oj-option>
+                                       <oj-option>---------------------------------</oj-option>
                                                 <oj-option id="repview">
                                                     <span class="fa fa-eye " slot="startIcon"></span>View
                                                    <oj-menu id="repviewmenu">

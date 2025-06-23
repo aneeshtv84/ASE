@@ -211,7 +211,7 @@
                     <span>Target Database Details</span>
                 </div>
                 <oj-table id='table' aria-label='All Table' data='[[dbTgtDetListDP]]' display='grid'
-                    selection-mode='{"row": "single"}' columns='{{dbDetcolumnArray}}' style='width: 100%;'>
+                    selection-mode='{"row": "single"}' columns='{{dbTGTDetcolumnArray}}' style='width: 100%;'>
                 </oj-table>
             </div>
         </div>
@@ -570,6 +570,8 @@
                             <!-- <oj-option id="cegetupdb" value="GETUPDATEBEFORES">GETUPDATEBEFORES</oj-option>
                             <oj-option id="ceddl" value="DDL INCLUDE MAPPED">DDL</oj-option> -->
                             <oj-option id="cegettrun" value="GETTRUNCATES">GETTRUNCATES</oj-option>
+                                                            <oj-option id="cenocompdel" value="NOCOMPRESSDELETES">NOCOMPRESSDELETES</oj-option>
+                                <oj-option id="ceencry" value="ENCRYPTTRAIL">ENCRYPTTRAIL</oj-option> 
                             <!-- <oj-option id="cenousesnap" value="FETCHOPTIONS NOUSESNAPSHOT ">FETCHOPTIONS
                                 NOUSESNAPSHOT</oj-option>
                             <oj-option id="cedblogrea"

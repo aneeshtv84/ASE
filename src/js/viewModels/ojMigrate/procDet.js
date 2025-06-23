@@ -638,8 +638,11 @@ define([
             },
             success: function (data) {
                 self.dbTgtDetList([])
-                self.dbTgtDetList.push({ 'DBNAME': data[1].DBNAME,'ProductName' : data[1].ProductName,'ProductVersion' : data[1].ProductVersion, 'platform': data[1].platform ,'OSVer' : data[1].OSVer });
-                self.dbTgtDetList.valueHasMutated();
+                self.dbTgtDetList([]);
+                for (var i = 0; i < data[3].length; i++) {
+                    self.dbTgtDetList.push({ 'dbid': data[3][i].dbid,'dbname' : data[3][i].dbname,'pdbname' : data[3][i].pdbname,'platform' : data[3][i].platform_name  ,'host' : data[3][i].host,'version' : data[3][i].version,'dbedition' : data[3][i].db_edition , 'db_role' : data[3][i].database_role , 'current_scn' : data[3][i].current_scn , 'cdb' : data[3][i].cdb});
+                }
+                                self.dbTgtDetList.valueHasMutated();
                 document.querySelector('#SelectSchemaProcessDialog').close();
                 self.buttonValAutomate(false)
                 return self;
@@ -649,19 +652,17 @@ define([
         })
     }
     }
-
     self.TgtdbDetcolumnArray = [
-        {headerText: 'Product Name',
-        field: 'ProductName'},
-        {headerText: 'DB Name',
-     field: 'DBNAME'},
-     {headerText: 'Product Version',
-     field: 'ProductVersion'},
-     {headerText: 'OS Platform',
-     field: 'platform'},
-     {headerText: 'OS Version',
-     field: 'OSVer'} 
-  ]
+        {headerText: 'DB Name', field: 'dbname'},
+        {headerText: 'PDB Name', field: 'pdbname'},
+        {headerText: 'Platform', field: 'platform'},
+        {headerText: 'Host', field: 'host'},
+        {headerText: 'Version', field: 'version'} ,
+        {headerText: 'DB Edition', field: 'dbedition'} ,
+        {headerText: 'DB Role', field: 'db_role'} ,
+        {headerText: 'Current SCN', field: 'current_scn'} ,
+        {headerText: 'CDB', field: 'cdb'} ,
+    ]
 
 
            
@@ -757,12 +758,12 @@ define([
         self.clickConvert = function (data, event) {
             self.procConvertedText('');  
             document.querySelector('#SelectSchemaProcessDialog').open();
-            const viewProcString = self.viewText().join(' ')
+           // const viewProcString = self.viewText().join(' ')
             $.ajax({
                 url: self.DepName() + "/procDDLGenAi",
                 data: JSON.stringify({
                     dbName : self.TGTcurrentPDB(),
-                    viewProc : viewProcString
+                    viewProc : self.viewText()
                 }),
                 type: 'POST',
                 dataType: 'json',

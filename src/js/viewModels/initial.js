@@ -1473,7 +1473,9 @@ self.currentExtParam = ko.computed( {
                         success: function (data) {
                             
                             self.ButtonChltbl(false);
-                            self.dbTgtDetList.push({ 'dbname' : data[1].DBNAME,'product' : data[1].ProductName,'prodver' : data[1].ProductVersion  ,'OSPlat' : data[1].platform, 'OSVer' : data[1].OSVer , 'OSBIT': data[1].OSBIT, 'DBFile' : data[1].DBFile ,'ServerEdition' : data[1].ServerEdition });
+                            for (var i = 0; i < data[3].length; i++) {
+                                self.dbTgtDetList.push({ 'dbid': data[3][i].dbid,'dbname' : data[3][i].dbname,'pdbname' : data[3][i].pdbname,'platform' : data[3][i].platform_name  ,'host' : data[3][i].host,'version' : data[3][i].version,'dbedition' : data[3][i].db_edition , 'db_role' : data[3][i].database_role , 'current_scn' : data[3][i].current_scn , 'cdb' : data[3][i].cdb});
+                            }
                             self.dbTgtDetList.valueHasMutated();
                             self.trailSubDir(data[2]);
                             queryChkTbl();
@@ -1647,12 +1649,26 @@ self.currentExtParam = ko.computed( {
     
     
                 
-                    self.dbDetTgtcolumnArray = [
-                        {headerText: 'DB Name', field: 'dbname'},
-                        {headerText: 'Product Name', field: 'product'},
-                        {headerText: 'Product Version', field: 'prodver'},
-                        {headerText: 'OS Platform', field: 'OSPlat'}
-                    ]
+                    self.dbDetTgtcolumnArray =  [{headerText: 'DB Name',
+                field: 'dbname'},
+                {headerText: 'PDB Name',
+                field: 'pdbname'},
+                {headerText: 'Platform',
+                field: 'platform'},
+                {headerText: 'Host',
+                field: 'host'},
+                {headerText: 'Version',
+                field: 'version'} ,
+                {headerText: 'DB Edition',
+                field: 'dbedition'} ,
+                {headerText: 'DB Role',
+                field: 'db_role'} ,
+                {headerText: 'Current SCN',
+                field: 'current_scn'} ,
+                {headerText: 'CDB',
+                field: 'cdb'} ,
+             ]
+
 
              self.submitInput = function(data,event){
                 setTimeout(function(){  self.LoadName(self.currentRawValue().toUpperCase());}, 1);
@@ -1688,17 +1704,26 @@ self.currentExtParam = ko.computed( {
             this.selectedChangedListener = (event) => {
                 let selectionText = "";
                 if (event.detail.value.row.isAddAll()) {
-                     const iterator = event.detail.value.row.deletedValues();
+
                     const row=self.tableNameList();
                     for(var i=0;i<row.length;i++) {
                         selectionText = selectionText +  row[i].TABLE_NAME + ", " ;
                     }
-                   if(event.detail.value.row._keys.size>0){
-                    event.detail.value.row._keys.forEach(function (key) {
-                        selectionText = selectionText.replace(key+",", "");
-                    });
+                    const iterator = event.detail.value.row.deletedValues();
+
+                    iterator.forEach(function (key) {
+                          selectionText = selectionText.length === 0 ? `${key}` : `${selectionText}, ${key}`;
+                      });
+                      if (iterator.size > 0) {
+                          selectionText = ' except ' + selectionText;
+                      }
+
+                //    if(event.detail.value.row._keys.size>0){
+                //     event.detail.value.row._keys.forEach(function (key) {
+                //         selectionText = selectionText.replace(key+",", "");
+                //     });
                     
-                   }
+                //    }
                    selectionText = selectionText.replace(/,\s*$/,"");
                 }
                 else {

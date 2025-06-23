@@ -1042,7 +1042,8 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'appController',
 
                 self.extPrmRead = ko.observableArray([]);
                 self.extPrmWrite = ko.observableArray([]);
-
+                self.pmpPrmRead = ko.observableArray([]);
+                self.pmpPrmWrite = ko.observableArray([]);
 
                 self.menuItemAction = function (event) {
                     self.selectedMenuItem(event.target.value);
@@ -1322,6 +1323,65 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'appController',
                             self.popUpResizeSM("ViewExtractRptDialog");
                             document.querySelector('#ViewExtractRptDialog').open();
                             self.ExtRpt(data[0]);   
+                            return self;
+                        }
+                    })
+                }
+
+
+
+                                self.savePmpPrm = function (event, data) {
+                                    console.log(self.PmpName)
+                    $.ajax({
+                        url: self.DepName() + "/saveprm",
+                        type: 'POST',
+                        dataType: 'json',
+                        data: JSON.stringify({
+                            procName: self.PmpName,
+                            currentParams: self.pmpPrmWrite()
+                        }),
+                        timeout: sessionStorage.getItem("timeInetrval"),
+                        context: self,
+                        error: function (xhr, textStatus, errorThrown) {
+                            if (textStatus == 'TimeoutManage' || textStatus == 'error') {
+                                document.querySelector('#SuppLogDialog').close();
+                                document.querySelector('#TimeoutManage').open();
+                            }
+                        },
+                        success: function (data) {
+                            document.querySelector('#EditPmpDialog').close();
+                            self.popUpResizeSM("ViewExtractRptDialog");
+                            document.querySelector('#ViewExtractRptDialog').open();
+                            self.ExtRpt(data[0]);   
+                            return self;
+                        }
+                    })
+                }
+
+ self.repPrmWrite = ko.observableArray([]);
+
+                self.saveRepPrm = function (event, data) {
+                    $.ajax({
+                        url: self.DepName() + "/saveprm",
+                        type: 'POST',
+                        dataType: 'json',
+                        data: JSON.stringify({
+                            procName: self.RepName,
+                            currentParams: self.repPrmWrite()
+                        }),
+                        timeout: sessionStorage.getItem("timeInetrval"),
+                        context: self,
+                        error: function (xhr, textStatus, errorThrown) {
+                            if (textStatus == 'TimeoutManage' || textStatus == 'error') {
+                                document.querySelector('#SuppLogDialog').close();
+                                document.querySelector('#TimeoutManage').open();
+                            }
+                        },
+                        success: function (data) {
+                            document.querySelector('#EditRepDialog').close();
+                            self.popUpResizeSM("ViewReplicatRptDialog");
+                            document.querySelector('#ViewReplicatRptDialog').open();
+                            self.RepRpt(data[0]);   
                             return self;
                         }
                     })
@@ -1787,6 +1847,7 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'appController',
                     var valid = self._checkValidationGroup("ExtLoginDialogForm");
                     if (valid) {
                     document.querySelector('#Progress').open();
+                     document.querySelector('#ExtLoginDialog').close();
                     self.ExtRpt([]);
                     $.ajax({
                         url: self.DepName() + "/ggextops",
@@ -1974,6 +2035,38 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'appController',
                         })
                     }
 
+                    else if (self.selectedPmpMenuItem() == 'extedit') {
+                        document.querySelector('#Progress').open();
+                        self.pmpPrmRead([]);
+                        $.ajax({
+                            url: self.DepName() + "/ggextops",
+                        data: JSON.stringify({
+                                extname: self.PmpName,
+                                extops: self.selectedPmpMenuItem()
+                            }),
+                            type: 'POST',
+                            dataType: 'json',
+                            timeout: sessionStorage.getItem("timeInetrval"),
+                            context: self,
+                            error: function (xhr, textStatus, errorThrown) {
+                                if (textStatus == 'TimeoutManage' || textStatus == 'error') {
+                                    document.querySelector('#Progress').close();
+                                    document.querySelector('#TimeoutManage').open();
+                                }
+                            },
+                            success: function (data) {
+                                self.popUpResizeSM("ViewExtractRptDialog");
+                                document.querySelector('#Progress').close();
+                                document.querySelector('#EditPmpDialog').open();
+                                self.pmpPrmRead(data[1]);
+                                console.log(data[1]);
+                                return self;
+                            }
+                        })
+                    }
+
+
+
                 }
                 self.DeleteRMTOKClose = function (data, event) {
                     document.querySelector('#DeleteConfirm').close();
@@ -2124,6 +2217,8 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'appController',
                 self.RepRpt = ko.observableArray([]);
                 self.selectedRepMenuItem = ko.observable('');
 
+                 self.repPrmRead = ko.observableArray([]);
+
                 self.menuRepItemAction = function (event) {
                     self.selectedRepMenuItem(event.target.value);
                     //Replicat Functions
@@ -2179,6 +2274,35 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'appController',
                     }
                     else if (self.selectedRepMenuItem() == 'repbegin') {
                         document.querySelector('#ReplicatBegin').open();
+                    }
+                     else if (self.selectedRepMenuItem() == 'repedit') {
+                        document.querySelector('#Progress').open();
+                        self.repPrmRead([]);
+                        $.ajax({
+                            url: self.DepName() + "/ggrepops",
+                        data: JSON.stringify({
+                                repname: self.RepName,
+                                repops: self.selectedRepMenuItem()
+                            }),
+                            type: 'POST',
+                            dataType: 'json',
+                            timeout: sessionStorage.getItem("timeInetrval"),
+                            context: self,
+                            error: function (xhr, textStatus, errorThrown) {
+                                if (textStatus == 'TimeoutManage' || textStatus == 'error') {
+                                    document.querySelector('#Progress').close();
+                                    document.querySelector('#TimeoutManage').open();
+                                }
+                            },
+                            success: function (data) {
+                                self.popUpResizeSM("ViewReplicatRptDialog");
+                                document.querySelector('#Progress').close();
+                                document.querySelector('#EditRepDialog').open();
+                                self.repPrmRead(data[1]);
+                                console.log(data[1]);
+                                return self;
+                            }
+                        })
                     }
 
                 }

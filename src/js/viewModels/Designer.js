@@ -1017,22 +1017,25 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'appController',"ojs/ojoffcanvas", '
                             }
                         },
                         success: function (data) {
-                            let serverInfo = data[1].ProductName;
-                            if(serverInfo!='PostgreSQL'){
-                                let parts = serverInfo.split('/');
-                                let productName = parts[0].trim();
-                                let productVersion = parts[1].split(' ')[0].trim();
-                                let os = parts[5].split(' ')[0].trim();
-                                let osbit = parts[4].trim();;
-                                let osVersion = parts[5].split(' ')[1].trim();
-                                let dbFile = parts[6].trim();
-                                let buildID = parts[7].trim();
-                                self.schemaNameList.valueHasMutated();
-                                self.dbTgtDetList.push({ 'DBNAME': data[1].DBNAME,'ProductName' : productName,'ProductVersion' : productVersion, 'platform': os ,'OSVer' : osVersion , 'OSBIT': osbit, 'DBFile' : dbFile ,'ServerEdition' : buildID });
-                            }
-                            else{
-                                self.dbTgtDetList.push({ 'DBNAME' : data[1].DBNAME,'ProductName' : data[1].ProductName,'ProductVersion' : data[1].ProductVersion  ,'platform' : data[1].platform, 'OSVer' : data[1].OSVer , 'OSBIT': data[1].OSBIT, 'DBFile' : data[1].DBFile ,'ServerEdition' : data[1].ServerEdition });
-                            }
+                            // let serverInfo = data[1].ProductName;
+                            // if(serverInfo!='PostgreSQL'){
+                            //     let parts = serverInfo.split('/');
+                            //     let productName = parts[0].trim();
+                            //     let productVersion = parts[1].split(' ')[0].trim();
+                            //     let os = parts[5].split(' ')[0].trim();
+                            //     let osbit = parts[4].trim();;
+                            //     let osVersion = parts[5].split(' ')[1].trim();
+                            //     let dbFile = parts[6].trim();
+                            //     let buildID = parts[7].trim();
+                            //     self.schemaNameList.valueHasMutated();
+                            //     self.dbTgtDetList.push({ 'DBNAME': data[1].DBNAME,'ProductName' : productName,'ProductVersion' : productVersion, 'platform': os ,'OSVer' : osVersion , 'OSBIT': osbit, 'DBFile' : dbFile ,'ServerEdition' : buildID });
+                            // }
+                            // else{
+                                     self.dbTgtDetList([]);  
+                                     for (var i = 0; i < data[3].length; i++) {
+                                  self.dbTgtDetList.push({ 'dbid': data[3][i].dbid, 'dbname': data[3][i].dbname, 'pdbname': data[3][i].pdbname, 'platform': data[3][i].platform_name, 'host': data[3][i].host, 'version': data[3][i].version, 'dbedition': data[3][i].db_edition, 'db_role': data[3][i].database_role, 'current_scn': data[3][i].current_scn, 'cdb': data[3][i].cdb });
+                                     }
+                                 self.dbTgtDetList.valueHasMutated();
                             document.querySelector('#SelectSchemaDialog').close();
                         //     if(!data[1].includes('ORA-')){
                         //     for (var i = 0; i < data[3].length; i++) {
@@ -1269,6 +1272,49 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'appController',"ojs/ojoffcanvas", '
                 {headerText: 'DB Edition',
                 field: 'ServerEdition'} 
              ]
+
+
+
+
+                             self.dbTGTDetcolumnArray = [{
+                    headerText: 'DB Name',
+                    field: 'dbname'
+                },
+                {
+                    headerText: 'PDB Name',
+                    field: 'pdbname'
+                },
+                {
+                    headerText: 'Platform',
+                    field: 'platform'
+                },
+                {
+                    headerText: 'Host',
+                    field: 'host'
+                },
+                {
+                    headerText: 'Version',
+                    field: 'version'
+                },
+                {
+                    headerText: 'DB Edition',
+                    field: 'dbedition'
+                },
+                {
+                    headerText: 'DB Role',
+                    field: 'db_role'
+                },
+                {
+                    headerText: 'Current SCN',
+                    field: 'current_scn'
+                },
+                {
+                    headerText: 'CDB',
+                    field: 'cdb'
+                },
+                ]
+
+
 
                 self.valueChangedHandler = (event) => {
                     self.ButtonVal(false);
@@ -1753,13 +1799,13 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'appController',"ojs/ojoffcanvas", '
                 self.currentRepParamList = ko.computed({
                     read: function () {
                         if (self.ExtName() && !self.PmpName()) {
-                            var currentRepParam = 'REPLICAT ' + self.RepName() + '\n' + 'TARGETDB ' + self.TGTcurrentPDB() + ' , useridalias ' + self.TGTcurrentPDB() + ' , domain ' + self.selectedTGTDomCategory() + '\n' + 'REPORTCOUNT EVERY 5 MINUTES, RATE' + '\n' + self.currentRepOptParamList() + '\n' + self.RepSchemaParam();
+                            var currentRepParam = 'REPLICAT ' + self.RepName() + '\n' + 'useridalias ' + self.TGTcurrentPDB() + ' , domain ' + self.selectedTGTDomCategory() + '\n' + 'REPORTCOUNT EVERY 5 MINUTES, RATE' + '\n' + self.currentRepOptParamList() + '\n' + self.RepSchemaParam();
                         }
                         else if (self.ExtName() && self.PmpName()) {
-                            var currentRepParam = 'REPLICAT ' + self.RepName() + '\n' + 'TARGETDB ' + self.TGTcurrentPDB() + ' , useridalias ' + self.TGTcurrentPDB() + ' , domain ' + self.selectedTGTDomCategory() + '\n' + 'REPORTCOUNT EVERY 5 MINUTES, RATE' + '\n' + self.currentRepOptParamList() + '\n' + self.RepSchemaParam();
+                            var currentRepParam = 'REPLICAT ' + self.RepName() + '\n' + 'useridalias ' + self.TGTcurrentPDB() + ' , domain ' + self.selectedTGTDomCategory() + '\n' + 'REPORTCOUNT EVERY 5 MINUTES, RATE' + '\n' + self.currentRepOptParamList() + '\n' + self.RepSchemaParam();
                         }
                         else {
-                            var currentRepParam = 'REPLICAT ' + self.RepName() + '\n' + 'TARGETDB ' + self.TGTcurrentPDB() + ' , useridalias ' + self.TGTcurrentPDB() + ' , domain ' + self.selectedTGTDomCategory() + '\n' + 'REPORTCOUNT EVERY 5 MINUTES, RATE' + '\n' + self.currentRepOptParamList() + '\n' + self.ExtPrmListREP1();
+                            var currentRepParam = 'REPLICAT ' + self.RepName() + '\n' + 'useridalias ' + self.TGTcurrentPDB() + ' , domain ' + self.selectedTGTDomCategory() + '\n' + 'REPORTCOUNT EVERY 5 MINUTES, RATE' + '\n' + self.currentRepOptParamList() + '\n' + self.ExtPrmListREP1();
                         }
                         // //console.log(currentRepParam)
                         return currentRepParam;
