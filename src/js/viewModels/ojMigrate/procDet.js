@@ -787,6 +787,10 @@ define([
             })
         }
 
+        self.closeConvertResultDialog = ()=>{
+            document.querySelector('#convertResultDialog').close();
+        }   
+
         self.clickConvert = function (data, event) {
             self.procConvertedText('');  
             document.querySelector('#SelectSchemaProcessDialog').open();

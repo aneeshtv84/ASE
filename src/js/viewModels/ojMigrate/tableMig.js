@@ -656,12 +656,49 @@ define([
         {headerText: 'Current SCN', field: 'current_scn'} ,
         {headerText: 'CDB', field: 'cdb'} ,
     ]
+    
+    self.convertResult = ko.observable('');
+    function fetchConvertResult() {
+        $.ajax({
+            url: self.DepName()  + "/readConvertFile",
+            type: 'GET',
+            dataType: 'json',
+            timeout: sessionStorage.getItem("timeInetrval"),
+            context: self,
+            error: function (xhr, textStatus, errorThrown) {
+                console.log(textStatus)
+            },
+            success: function (data) {
+                if (data && data.length !== 0) {
+                    document.querySelector('#SelectSchemaViewDialog').close();
+                    document.querySelector('#convertResultDialog').open();
+                    let formattedText = Array.isArray(data)
+                        ? data.join('\n')
+                        : data.toString().replace(/\r?\n/g, '\n');
+                    self.convertResult(formattedText)
+
+                    setTimeout(function () {
+                        const dialogBody = document.getElementById("convertResultDialog");
+                        dialogBody.scrollTop = dialogBody.scrollHeight;
+                    }, 100);
+                }   
+                else{
+                    document.querySelector('#SelectSchemaViewDialog').open();   
+                }
+            }
+        })
+    }
+
+    self.closeConvertResultDialog = ()=>{
+        document.querySelector('#convertResultDialog').close();
+    }   
 
     self.tableDDLConvertedText = ko.observable('');
         
     self.clickConvert = function (data, event) {
         self.tableDDLConvertedText('');  
         document.querySelector('#SelectSchemaViewDialog').open();
+        var intervalId = setInterval(fetchConvertResult, 1000);
         $.ajax({
             url: self.DepName() + "/tableDDLGenAi",
             data: JSON.stringify({
@@ -674,7 +711,12 @@ define([
                 console.log(e);
             },
             success: function (data) {
-                document.querySelector('#SelectSchemaViewDialog').close();
+                clearInterval(intervalId);
+                // document.querySelector('#SelectSchemaViewDialog').close();
+                document.querySelector('#convertResultDialog').close();
+                setTimeout(()=>{
+                    document.querySelector('#convertResultDialog').close();
+                }, 1000)
                 const singleLine = data.converted_lines.replace(/[\r\n]+/g, '');
                 self.tableDDLConvertedText(data.converted_lines);
                 return self;

@@ -398,7 +398,7 @@ define([
                         self.listFunction.valueHasMutated();
                     }
                     var blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-                    var fileName = 'DBA_Table_Report'+ '.csv';
+                    var fileName = 'DBA_Constraint_Report'+ '.csv';
                     self.excelBlob(blob);
                     self.excelFileName(fileName);
                     document.querySelector('#SelectSchemaViewDialog').close();

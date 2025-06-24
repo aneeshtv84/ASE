@@ -225,3 +225,22 @@ style="display:none;width:350px;min-width:240px;max-width:450px;" cancel-behavio
     </oj-button>
     </div>
 </oj-dialog>
+
+<oj-dialog id="convertResultDialog" dialog-title="Converting....">
+    <div slot="body" style="max-height: 600px; overflow-y: auto; white-space: pre-wrap; word-wrap: break-word;">
+        <pre data-bind="text: convertResult"
+            style="
+                white-space: pre-wrap;
+                word-wrap: break-word;
+                word-break: break-word;
+                overflow-wrap: break-word;
+                font-family: monospace;
+                max-width: 100%;
+                ">
+        </pre>
+        <!-- <oj-bind-text value="[[convertResult]]"></oj-bind-text> -->
+    </div>
+    <div slot="footer">
+        <oj-button id="okButton" on-oj-action="[[closeConvertResultDialog]]">OK</oj-button>
+    </div>
+</oj-dialog>

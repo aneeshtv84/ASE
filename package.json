@@ -5,7 +5,7 @@
   "dependencies": {
     "@oracle/oraclejet": "^18.1.1",
     "@oracle/oraclejet-core-pack": "^18.1.1",
-    "sass": "^1.89.1"
+    "sass": "^1.69.7"
   },
   "devDependencies": {
     "@oracle/ojet-cli": "^18.1.0",
