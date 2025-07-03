@@ -131,7 +131,7 @@ define([ 'ojs/ojoffcanvas' , 'knockout', 'ojs/ojmodule-element-utils', 'ojs/ojre
       if (self.onepDepType() == 'bda'){
         self.appName('1Place For BigData Targets')
       }
-      else if(self.onepDepType() == 'oracle'){
+      else if(self.onepDepType() == 'sybase'){
         self.appName('Skylift For Sybase ASE')
       }
     };

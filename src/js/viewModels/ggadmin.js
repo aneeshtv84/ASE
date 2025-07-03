@@ -33,7 +33,7 @@ define(['knockout','ojs/ojmoduleanimations','ojs/ojmodule-element-utils', 'ojs/o
             self.router.go({path : 'signin'});
         }
         else {
-          if (self.onepDepType() == 'oracle') {
+          if (self.onepDepType() == 'sybase') {
             self.currentModule = ko.observable("rmtInstall");
           }
           else if (self.onepDepType() == 'bda') {

@@ -145,7 +145,7 @@ define(['ojs/ojcore', 'knockout', 'jquery','appController','ojs/ojarraydataprovi
                  self.ggDepOSPlat(data[1] + '_' + data[2]);
                  var temp = data[3].toString();
                  temp = temp.replace(/,/g, ".");
-                 if (self.DepType() == 'oracle'){
+                 if (self.DepType() == 'sybase'){
                      self.ggDepDBClientVerLabel('ODBC  Version');
                      self.ggDepDBVerLabel('Goldengate Build For');
                      self.ggDepDBHomeLabel('Database Client Home Path');
@@ -562,8 +562,8 @@ define(['ojs/ojcore', 'knockout', 'jquery','appController','ojs/ojarraydataprovi
                       app.onAppSuccess();
                       var DepType = sessionStorage.getItem("Dep_Type");
 
-                      if(DepType == 'oracle'){
-                        self.DepType('Oracle');
+                      if(DepType == 'sybase'){
+                        self.DepType('Sybase');
                         self.ggDepDBClientVerLabel('ODBC  Version');
                         self.ggDepDBVerLabel('Goldengate Build For');
                         self.ggDepDBHomeLabel('Database Client Home Path');
