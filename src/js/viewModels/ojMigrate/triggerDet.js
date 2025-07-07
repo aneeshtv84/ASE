@@ -384,7 +384,10 @@ define([
                 }
             },
             success: function (data) {
-                self.dbTgtDetList.push({ 'DBNAME': data[1].DBNAME,'ProductName' : data[1].ProductName,'ProductVersion' : data[1].ProductVersion, 'platform': data[1].platform ,'OSVer' : data[1].OSVer });
+                self.dbTgtDetList([])
+                for (var i = 0; i < data[3].length; i++) {
+                    self.dbTgtDetList.push({ 'dbid': data[3][i].dbid,'dbname' : data[3][i].dbname,'pdbname' : data[3][i].pdbname,'platform' : data[3][i].platform_name  ,'host' : data[3][i].host,'version' : data[3][i].version,'dbedition' : data[3][i].db_edition , 'db_role' : data[3][i].database_role , 'current_scn' : data[3][i].current_scn , 'cdb' : data[3][i].cdb});
+                }
                 self.dbTgtDetList.valueHasMutated();
                 document.querySelector('#SelectSchemaTriggerDialog').close();
                 console.log(self.dbTgtDetList())

@@ -1,0 +1,32 @@
+
+<div class="oj-md-margin-4x">
+    <div class="oj-flex oj-md-margin-2x  oj-sm-justify-content-flex-end">
+        <oj-button id="editBtn" on-oj-action='[[editDoc]]'>
+            <!-- <span slot="startIcon" class="oj-ux-ico-edit-inline-s"></span> -->
+            Edit Pattern
+        </oj-button>
+        <oj-button id="cancelBtn" on-oj-action='[[cancelDoc]]' style="display: none;">
+            <!-- <span slot="startIcon" class="oj-ux-ico-edit-inline-s"></span> -->
+            Cancel
+        </oj-button>
+        <oj-button id="saveBtn" class="oj-md-margin-2x-start" on-oj-action='[[saveDoc]]' style="display: none;">
+            <!-- <span slot="startIcon" class="oj-ux-ico-edit-inline-s"></span> -->
+            Save Pattern
+        </oj-button>
+    </div>
+
+    <oj-messages
+        id="oj-messages-id"
+        class="oj-color-invert"
+        messages="[[messagesDataprovider]]"
+        position="{}"
+        display="notification"
+        display-options.category="none"></oj-messages>
+    
+        <div id="docDisplay"></div>
+    <div id="edit-doc" style="display: none;">
+        <oj-text-area id="text-area" value="{{docContent}}" rows="35" style="width: 100%; min-width: 100%" label-hint="Doc Text"></oj-text-area>
+    </div>
+    <div id="saveDoc" style="display: none;"></div>
+
+</div>
