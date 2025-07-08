@@ -502,6 +502,7 @@ define([
 
         self.excludeButtonVal = ko.observable(true);
         self.buttonVal = ko.observable(true);
+        self.saveBtnVal = ko.observable(true);
         self.valueChangedHandler = (event) => {
             self.buttonVal(false);
         };
@@ -658,7 +659,7 @@ define([
     ]
     
     self.convertResult = ko.observable('');
-    function fetchConvertResult() {
+    self.fetchConvertResult = ()=>{
         $.ajax({
             url: self.DepName()  + "/readConvertFile",
             type: 'GET',
@@ -698,7 +699,7 @@ define([
     self.clickConvert = function (data, event) {
         self.tableDDLConvertedText('');  
         document.querySelector('#SelectSchemaViewDialog').open();
-        var intervalId = setInterval(fetchConvertResult, 1000);
+        var intervalId = setInterval(()=>self.fetchConvertResult(), 1000);
         $.ajax({
             url: self.DepName() + "/tableDDLGenAi",
             data: JSON.stringify({
@@ -713,6 +714,7 @@ define([
             success: function (data) {
                 clearInterval(intervalId);
                 // document.querySelector('#SelectSchemaViewDialog').close();
+                self.saveBtnVal(false);
                 document.querySelector('#convertResultDialog').close();
                 setTimeout(()=>{
                     document.querySelector('#convertResultDialog').close();

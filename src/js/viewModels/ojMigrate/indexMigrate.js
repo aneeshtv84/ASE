@@ -48,6 +48,8 @@ define([
                 self.DBDet = ko.observableArray([]);
                 self.currentDB = ko.observable();
 
+                self.firstSelectedItem = ko.observable();
+
 
         function getDB() {
             self.DBDet([]);
@@ -208,6 +210,7 @@ define([
                     row.values().forEach(function (key) {
                         rowKeys.push(key)
                         newExclude.push({ name: key });
+                        self.firstSelectedItem({ tabname: key })
                         const index = newInclude.findIndex(obj => obj.tabname === key);
                         if (index > -1) {
                             newInclude.splice(index, 1);
@@ -257,8 +260,9 @@ define([
 
         self.clickTableGetDetails  =  function(data, event) {
             document.querySelector('#SelectSchemaDialog').open();
-            console.log(self.selectionInfo());            
-            if(self.selectionInfo()!=="" && self.currentDB()!==""){
+            console.log(self.selectionInfo());    
+            
+            if(self.selectionInfo()!=="" && self.currentDB()!==""){                
                 $.ajax({
                     url: self.DepName()  + "/getIndexConstraintsLines",
                     type: 'POST',
@@ -330,7 +334,7 @@ define([
                 procNameList = tableList
             }
             $.ajax({
-                url: self.DepName()  + "/automateGrantConstraints",
+                url: self.DepName()  + "/automateIndexes",
                 type: 'POST',
                 data: JSON.stringify({
                     sourceDbname : self.currentDB(),
@@ -366,7 +370,7 @@ define([
         self.listFunction = ko.observableArray([]);
         function fetchAutomateResults() {
             $.ajax({
-                url: self.DepName()  + "/fetchAutomateGrantConstraintsExcel",
+                url: self.DepName()  + "/fetchAutomateIndexesExcel",
                 type: 'POST',
                 data: JSON.stringify({
                     sourceDbname : self.currentDB(),
@@ -415,7 +419,7 @@ define([
                         self.listFunction.valueHasMutated();
                     }
                     var blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-                    var fileName = 'DBA_Grant_Constraint_Report'+ '.csv';
+                    var fileName = 'DBA_Index_Report'+ '.csv';
                     self.excelBlob(blob);
                     self.excelFileName(fileName);
                     document.querySelector('#SelectSchemaViewDialog').close();
@@ -702,7 +706,7 @@ define([
     function updateExcel (data) {
         for (var j =0; j<self.tableDetail().length;j++) {
             if (self.tableDetail()[j].tabname == self.firstSelectedItem().tabname ) {
-                if (data == "Created" || data.includes("already exists")) {
+                if (data == "Created" || data.includes("already used by an existing")) {
                     self.tableDetail()[j].output = "Success";
                     var output = 'Created';
                     if(data.includes("already used")) {
@@ -716,8 +720,9 @@ define([
             } 
         }
         self.tableDetail.valueHasMutated();
+        console.log(self.firstSelectedItem().tabname);        
         $.ajax({
-            url: self.DepName()  + "/updateExcelGrantConstraints",
+            url: self.DepName()  + "/updateExcelIndexes",
             data: JSON.stringify({
                 functionName : self.firstSelectedItem().tabname,
                 output : output,
@@ -725,6 +730,7 @@ define([
                 schemaName : self.schemaListSelected()[0],
             }),
             type: 'POST',
+            contentType: 'application/json', 
             dataType: 'json',
             context: self,
             error: function (e) {
@@ -745,8 +751,9 @@ define([
             console.log(self.TGTcurrentPDB())
             const indexArray = self.constraintDDLConvertedText()
                                     .split(/(?=CREATE UNIQUE INDEX)/i)
-                                    .map(item => item.trim())
+                                    .map(item => item.trim().replace(/,\s*$/, ''))
                                     .filter(block => block);
+            console.log(indexArray);
             $.ajax({
                 url: self.TGTonepDepUrl() + "/saveIndexes",
                 data: JSON.stringify({
@@ -760,6 +767,7 @@ define([
                     //console.log(e);
                 },
                 success: function (data) {
+                    console.log(data);                    
                     document.querySelector('#SelectSchemaViewDialog').close();
                     document.querySelector('#openDialog').open();
                     self.saveDDLMsg(data.msg);

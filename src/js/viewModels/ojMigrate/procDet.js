@@ -460,6 +460,7 @@ define([
         self.viewNameDetDP = new PagingDataProviderView(new ArrayDataProvider(self.viewNameDet, {keyAttributes: 'vname'}));
 
         self.buttonVal = ko.observable(true);
+        self.saveBtnVal = ko.observable(true);
         
         self.valueChangedHandler = (event) => {
             self.buttonVal(false);
@@ -756,7 +757,7 @@ define([
         self.showConvertProgress = ko.observable(true); 
         
         self.convertResult = ko.observable('');
-        function fetchConvertResult() {
+        self.fetchConvertResult = ()=> {
             $.ajax({
                 url: self.DepName()  + "/readConvertFile",
                 type: 'GET',
@@ -795,7 +796,7 @@ define([
             self.procConvertedText('');  
             document.querySelector('#SelectSchemaProcessDialog').open();
            // const viewProcString = self.viewText().join(' ')
-            var intervalId = setInterval(fetchConvertResult, 1000);
+            var intervalId = setInterval(()=>self.fetchConvertResult(), 1000);
             $.ajax({
                 url: self.DepName() + "/procDDLGenAi",
                 data: JSON.stringify({
@@ -810,6 +811,7 @@ define([
                 },
                 success: function (data) {
                     clearInterval(intervalId);
+                    self.saveBtnVal(false)
                     // document.querySelector('#SelectSchemaProcessDialog').close();
                     // const singleLine = data.converted_lines.replace(/[\r\n]+/g, '');
                     self.procConvertedText(data.converted_lines);

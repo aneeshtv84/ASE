@@ -131,7 +131,9 @@
             <oj-text-area id="text-area" value="{{tableDDLConvertedText}}" rows="35" style="width: 100%; min-width: 100%" label-hint="Target Table DDL"></oj-text-area>
         </div>
         <div class="oj-panel oj-flex-bar">
-        <oj-button disabled="[[buttonVal]]" class="oj-button-sm oj-flex-bar-end" chroming="solid"
+            <oj-button disabled="[[saveBtnVal]]" class="oj-button-sm oj-flex-bar-start" chroming="solid"
+                on-oj-action='[[fetchConvertResult]]'>View Log</oj-button> 
+        <oj-button disabled="[[saveBtnVal]]" class="oj-button-sm oj-flex-bar-end" chroming="solid"
         on-oj-action='[[SaveDDL]]'>Save</oj-button>   
     </div> 
     </div>

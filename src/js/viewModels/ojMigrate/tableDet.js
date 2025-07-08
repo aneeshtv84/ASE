@@ -390,9 +390,22 @@ define([
 
         self.CountDataProvider = new ArrayDataProvider(self.TrailCount, {idAttribute: 'id'});
 
-
+        self.DepType = ko.observable("");
         self.connected = function () {
-            getDB();
+            if (sessionStorage.getItem("userName")==null) {
+                oj.Router.rootInstance.go('signin');
+            }
+            else{
+                app.onAppSuccess();
+                var DepType = sessionStorage.getItem("Dep_Type");
+                if(DepType == 'sybase'){
+                    self.DepType('Sybase');
+                }
+                else if (DepType == 'bda'){
+                    self.DepType('BigData Targets');
+                }                      
+                getDB();
+            }
         }
 
 

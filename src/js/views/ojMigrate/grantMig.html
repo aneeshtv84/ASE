@@ -30,7 +30,7 @@
         </div>
         <div><oj-progress-bar id="progressBar" value="{{progressValue}}"></oj-progress-bar></div>
         <div class="oj-panel oj-margin oj-panel-alt1 oj-panel-shadow-lg">
-            <oj-table id='table' aria-label='All Table' data='[[tableDetailDP]]' display='grid'
+            <oj-table id='table' aria-label='All Grants' data='[[tableDetailDP]]' display='grid'
                 columns='{{CountDetailcolumnArray}}' selected='{{selectedItems}}'
                 selection-mode='{"row": "single", "column": "none"}'
                 on-selected-changed='{{selectedChangedListener}}' scroll-policy="loadAll"
@@ -57,7 +57,7 @@
 <div class="oj-flex">
     <div class="oj-panel oj-sm-5" >
         <div class="oj-panel oj-flex-bar">
-            <oj-text-area id="text-area" value="{{constraintDDL}}" rows="35" style="width: 100%; min-width: 100%" label-hint="Source Table DDL"></oj-text-area>
+            <oj-text-area id="text-area" value="{{constraintDDL}}" rows="35" style="width: 100%; min-width: 100%" label-hint="Source Grants DDL"></oj-text-area>
         </div>
     </div>
     <div class="oj-panel oj-sm-1" >
@@ -85,14 +85,14 @@
             <h7>Target Database Details</h7>
         </div> 
 
-        <oj-table id='dbTgtDetList' aria-label='All Table' data='[[dbTgtDetListDP]]' display='grid'
+        <oj-table id='dbTgtDetList' aria-label='All Grants' data='[[dbTgtDetListDP]]' display='grid'
             scroll-policy="loadMoreOnScroll"
             selection-mode='{"row": "single"}' columns='{{TgtdbDetcolumnArray}}' class="demo-table-container"
             style='width: 100%;'>
         </oj-table>
     </div>
         <div class="oj-panel oj-flex-bar">
-            <oj-text-area id="text-area" value="{{constraintDDLConvertedText}}" rows="35" style="width: 100%; min-width: 100%" label-hint="Target Table DDL"></oj-text-area>
+            <oj-text-area id="text-area" value="{{constraintDDLConvertedText}}" rows="35" style="width: 100%; min-width: 100%" label-hint="Target Grants DDL"></oj-text-area>
         </div>
         <div class="oj-panel oj-flex-bar">
         <oj-button disabled="[[buttonVal]]" class="oj-button-sm oj-flex-bar-end" chroming="solid"
@@ -115,7 +115,7 @@
     </div>
 </oj-dialog>
 
-<oj-dialog id="openDialog" title="Table Creation Dialog" modality="modeless"
+<oj-dialog id="openDialog" title="Grant Creation Dialog" modality="modeless"
 style="display:none;width:550px;min-width:550px;max-width:550px;">
 <div slot="body">
    <oj-bind-text value="{{saveDDLMsg}}" ></oj-bind-text>

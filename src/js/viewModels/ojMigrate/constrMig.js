@@ -167,7 +167,7 @@ define([
 
         self.excludeData = ko.observableArray();
         self.includedData = ko.observableArray();
-
+        self.firstSelectedItem = ko.observable();
         self.selectedChangedListener = (event) => {
             self.buttonVal(false);
             let selectionText = '';
@@ -209,6 +209,7 @@ define([
                     row.values().forEach(function (key) {
                         rowKeys.push(key)
                         newExclude.push({ name: key });
+                        self.firstSelectedItem({ tabname: key })
                         const index = newInclude.findIndex(obj => obj.tabname === key);
                         if (index > -1) {
                             newInclude.splice(index, 1);

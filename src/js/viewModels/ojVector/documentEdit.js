@@ -82,7 +82,7 @@ define(['ojs/ojcore', 'knockout', 'jquery','appController','ojs/ojarraydataprovi
                             }
                         },
                         success: function (data) {
-                            let content = data || "";      
+                            let content = data || "";  
                             document.getElementById("edit-doc").style.display = "none" 
                             document.getElementById("saveDoc").style.display = "block"             
                             content = content.replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -121,7 +121,9 @@ define(['ojs/ojcore', 'knockout', 'jquery','appController','ojs/ojarraydataprovi
                 }
 
                 self.saveDoc = ()=>{
-                    var intervalId = setInterval(saveDbLog(), 1000);
+                    var intervalId = setInterval(()=>{
+                        saveDbLog();
+                    }, 1000);
                     $.ajax({
                         url: self.DepName() + "/saveChromaDB",
                         type: 'POST',
@@ -138,7 +140,8 @@ define(['ojs/ojcore', 'knockout', 'jquery','appController','ojs/ojarraydataprovi
                                 document.getElementById("saveBtn").style.display = "none"  
                                 document.getElementById("cancelBtn").style.display = "none" 
                                 document.getElementById("editBtn").style.display = "block"        
-                                document.getElementById("docDisplay").style.display = "block"        
+                                document.getElementById("docDisplay").style.display = "block"
+                                setTimeout(()=>document.getElementById("saveDoc").style.display = "none", 2000);
                                 console.log(textStatus);
                             }
                         },
@@ -148,12 +151,14 @@ define(['ojs/ojcore', 'knockout', 'jquery','appController','ojs/ojarraydataprovi
                             document.getElementById("saveBtn").style.display = "none"  
                             document.getElementById("cancelBtn").style.display = "none"
                             document.getElementById("editBtn").style.display = "block" 
-                            document.getElementById("docDisplay").style.display = "block"  
+                            document.getElementById("docDisplay").style.display = "block"
+                            setTimeout(()=>document.getElementById("saveDoc").style.display = "none", 2000);  
                             self.messages.push({
                                 severity: 'confirmation',
                                 summary: 'Vector DB saved successfully!',
                                 autoTimeout: 5000
-                            });                            
+                            });     
+                            self.viewDoc();                       
                         }
                     })
                 }
