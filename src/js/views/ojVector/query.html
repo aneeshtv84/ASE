@@ -1,0 +1,15 @@
+<div class="oj-md-margin-4x">
+    <oj-text-area
+        id="maxRows1"
+        label-hint="Search your Query"
+        value="{{searchQuery}}"
+        max-rows="-1"></oj-text-area>
+
+    <div class="oj-flex oj-md-margin-2x  oj-sm-justify-content-flex-end">
+        <oj-button id="btn" on-oj-action='[[getQuery]]'>
+            <!-- <span slot="startIcon" class="oj-ux-ico-edit-inline-s"></span> -->
+            Submit
+        </oj-button>
+    </div>
+    <div id="query"></div>
+</div>
