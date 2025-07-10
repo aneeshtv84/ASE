@@ -229,7 +229,9 @@ style="display:none;width:350px;min-width:240px;max-width:450px;" cancel-behavio
 </oj-dialog>
 
 <oj-dialog id="convertResultDialog" dialog-title="Converting....">
+     <div><oj-progress-bar id="progressBar" value="-1"></oj-progress-bar></div>
     <div slot="body" style="max-height: 600px; overflow-y: auto; white-space: pre-wrap; word-wrap: break-word;">
+           
         <pre data-bind="text: convertResult"
             style="
                 white-space: pre-wrap;
