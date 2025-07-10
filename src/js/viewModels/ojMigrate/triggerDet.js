@@ -9,7 +9,7 @@ define([
     'ojs/ojinputtext',
     'ojs/ojtable',
     'ojs/ojradioset',
-    'ojs/ojlabel',
+    'ojs/ojlabel', 'ojs/ojswitch',
     'ojs/ojlistview', 'ojs/ojlistitemlayout','ojs/ojcheckboxset','ojs/ojformlayout','ojs/ojdialog','ojs/ojprogress-bar' ,"ojs/ojchart","ojs/ojpagingcontrol",'ojs/ojselectsingle','ojs/ojselectcombobox'],
         function (ko, $,app,ojconverter_number_1, PagingDataProviderView,ArrayDataProvider , keySet) {
 
@@ -236,7 +236,40 @@ define([
             document.querySelector('#autoMateDlg').close();
             // fetchAutomateResults();
         }
-     
+        
+        self.s3BucketChecked = ko.observable(false);        
+        self.s3BucketList = ko.observableArray([]);
+        self.s3Bucket = ko.observable("")
+
+        self.getS3BucketList = ()=>{
+            self.s3BucketList([]);
+            $.ajax({
+                url: self.DepName()  + "/getS3BucketLists",
+                type: 'GET',
+                dataType: 'json',
+                timeout: sessionStorage.getItem("timeInetrval"),
+                context: self,
+                error: function (xhr, textStatus, errorThrown) {
+                    if(textStatus == 'timeout' || textStatus == 'error'){
+                        console.log(textStatus);                       
+                    }
+                },
+                success: function (data) {
+                    let bucketLists = data.buckets                    
+                    bucketLists.forEach(element => {
+                        self.s3BucketList.push({'value' : element, 'label' : element})
+                    });                
+                }
+            })
+        }
+        self.s3BucketListDp = new ArrayDataProvider(self.s3BucketList, {keyAttributes: 'value'});
+
+        self.s3BucketChecked.subscribe(function (newValue) {
+            if (newValue) {
+                self.getS3BucketList();
+            }
+        });
+
         self.viewText = ko.observable();
 
         self.getViewText  =  function(data, event) {
@@ -260,7 +293,7 @@ define([
                 },
                 success: function (data) {
                     self.viewText('');
-                    self.viewText(data[0]);
+                    self.viewText(data.trigText[0]);
                     document.querySelector('#SelectSchemaTriggerDialog').close();
                     return self;                    
                 }
@@ -505,7 +538,7 @@ define([
                 context: self,
                 error: function (xhr, textStatus, errorThrown) {
                     if(textStatus == 'timeout' || textStatus == 'error'){
-                        // document.querySelector('#SelectSchemaViewDialog').close();
+                        // document.querySelector('#SelectSchemaTriggerDialog').close();
                         // document.querySelector('#TimeoutInLoad').open();
                     }
                 },
@@ -552,21 +585,24 @@ define([
             self.progressValue(-1)
             self.automateClose();
             $.ajax({
-                url: self.DepName()  + "/automateTrigger",
+                url: self.DepName()  + "/automateOracleTrig",
                 type: 'POST',
                 data: JSON.stringify({
                     sourceDbname : self.currentDB(),
                     targetDbname : self.TGTcurrentPDB(),
                     procNameList : self.viewNameDet(),
                     targetDep : self.TGTonepDepUrl(),
+                    sourceDep : self.DepName(),
                     schemaName : self.schemaListSelected()[0],
+                    s3BucketChecked : self.s3BucketChecked(),
+                    s3Bucket : self.s3Bucket(),
                 }),
                 dataType: 'json',
                 timeout: sessionStorage.getItem("timeInetrval"),
                 context: self,
                 error: function (xhr, textStatus, errorThrown) {
                     if(textStatus == 'timeout' || textStatus == 'error'){
-                        document.querySelector('#SelectSchemaViewDialog').close();
+                        document.querySelector('#SelectSchemaTriggerDialog').close();
                         document.querySelector('#TimeoutInLoad').open();
                     }
                 },
@@ -632,17 +668,59 @@ define([
 
         self.CountDataProvider = new ArrayDataProvider(self.TrailCount, {idAttribute: 'id'});
 
+        self.convertResult = ko.observable('');
+        self.fetchConvertResult = ()=> {
+            $.ajax({
+                url: self.DepName()  + "/readConvertFile",
+                type: 'GET',
+                dataType: 'json',
+                timeout: sessionStorage.getItem("timeInetrval"),
+                context: self,
+                error: function (xhr, textStatus, errorThrown) {
+                    console.log(textStatus)
+                },
+                success: function (data) {
+                    if (data && data.length !== 0) {
+                        document.querySelector('#SelectSchemaTriggerDialog').close();
+                        document.querySelector('#convertResultDialog').open();
+                        let formattedText = Array.isArray(data)
+                            ? data.join('\n')
+                            : data.toString().replace(/\r?\n/g, '\n');
+                        self.convertResult(formattedText)
+
+                        setTimeout(function () {
+                            const dialogBody = document.getElementById("convertResultDialog");
+                            dialogBody.scrollTop = dialogBody.scrollHeight;
+                        }, 100);
+                    }   
+                    else{
+                        document.querySelector('#SelectSchemaTriggerDialog').open();   
+                    }
+                }
+            })
+        }
+
+        self.closeConvertResultDialog = ()=>{
+            document.querySelector('#convertResultDialog').close();
+        } 
+
         self.procConvertedText = ko.observable('');
         
 
         self.clickConvert = function (data, event) {
             self.procConvertedText('');  
             document.querySelector('#SelectSchemaTriggerDialog').open();
+            var intervalId = setInterval(()=>self.fetchConvertResult(), 1000);
+               
             $.ajax({
-                url: self.TGTonepDepUrl() + "/convertTriggerProc",
+                url: self.DepName() + "/trigDDLGenAi",
                 data: JSON.stringify({
                     dbName : self.TGTcurrentPDB(),
-                    viewProc : self.viewText()[0]
+                    viewProc : self.viewText(),
+                    s3BucketChecked : self.s3BucketChecked(),
+                    s3Bucket : self.s3Bucket(),
+                    trigName : self.getDisplayValue(self.selectedView())[0],
+                    sourceDep : self.DepName(),
                 }),
                 type: 'POST',
                 dataType: 'json',
@@ -651,8 +729,12 @@ define([
                     console.log(e);
                 },
                 success: function (data) {
-                    document.querySelector('#SelectSchemaTriggerDialog').close();
-                    self.procConvertedText(data);
+                    clearInterval(intervalId);
+                    document.querySelector('#convertResultDialog').close();
+                    setTimeout(()=>{
+                        document.querySelector('#convertResultDialog').close();
+                    }, 1000)
+                    self.procConvertedText(data.converted_lines);
                     return self;
                 }
             })

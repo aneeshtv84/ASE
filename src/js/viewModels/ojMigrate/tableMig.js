@@ -9,7 +9,7 @@ define([
     'ojs/ojknockout',
     'ojs/ojinputtext',
     'ojs/ojtable',
-    'ojs/ojlabel',
+    'ojs/ojlabel', 'ojs/ojswitch',
     'ojs/ojformlayout','ojs/ojdialog','ojs/ojprogress-bar' ,"ojs/ojpagingcontrol",
     'ojs/ojselectsingle','ojs/ojselectcombobox', "ojs/ojlistview"],
     function (ko, $,app,ojconverter_number_1, PagingDataProviderView, ArrayDataProvider, ListDataProviderView, ojkeyset_1, ojdataprovider_1) {
@@ -313,7 +313,40 @@ define([
             document.querySelector('#autoMateExcludeDlg').close();
         }
 
-        self.progressValue = ko.observable(0);
+        self.s3BucketChecked = ko.observable(false);        
+        self.s3BucketList = ko.observableArray([]);
+        self.s3Bucket = ko.observable("")
+
+        self.getS3BucketList = ()=>{
+            self.s3BucketList([]);
+            $.ajax({
+                url: self.DepName()  + "/getS3BucketLists",
+                type: 'GET',
+                dataType: 'json',
+                timeout: sessionStorage.getItem("timeInetrval"),
+                context: self,
+                error: function (xhr, textStatus, errorThrown) {
+                    if(textStatus == 'timeout' || textStatus == 'error'){
+                        console.log(textStatus);                       
+                    }
+                },
+                success: function (data) {
+                    let bucketLists = data.buckets                    
+                    bucketLists.forEach(element => {
+                        self.s3BucketList.push({'value' : element, 'label' : element})
+                    });                
+                }
+            })
+        }
+        self.s3BucketListDp = new ArrayDataProvider(self.s3BucketList, {keyAttributes: 'value'});
+
+        self.s3BucketChecked.subscribe(function (newValue) {
+            if (newValue) {
+                self.getS3BucketList();
+            }
+        });
+
+        self.progressValue = ko.observable(0);        
         self.automateTable = (tableList)=>{
             document.querySelector('#autoMateDlg').close();            
             var intervalId = setInterval(fetchAutomateResults, 1000);
@@ -331,6 +364,8 @@ define([
                     procNameList : procNameList,
                     targetDep : self.TGTonepDepUrl(),
                     sourceDep : self.DepName(),
+                    s3BucketChecked : self.s3BucketChecked(),
+                    s3Bucket : self.s3Bucket(),
                 }),
                 dataType: 'json',
                 timeout: sessionStorage.getItem("timeInetrval"),
@@ -703,7 +738,11 @@ define([
         $.ajax({
             url: self.DepName() + "/tableDDLGenAi",
             data: JSON.stringify({
-                tableDDL  : self.tableDDL()
+                sourceDep : self.DepName(),
+                tableDDL  : self.tableDDL(),
+                s3BucketChecked : self.s3BucketChecked(),
+                s3Bucket : self.s3Bucket(),
+                tableName : self.selectionInfo(),
             }),
             type: 'POST',
             dataType: 'json',

@@ -9,7 +9,7 @@ define([
     'ojs/ojknockout',
     'ojs/ojinputtext',
     'ojs/ojtable',
-    'ojs/ojlabel',
+    'ojs/ojlabel', 'ojs/ojswitch',
     'ojs/ojformlayout','ojs/ojdialog','ojs/ojprogress-bar' ,"ojs/ojpagingcontrol",
     'ojs/ojselectsingle','ojs/ojselectcombobox', "ojs/ojlistview"],
     function (ko, $,app,ojconverter_number_1, PagingDataProviderView, ArrayDataProvider, ListDataProviderView, ojkeyset_1, ojdataprovider_1) {
@@ -309,6 +309,39 @@ define([
             document.querySelector('#autoMateExcludeDlg').close();
         }
 
+        self.s3BucketChecked = ko.observable(false);        
+        self.s3BucketList = ko.observableArray([]);
+        self.s3Bucket = ko.observable("")
+
+        self.getS3BucketList = ()=>{
+            self.s3BucketList([]);
+            $.ajax({
+                url: self.DepName()  + "/getS3BucketLists",
+                type: 'GET',
+                dataType: 'json',
+                timeout: sessionStorage.getItem("timeInetrval"),
+                context: self,
+                error: function (xhr, textStatus, errorThrown) {
+                    if(textStatus == 'timeout' || textStatus == 'error'){
+                        console.log(textStatus);                       
+                    }
+                },
+                success: function (data) {
+                    let bucketLists = data.buckets                    
+                    bucketLists.forEach(element => {
+                        self.s3BucketList.push({'value' : element, 'label' : element})
+                    });                
+                }
+            })
+        }
+        self.s3BucketListDp = new ArrayDataProvider(self.s3BucketList, {keyAttributes: 'value'});
+
+        self.s3BucketChecked.subscribe(function (newValue) {
+            if (newValue) {
+                self.getS3BucketList();
+            }
+        });
+
         self.progressValue = ko.observable(0);
         self.automateConstraints = (tableList)=>{
             document.querySelector('#autoMateDlg').close();            
@@ -327,6 +360,8 @@ define([
                     procNameList : procNameList,
                     targetDep : self.TGTonepDepUrl(),
                     sourceDep : self.DepName(),
+                    s3BucketChecked : self.s3BucketChecked(),
+                    s3Bucket : self.s3Bucket(),
                 }),
                 dataType: 'json',
                 timeout: sessionStorage.getItem("timeInetrval"),
@@ -657,16 +692,57 @@ define([
         {headerText: 'CDB', field: 'cdb'} ,
     ]
 
+    self.convertResult = ko.observable('');
+    self.fetchConvertResult = ()=> {
+        $.ajax({
+            url: self.DepName()  + "/readConvertFile",
+            type: 'GET',
+            dataType: 'json',
+            timeout: sessionStorage.getItem("timeInetrval"),
+            context: self,
+            error: function (xhr, textStatus, errorThrown) {
+                console.log(textStatus)
+            },
+            success: function (data) {
+                if (data && data.length !== 0) {
+                    document.querySelector('#SelectSchemaViewDialog').close();
+                    document.querySelector('#convertResultDialog').open();
+                    let formattedText = Array.isArray(data)
+                        ? data.join('\n')
+                        : data.toString().replace(/\r?\n/g, '\n');
+                    self.convertResult(formattedText)
+
+                    setTimeout(function () {
+                        const dialogBody = document.getElementById("convertResultDialog");
+                        dialogBody.scrollTop = dialogBody.scrollHeight;
+                    }, 100);
+                }   
+                else{
+                    document.querySelector('#SelectSchemaViewDialog').open();   
+                }
+            }
+        })
+    }
+
+    self.closeConvertResultDialog = ()=>{
+        document.querySelector('#convertResultDialog').close();
+    } 
+
     self.constraintDDLConvertedText = ko.observable('');
         
     self.clickConvert = function (data, event) {
         self.constraintDDLConvertedText('');  
         document.querySelector('#SelectSchemaViewDialog').open();
         const grantArray = self.constraintDDL().split(',').map(item => item.trim());
+        var intervalId = setInterval(()=>self.fetchConvertResult(), 1000);
         $.ajax({
             url: self.DepName() + "/grantKeyDDLGenAi",
             data: JSON.stringify({
-                constraintDDL : grantArray
+                constraintDDL : grantArray,
+                s3BucketChecked : self.s3BucketChecked(),
+                s3Bucket : self.s3Bucket(),
+                grantName : self.selectionInfo(),
+                sourceDep : self.DepName(),
             }),
             type: 'POST',
             dataType: 'json',
@@ -677,7 +753,11 @@ define([
             },
             success: function (data) {
                 let converted_lines = data.converted_lines
-                document.querySelector('#SelectSchemaViewDialog').close();
+                clearInterval(intervalId);
+                document.querySelector('#convertResultDialog').close();
+                setTimeout(()=>{
+                    document.querySelector('#convertResultDialog').close();
+                }, 1000)
                 let cleanLines = converted_lines.map(line => line.trim()).filter(line => line.length);
                 const formatted = cleanLines
                                     .map((line, index) => index < cleanLines.length - 1 ? line + ',' : line)

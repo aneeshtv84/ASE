@@ -106,12 +106,17 @@
                     label-edge="inside" data="{{onepDepListDP}}" value="{{TgtOnePDepName}}"
                     on-value-changed="[[SelectTGTDeployment]]">
                 </oj-select-single>
-                    <oj-select-single required label-hint="Choose Credential Alias" label-edge="inside" class="oj-form-control-max-width-md" 
-                        id="CredentialAlias" data="[[TgtDBDetDP]]" value="{{TGTcurrentPDB}}"
-                        on-value-changed="[[DBTgtSchema]]">
-                    </oj-select-single>
-                    <oj-button disabled="[[buttonVal]]" class="oj-button-sm oj-flex-bar-end" chroming="solid"
-                    on-oj-action='[[clickConvert]]'>Convert</oj-button>
+                <oj-select-single required label-hint="Choose Credential Alias" label-edge="inside" class="oj-form-control-max-width-md" 
+                    id="CredentialAlias" data="[[TgtDBDetDP]]" value="{{TGTcurrentPDB}}"
+                    on-value-changed="[[DBTgtSchema]]">
+                </oj-select-single>
+                <oj-switch id="s3BucketCheck" value="{{s3BucketChecked}}" label-hint="Save S3 Bucket"></oj-switch>
+                <oj-bind-if test="[[s3BucketChecked]]">
+                    <oj-select-single id="tgtS3Bucket" label-hint="Choose S3 Bucket" class="oj-form-control-max-width-md" 
+                        label-edge="inside" data="{{s3BucketListDp}}" value="{{s3Bucket}}">
+                </oj-bind-if>
+                <oj-button disabled="[[buttonVal]]" class="oj-button-sm oj-flex-bar-end" chroming="solid"
+                on-oj-action='[[clickConvert]]'>Convert</oj-button>
             </oj-form-layout>
         </div>
     </div>
@@ -181,10 +186,15 @@ style="display:none;width:350px;min-width:240px;max-width:450px;" cancel-behavio
                 label-edge="inside" data="{{onepDepListDP}}" value="{{TgtOnePDepName}}"
                 on-value-changed="[[SelectTGTDeployment]]">
             </oj-select-single>
-                <oj-select-single required label-hint="Choose Credential Alias" label-edge="inside" class="oj-form-control-max-width-md" 
-                    id="CredentialAlias" data="[[TgtDBDetDP]]" value="{{TGTcurrentPDB}}"
-                    on-value-changed="[[DBTgtSchema]]">
-                </oj-select-single>
+            <oj-select-single required label-hint="Choose Credential Alias" label-edge="inside" class="oj-form-control-max-width-md" 
+                id="CredentialAlias" data="[[TgtDBDetDP]]" value="{{TGTcurrentPDB}}"
+                on-value-changed="[[DBTgtSchema]]">
+            </oj-select-single>
+            <oj-switch id="s3BucketCheck" value="{{s3BucketChecked}}" label-hint="Save S3 Bucket"></oj-switch>
+            <oj-bind-if test="[[s3BucketChecked]]">
+                <oj-select-single id="tgtS3Bucket" label-hint="Choose S3 Bucket" class="oj-form-control-max-width-md" 
+                    label-edge="inside" data="{{s3BucketListDp}}" value="{{s3Bucket}}">
+            </oj-bind-if>
         </oj-form-layout>
     </div>
 </div>
@@ -211,10 +221,15 @@ style="display:none;width:350px;min-width:240px;max-width:450px;" cancel-behavio
                 label-edge="inside" data="{{onepDepListDP}}" value="{{TgtOnePDepName}}"
                 on-value-changed="[[SelectTGTDeployment]]">
             </oj-select-single>
-                <oj-select-single required label-hint="Choose Credential Alias" label-edge="inside" class="oj-form-control-max-width-md" 
-                    id="CredentialAlias" data="[[TgtDBDetDP]]" value="{{TGTcurrentPDB}}"
-                    on-value-changed="[[DBTgtSchema]]">
-                </oj-select-single>
+            <oj-select-single required label-hint="Choose Credential Alias" label-edge="inside" class="oj-form-control-max-width-md" 
+                id="CredentialAlias" data="[[TgtDBDetDP]]" value="{{TGTcurrentPDB}}"
+                on-value-changed="[[DBTgtSchema]]">
+            </oj-select-single>
+            <oj-switch id="s3BucketCheck" value="{{s3BucketChecked}}" label-hint="Save S3 Bucket"></oj-switch>
+            <oj-bind-if test="[[s3BucketChecked]]">
+                <oj-select-single id="tgtS3Bucket" label-hint="Choose S3 Bucket" class="oj-form-control-max-width-md" 
+                    label-edge="inside" data="{{s3BucketListDp}}" value="{{s3Bucket}}">
+            </oj-bind-if>
         </oj-form-layout>
     </div>
 </div>
@@ -229,9 +244,8 @@ style="display:none;width:350px;min-width:240px;max-width:450px;" cancel-behavio
 </oj-dialog>
 
 <oj-dialog id="convertResultDialog" dialog-title="Converting....">
-     <div><oj-progress-bar id="progressBar" value="-1"></oj-progress-bar></div>
-    <div slot="body" style="max-height: 600px; overflow-y: auto; white-space: pre-wrap; word-wrap: break-word;">
-           
+    <oj-progress-bar id="progressBar" value="-1"></oj-progress-bar>
+    <div slot="body" style="white-space: pre-wrap; word-wrap: break-word;">           
         <pre data-bind="text: convertResult"
             style="
                 white-space: pre-wrap;

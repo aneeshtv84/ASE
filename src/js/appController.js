@@ -62,8 +62,8 @@ define([ 'ojs/ojoffcanvas' , 'knockout', 'ojs/ojmodule-element-utils', 'ojs/ojre
        { path: 'migrate', detail : {label: 'Analyze Objects',iconClass: 'oj-navigationlist-item-icon demo-icon-font-24 demo-chart-icon-24 font15',dep_url : self.onepDepUrl} }, 
         { path: 'dumplog', detail : {label: 'LogDump',iconClass: 'oj-navigationlist-item-icon demo-icon-font-24 demo-chart-icon-24 font15',dep_url : self.onepDepUrl} }, 
        { path: 'vectordb', detail : {label: 'Vector DB',iconClass: 'oj-navigationlist-item-icon fa fa-database',dep_url : self.onepDepUrl} }, 
-        { path: 'zoneinfo', detail : {label: 'Zone Info',iconClass: 'oj-navigationlist-item-icon demo-icon-font-24 demo-chart-icon-24 font15',dep_url : self.onepDepUrl} }, 
-	   { path: 'zoneinfo1', detail : {label: 'Zone Info1',iconClass: 'oj-navigationlist-item-icon demo-icon-font-24 demo-chart-icon-24 font15',dep_url : self.onepDepUrl} }, 
+        // { path: 'zoneinfo', detail : {label: 'Zone Info',iconClass: 'oj-navigationlist-item-icon demo-icon-font-24 demo-chart-icon-24 font15',dep_url : self.onepDepUrl} }, 
+	  //  { path: 'zoneinfo1', detail : {label: 'Zone Info1',iconClass: 'oj-navigationlist-item-icon demo-icon-font-24 demo-chart-icon-24 font15',dep_url : self.onepDepUrl} }, 
 	   { path: 'ggadmin', detail : {label: 'Setup',iconClass: 'oj-navigationlist-item-icon fa fa-cogs',dep_url : self.onepDepUrl} }, 
        { path: 'tshoot', detail : {label: 'Troubleshoot',iconClass: 'oj-navigationlist-item-icon fa fa-search',dep_url : self.onepDepUrl} }, 
        { path: 'logfile', detail : {label: 'LogFile',iconClass: 'oj-navigationlist-item-icon fa fa-file-code-o',dep_url : self.onepDepUrl} }

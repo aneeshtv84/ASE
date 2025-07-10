@@ -81,12 +81,17 @@
                     label-edge="inside" data="{{onepDepListDP}}" value="{{TgtOnePDepName}}"
                     on-value-changed="[[SelectTGTDeployment]]">
                 </oj-select-single>
-                    <oj-select-single required label-hint="Choose Credential Alias" label-edge="inside" class="oj-form-control-max-width-md" 
-                        id="CredentialAlias" data="[[TgtDBDetDP]]" value="{{TGTcurrentPDB}}"
-                        on-value-changed="[[DBTgtSchema]]">
-                    </oj-select-single>
-                    <oj-button disabled="[[buttonVal]]" class="oj-button-sm oj-flex-bar-end" chroming="solid"
-                    on-oj-action='[[clickConvert]]'>Convert</oj-button>
+                <oj-select-single required label-hint="Choose Credential Alias" label-edge="inside" class="oj-form-control-max-width-md" 
+                    id="CredentialAlias" data="[[TgtDBDetDP]]" value="{{TGTcurrentPDB}}"
+                    on-value-changed="[[DBTgtSchema]]">
+                </oj-select-single>
+                <oj-switch id="s3BucketCheck" value="{{s3BucketChecked}}" label-hint="Save S3 Bucket"></oj-switch>
+                <oj-bind-if test="[[s3BucketChecked]]">
+                    <oj-select-single id="tgtS3Bucket" label-hint="Choose S3 Bucket" class="oj-form-control-max-width-md" 
+                        label-edge="inside" data="{{s3BucketListDp}}" value="{{s3Bucket}}">
+                </oj-bind-if>
+                <oj-button disabled="[[buttonVal]]" class="oj-button-sm oj-flex-bar-end" chroming="solid"
+                on-oj-action='[[clickConvert]]'>Convert</oj-button>
             </oj-form-layout>
         </div>
     </div>
@@ -184,10 +189,15 @@ style="display:none;width:350px;min-width:240px;max-width:450px;" cancel-behavio
                 label-edge="inside" data="{{onepDepListDP}}" value="{{TgtOnePDepName}}"
                 on-value-changed="[[SelectTGTDeployment]]">
             </oj-select-single>
-                <oj-select-single required label-hint="Choose Credential Alias" label-edge="inside" class="oj-form-control-max-width-md" 
-                    id="CredentialAlias" data="[[TgtDBDetDP]]" value="{{TGTcurrentPDB}}"
-                    on-value-changed="[[DBTgtSchema]]">
-                </oj-select-single>
+            <oj-select-single required label-hint="Choose Credential Alias" label-edge="inside" class="oj-form-control-max-width-md" 
+                id="CredentialAlias" data="[[TgtDBDetDP]]" value="{{TGTcurrentPDB}}"
+                on-value-changed="[[DBTgtSchema]]">
+            </oj-select-single>
+            <oj-switch id="s3BucketCheck" value="{{s3BucketChecked}}" label-hint="Save S3 Bucket"></oj-switch>
+            <oj-bind-if test="[[s3BucketChecked]]">
+                <oj-select-single id="tgtS3Bucket" label-hint="Choose S3 Bucket" class="oj-form-control-max-width-md" 
+                    label-edge="inside" data="{{s3BucketListDp}}" value="{{s3Bucket}}">
+            </oj-bind-if>
         </oj-form-layout>
     </div>
 </div>
@@ -198,5 +208,25 @@ style="display:none;width:350px;min-width:240px;max-width:450px;" cancel-behavio
     <oj-button id="okdelButton" chroming='solid'  on-oj-action='[[automateGetDetails]]'>
         Automate
     </oj-button>
+    </div>
+</oj-dialog>
+
+<oj-dialog id="convertResultDialog" dialog-title="Converting....">
+    <oj-progress-bar id="createbar" class="oj-progress-bar-embedded" value="-1"></oj-progress-bar>
+    <div slot="body" style="white-space: pre-wrap; word-wrap: break-word;">
+        <pre data-bind="text: convertResult"
+            style="
+                white-space: pre-wrap;
+                word-wrap: break-word;
+                word-break: break-word;
+                overflow-wrap: break-word;
+                font-family: monospace;
+                max-width: 100%;
+                ">
+        </pre>
+        <!-- <oj-bind-text value="[[convertResult]]"></oj-bind-text> -->
+    </div>
+    <div slot="footer">
+        <oj-button id="okButton" on-oj-action="[[closeConvertResultDialog]]">OK</oj-button>
     </div>
 </oj-dialog>
