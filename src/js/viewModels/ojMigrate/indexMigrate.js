@@ -76,6 +76,7 @@ define([
         self.schemaList = ko.observableArray([]);
 
         self.dbchangeActionHandler = function (data, event) {
+            document.querySelector('#SelectSchemaDialog').open();
             $.ajax({
                 url: self.DepName() + "/getschemaname",
                 data: JSON.stringify({
@@ -88,6 +89,7 @@ define([
                     console.log(e);
                 },
                 success: function (data) {
+                    document.querySelector('#SelectSchemaDialog').close();
                     self.schemaList([]);
                     for (var i = 0; i < data[0].length; i++) {
                         self.schemaList.push({'label': data[0][i], 'value': data[0][i]})
@@ -144,7 +146,7 @@ define([
 
         self.CountDetailcolumnArray = 
         [
-        {headerText: 'Table Name',
+        {headerText: 'Indexes',
         field: 'tabname' }
         ];
 

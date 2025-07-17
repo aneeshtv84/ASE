@@ -158,7 +158,7 @@ define([ 'ojs/ojoffcanvas' , 'knockout', 'ojs/ojmodule-element-utils', 'ojs/ojre
         document.querySelector('#RemoteDeploymentDialog').open();
         self.onepDeployList([]);
         $.ajax({
-          url: "http://54.76.132.75:9010/onepdep",
+          url: "http://54.74.237.43:9010/onepdep",
           // url: "/onepdep",
           type: 'GET',
           dataType: 'json',
@@ -186,7 +186,7 @@ define([ 'ojs/ojoffcanvas' , 'knockout', 'ojs/ojmodule-element-utils', 'ojs/ojre
     self.SwitchDeployment = (event) =>{
       self.onepDepUrl('');
       $.ajax({
-        url: "http://54.76.132.75:9010/onepdepurl",
+        url: "http://54.74.237.43:9010/onepdepurl",
         // url: "/onepdepurl",
         type: 'POST',
         data: JSON.stringify({

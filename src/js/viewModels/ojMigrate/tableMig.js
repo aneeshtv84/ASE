@@ -74,6 +74,7 @@ define([
         self.schemaList = ko.observableArray([]);
 
         self.dbchangeActionHandler = function (data, event) {
+            document.querySelector('#SelectSchemaDialog').open();
             $.ajax({
                 url: self.DepName() + "/getschemaname",
                 data: JSON.stringify({
@@ -86,6 +87,7 @@ define([
                     console.log(e);
                 },
                 success: function (data) {
+                    document.querySelector('#SelectSchemaDialog').close();
                     self.schemaList([]);
                     for (var i = 0; i < data[0].length; i++) {
                         self.schemaList.push({'label': data[0][i], 'value': data[0][i]})
@@ -735,6 +737,7 @@ define([
         self.tableDDLConvertedText('');  
         document.querySelector('#SelectSchemaViewDialog').open();
         var intervalId = setInterval(()=>self.fetchConvertResult(), 1000);
+        document.getElementById("log-progressBar").style.display = "block"
         $.ajax({
             url: self.DepName() + "/tableDDLGenAi",
             data: JSON.stringify({
@@ -758,6 +761,7 @@ define([
                 setTimeout(()=>{
                     document.querySelector('#convertResultDialog').close();
                 }, 1000)
+                document.getElementById("log-progressBar").style.display = "none"
                 const singleLine = data.converted_lines.replace(/[\r\n]+/g, '');
                 self.tableDDLConvertedText(data.converted_lines);
                 return self;

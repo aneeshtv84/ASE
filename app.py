@@ -49,6 +49,7 @@ from langchain_huggingface import HuggingFaceEmbeddings
 from RAG import saveClaudeFromat
 from RAG.queryFetch import run_sybase_to_oracle_conversion
 from RAG.s3_list import getS3BucketList, upload_file_to_s3
+import cx_Oracle
 
 app = Flask(__name__, static_folder='./web', static_url_path='/')
 CORS(app)
@@ -450,9 +451,11 @@ class getSchemaName(Resource):
     def post(self):
         data = request.get_json(force=True)
         dbname = data['dbname']
+      
         try:
             val = selectConn(dbname)
             con = val[0]
+            
             cursor = con.cursor()
             schemaList = []
             cursor.execute("SELECT DISTINCT user_name(uid) AS schema_name FROM sysobjects WHERE type = 'U' ORDER BY schema_name")
@@ -460,6 +463,7 @@ class getSchemaName(Resource):
             for name in schemaName:
                 schemaList.append(name[0])
             schemaList = list(set(schemaList))
+            
         except Exception as e:
             logger.info(str(e))
         finally:
@@ -2264,6 +2268,37 @@ class getViewText(Resource):
                 cursor.close()
                 con.close()
         return jsonify({'viewText': viewText})
+
+class getUsersAndRolesFromDB(Resource):
+    def post(self):
+        data = request.get_json(force=True)
+        dbname = data['dbname']        
+
+        try:
+            val = selectConn(dbname)
+            conn = val[0]
+            cursor = conn.cursor()
+            output_list = []
+            # cursor.execute("SELECT name FROM sysusers WHERE uid > 0 AND suid IS NOT NULL AND name NOT IN ('dbo', 'guest', 'public')")
+            # users_fetch = cursor.fetchall()                  
+            # for row in users_fetch:
+            #     output_list.append({"name": row[0], "type": "user"}) 
+            
+            # existing_names = {entry["name"] for entry in output_list}
+            cursor.execute("USE master")
+            cursor.execute("SELECT name FROM syssrvroles where status=0")
+            roles_fetch = cursor.fetchall()
+            for row in roles_fetch:
+                output_list.append({"name": row[0], "type": "role"})
+         
+        except Exception as e:
+            output_list.append(str(e))
+        finally:
+            if conn:
+               cursor.close()
+               conn.close()
+
+        return jsonify({'user_role_list': output_list})
 
 def getIndexes(sql):
     pattern = re.compile("-- DDL for Index '.*?'\\s*.*?(create\\s+(unique\\s+)?(clustered|nonclustered)?\\s*index\\s+\\w+.*?on\\s+[\\w\\.]+\\([^)]+\\)\\s*\\n.*?with\\s+.*?)(?:\\s*go)", re.IGNORECASE | re.DOTALL)
@@ -7084,12 +7119,13 @@ def selectConn(dbname):
         passwd = cipher.decrypt(passwd)
         servicename = db_row[2]
         connection_string = f'DSN={servicename};UID={user};PWD={passwd}'
-        try:
-            con = pyodbc.connect(connection_string, autocommit=True)
+        try:           
+            con = pyodbc.connect(connection_string, autocommit=True)            
+            
             db_det = 'SELECT @@version AS version'
             db_det_fetch = pd.read_sql_query(db_det, con)
             db_det = db_det_fetch.to_dict('records')
-            db_main_ver = db_det[0]['version']
+            db_main_ver = db_det[0]['version']            
         except cx_Oracle.DatabaseError as e:
             db_main_ver = str(e)
             logger.info(str(e))
@@ -7563,6 +7599,7 @@ api.add_resource(automateTrigger, '/automateTrigger')
 api.add_resource(tableListOnly, '/tableListOnly')
 api.add_resource(ggGetProcess, '/ggprocesslist')
 api.add_resource(getDDLFromTable, '/getddlfromtable')
+api.add_resource(getUsersAndRolesFromDB, '/getUsersAndRolesFromDB')
 api.add_resource(tableDDLGenAi, '/tableDDLGenAi')
 api.add_resource(automateTable, '/automateTable')
 api.add_resource(automateConstraints, '/automateConstraints')

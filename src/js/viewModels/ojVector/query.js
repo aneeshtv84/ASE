@@ -51,6 +51,7 @@ define(['ojs/ojcore', 'knockout', 'jquery','appController','ojs/ojarraydataprovi
                     var intervalId = setInterval(()=>{
                         getQueryLog();
                     }, 1000);
+                    document.getElementById("progressBar1").style.display = "block"
                     $.ajax({
                         url: self.DepName() + "/getQueryContext",
                         type: 'POST',
@@ -68,7 +69,7 @@ define(['ojs/ojcore', 'knockout', 'jquery','appController','ojs/ojarraydataprovi
                         success: function (data) {
                             clearInterval(intervalId);
                             getQueryLog();
-                            console.log(data);                            
+                            document.getElementById("progressBar1").style.display = "none"                        
                         }
                     })
                 }
