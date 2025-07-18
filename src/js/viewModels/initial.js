@@ -871,7 +871,7 @@ self.addChkptTbl = function (data, event) {
 self.AWSKenisisTblOKClose = function (event) {
     let valid = self._checkValidationGroup("AWSKenisisForm");
      if (valid) {
-    console.log("validation  successs");
+    // console.log("validation  successs");
     document.querySelector('#AWSKenisis').close(); 
         self.ApplyMetaButtonVal(false);
     // self.currentAWSRegion();

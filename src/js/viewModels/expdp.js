@@ -146,7 +146,7 @@ self.schemaCheckboxListener = function (event) {
                     self.reMapTablespaceList.push({'label' : data[0][i].TABLESPACE_NAME , 'value' : data[0][i].TABLESPACE_NAME});
             }
             self.reMapTablespaceList.valueHasMutated();
-            console.log(self.reMapTablespaceList())
+            // console.log(self.reMapTablespaceList())
           return self;
         }
     })
@@ -276,7 +276,7 @@ self.TgtDBDetDP = new ArrayDataProvider(self.TgtDBDet, {keyAttributes: 'value'})
                           self.selectedTGTDomCategory('');
                           self.TGTcurrentPDB('');
                           self.TGTonepDepUrl(data[0]);
-                          console.log(self.TGTonepDepUrl())
+                        //   console.log(self.TGTonepDepUrl())
                           getTgtDB(data[0]);
                            if(self.ZDTChk() == true){
                            getTgtDomains();
@@ -604,7 +604,7 @@ self.currentExtOptParamList = ko.computed(function() {
                 self.SRCdomname1DP = new ArrayDataProvider(self.SRCdomname1, {keyAttributes: 'value'});
 
                 function getTgtDomains(data, event) {
-                    console.log(self.TGTonepDepUrl())
+                    // console.log(self.TGTonepDepUrl())
                 if(self.TGTonepDepUrl().length > 0) {
                     self.TGTusername1([]);
                     self.TGTothdom([]);
@@ -694,7 +694,7 @@ self.currentExtOptParamList = ko.computed(function() {
 
                                 self.ZDTChkChanged = (event) => {
                                     self.BtnCreateJOb(true);
-                    console.log(self.SrcOnePDepName());
+                    // console.log(self.SrcOnePDepName());
                     if (self.ZDTChk() == true){
                         self.SrcOnePDepName("");
                         self.selectedSRCDomCategory("");

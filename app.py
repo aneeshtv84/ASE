@@ -1701,6 +1701,28 @@ class updateExcelTable(Resource):
         except Exception as e:
             return f'Error: {str(e)}'
 
+class updateExcelRole(Resource):
+
+    def post(self):
+        data = request.get_json(force=True)
+        excel_file_path = data['sourceDbname'] + '_role' + '.xlsx'
+        try:
+            df = pd.read_excel(excel_file_path, sheet_name='Sheet1')
+        except FileNotFoundError:
+            df = pd.DataFrame(columns=['No', 'Function', 'Output'])
+        function_name_to_update = data['functionName']
+        if function_name_to_update in df['Function'].values:
+            df.loc[df['Function'] == function_name_to_update, 'Output'] = data['output']
+        else:
+            new_no_value = df['No'].max() + 1 if not df.empty else 1
+            new_row = pd.DataFrame({'No': [new_no_value], 'Function': [function_name_to_update], 'Output': [data['output']]})
+            df = pd.concat([df, new_row], ignore_index=True)
+        try:
+            df.to_excel(excel_file_path, index=False)
+            return 'Success'
+        except Exception as e:
+            return f'Error: {str(e)}'
+
 class updateExcelConstraints(Resource):
 
     def post(self):
@@ -1863,6 +1885,22 @@ class automateProcess(Resource):
                 cursor.close()
                 con.close()
         return outputDict
+
+class fetchAutomateRoleExcel(Resource):
+
+    def post(self):
+        data = request.get_json(force=True)
+        try:
+            excel_file_path = data['sourceDbname'] + '_role.xlsx'
+            if not os.path.exists(excel_file_path):
+                empty_df = pd.DataFrame(columns=['No', 'Function', 'Output'])
+                empty_df.to_excel(excel_file_path, index=False)
+            df = pd.read_excel(excel_file_path)
+            result_dict = df.to_dict(orient='records')
+            response = jsonify(result_dict)
+        except FileNotFoundError:
+            response = jsonify({'error': 'File not found'})
+        return response
 
 class fetchAutomateTableExcel(Resource):
 
@@ -2279,17 +2317,17 @@ class getUsersAndRolesFromDB(Resource):
             conn = val[0]
             cursor = conn.cursor()
             output_list = []
-            # cursor.execute("SELECT name FROM sysusers WHERE uid > 0 AND suid IS NOT NULL AND name NOT IN ('dbo', 'guest', 'public')")
-            # users_fetch = cursor.fetchall()                  
-            # for row in users_fetch:
-            #     output_list.append({"name": row[0], "type": "user"}) 
+            #cursor.execute("SELECT name FROM sysusers WHERE uid > 0 AND suid IS NOT NULL AND name NOT IN ('dbo', 'guest', 'public')")
+            #users_fetch = cursor.fetchall()                  
+            #for row in users_fetch:
+                #output_list.append({"name": row[0], "type": "user"}) 
             
-            # existing_names = {entry["name"] for entry in output_list}
+            #existing_names = {entry["name"] for entry in output_list}
             cursor.execute("USE master")
             cursor.execute("SELECT name FROM syssrvroles where status=0")
             roles_fetch = cursor.fetchall()
             for row in roles_fetch:
-                output_list.append({"name": row[0], "type": "role"})
+                output_list.append({"name": row[0], "type": "role"}) 
          
         except Exception as e:
             output_list.append(str(e))
@@ -2467,6 +2505,61 @@ class automateTable(Resource):
                 cursor.close()
                 con.close()
         return outputDict
+
+class automateRole(Resource):
+    def post(self):
+        data = request.get_json(force=True)
+        sourceDep = data['sourceDep']
+        sourceDbname = data['sourceDbname']
+        targetDbname = data['targetDbname']
+        targetDep = data['targetDep']
+
+        outputDict = []
+        try:
+            val = selectConn(sourceDbname)
+            con = val[0]
+            cursor = con.cursor()
+            df = pd.DataFrame(columns=['No', 'Function', 'Output'])
+            i = 1
+            roleNameList = []
+            src_url = sourceDep + '/getUsersAndRolesFromDB'
+            headers = {'Content-Type': 'application/json'}
+            payload = {'dbname': sourceDbname}
+            resp = requests.post(src_url, json=payload, headers=headers, verify=ssl_verify, timeout=sshTimeOut)
+            result = resp.json()
+            roleNameList = result.get('user_role_list', '')
+            
+            for roleName in roleNameList:
+                roleName = roleName['name']                
+                targ_url = targetDep + '/createRole'
+                savePayload = {'dbName': targetDbname, 'roleName': roleName}
+                saveResp = requests.post(targ_url, json=savePayload, headers=headers, verify=ssl_verify, timeout=sshTimeOut)
+                resultData = saveResp.json()
+                resultMsg = resultData.get('msg', '')
+                if 'Created' in resultMsg:
+                    save_result = 'Created'
+                elif 'conflicts with another user or role' in resultMsg:
+                    save_result = 'Already Exist'
+                elif 'Network connection problem' in resultMsg:
+                    save_result = 'Connection problem'
+                else:
+                    save_result = resultMsg
+                
+                excel_file = sourceDbname + '_role.xlsx'
+                df = pd.concat([df, pd.DataFrame({'No': [i], 'Function': [roleName], 'Output': [save_result]})], ignore_index=True)
+                df.to_excel(excel_file, index=False)
+                outputDict.append({'roles': roleName, 'result': save_result})
+                i += 1
+                
+        except Exception as e:
+            logger.info(str(e))
+        finally:
+            if con:
+                cursor.close()
+                con.close()
+        return outputDict
+
+
 
 class automateConstraints(Resource):
 
@@ -7578,6 +7671,7 @@ api.add_resource(fetchAutomateExcel, '/fetchAutomateExcel')
 api.add_resource(fetchAutomateProcExcel, '/fetchAutomateProcExcel')
 api.add_resource(fetchAutomateViewExcel, '/fetchAutomateViewExcel')
 api.add_resource(fetchAutomateTableExcel, '/fetchAutomateTableExcel')
+api.add_resource(fetchAutomateRoleExcel, '/fetchAutomateRoleExcel')
 api.add_resource(fetchAutomateConstraintsExcel, '/fetchAutomateConstraintsExcel')
 api.add_resource(fetchAutomateGrantConstraintsExcel, '/fetchAutomateGrantConstraintsExcel')
 api.add_resource(fetchAutomateIndexesExcel, '/fetchAutomateIndexesExcel')
@@ -7588,6 +7682,7 @@ api.add_resource(automateOracleProc, '/automateOracleProc')
 api.add_resource(automateOracleTrig, '/automateOracleTrig')
 api.add_resource(updateExcel, '/updateExcel')
 api.add_resource(updateExcelTable, '/updateExcelTable')
+api.add_resource(updateExcelRole, '/updateExcelRole')
 api.add_resource(updateExcelConstraints, '/updateExcelConstraints')
 api.add_resource(updateExcelGrantConstraints, '/updateExcelGrantConstraints')
 api.add_resource(updateExcelIndexes, '/updateExcelIndexes')
@@ -7602,6 +7697,7 @@ api.add_resource(getDDLFromTable, '/getddlfromtable')
 api.add_resource(getUsersAndRolesFromDB, '/getUsersAndRolesFromDB')
 api.add_resource(tableDDLGenAi, '/tableDDLGenAi')
 api.add_resource(automateTable, '/automateTable')
+api.add_resource(automateRole, '/automateRole')
 api.add_resource(automateConstraints, '/automateConstraints')
 api.add_resource(automateGrantConstraints, '/automateGrantConstraints')
 api.add_resource(automateIndexes, '/automateIndexes')

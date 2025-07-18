@@ -109,6 +109,8 @@
             <oj-text-area id="text-area" value="{{procConvertedText}}" rows="35" style="width: 100%; min-width: 100%" label-hint="Target Procedure Text"></oj-text-area>
         </div>
         <div class="oj-panel oj-flex-bar">
+            <oj-button disabled="[[buttonVal]]" class="oj-button-sm oj-flex-bar-start" chroming="solid"
+                on-oj-action='[[fetchConvertResult]]'>View Log</oj-button> 
         <oj-button disabled="[[buttonVal]]" class="oj-button-sm oj-flex-bar-end" chroming="solid"
         on-oj-action='[[pgSaveView]]'>Save</oj-button>   
     </div>
@@ -212,7 +214,7 @@ style="display:none;width:350px;min-width:240px;max-width:450px;" cancel-behavio
 </oj-dialog>
 
 <oj-dialog id="convertResultDialog" dialog-title="Converting....">
-    <oj-progress-bar id="createbar" class="oj-progress-bar-embedded" value="-1"></oj-progress-bar>
+    <oj-progress-bar id="log-progressBar" class="oj-progress-bar-embedded" value="-1"></oj-progress-bar>
     <div slot="body" style="white-space: pre-wrap; word-wrap: break-word;">
         <pre data-bind="text: convertResult"
             style="
@@ -227,6 +229,7 @@ style="display:none;width:350px;min-width:240px;max-width:450px;" cancel-behavio
         <!-- <oj-bind-text value="[[convertResult]]"></oj-bind-text> -->
     </div>
     <div slot="footer">
+        <oj-button id="okButton" on-oj-action="[[cancelConvertResultDialog]]">Cancel</oj-button>
         <oj-button id="okButton" on-oj-action="[[closeConvertResultDialog]]">OK</oj-button>
     </div>
 </oj-dialog>

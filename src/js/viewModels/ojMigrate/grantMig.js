@@ -260,7 +260,7 @@ define([
 
         self.clickTableGetDetails  =  function(data, event) {
             document.querySelector('#SelectSchemaDialog').open();
-            console.log(self.selectionInfo());            
+            // console.log(self.selectionInfo());            
             if(self.selectionInfo()!=="" && self.currentDB()!==""){
                 $.ajax({
                     url: self.DepName()  + "/getGrantKeyConstraintsLines",
@@ -812,8 +812,8 @@ define([
         self.SaveDDL = function (data, event) {
             self.saveDDLMsg('');  
             document.querySelector('#SelectSchemaViewDialog').open();
-            console.log(self.constraintDDLConvertedText())
-            console.log(self.TGTcurrentPDB())
+            // console.log(self.constraintDDLConvertedText())
+            // console.log(self.TGTcurrentPDB())
             const grantArray = self.constraintDDLConvertedText().split(',').map(item => item.trim());
             $.ajax({
                 url: self.TGTonepDepUrl() + "/saveGrants",

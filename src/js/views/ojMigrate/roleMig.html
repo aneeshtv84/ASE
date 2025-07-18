@@ -13,7 +13,7 @@
     </div>
 
     <div class="oj-panel oj-sm-10" >
-        <!-- <div class="oj-panel oj-flex-bar">   
+        <div class="oj-panel oj-flex-bar">   
             <oj-button disabled="[[buttonValAutomate]]" class="oj-button-sm oj-flex-bar-end" chroming="solid"
                 on-oj-action='[[automateModal]]'>Automate</oj-button>
                 &nbsp;
@@ -23,7 +23,7 @@
             <oj-button disabled="[[buttonValReport]]" class="oj-button-sm oj-flex" chroming="solid"
                 on-oj-action='[[downloadTableReport]]'>Download Report</oj-button>
         </div>
-        <div style="margin: 10px;"><oj-progress-bar id="progressBar" value="{{progressValue}}"></oj-progress-bar></div> -->
+        <div style="margin: 10px;"><oj-progress-bar id="progressBar" value="{{progressValue}}"></oj-progress-bar></div>
         <div class="oj-panel oj-margin oj-panel-alt1 oj-panel-shadow-lg">
             <oj-table id='table' aria-label='All Users and Roles' data='[[userRoleDetailDP]]' display='grid'
                 columns='{{CountDetailcolumnArray}}' selected='{{selectedItems}}'
@@ -65,10 +65,10 @@
     </div>
 </oj-dialog>
 
-<oj-dialog id="openDialog" title="Table Creation Dialog" modality="modeless"
+<oj-dialog id="openDialog" title="Role Creation Dialog" modality="modeless"
     style="display:none;width:550px;min-width:550px;max-width:550px;">
     <div slot="body">
-        <oj-bind-text value="{{saveDDLMsg}}" ></oj-bind-text>
+        <oj-bind-text value="{{roleCreationMsg}}" ></oj-bind-text>
     </div>
     <div slot="footer">
         <div class="oj-panel  oj-sm-margin-4x-bottom" style="width: 100%;">
@@ -83,54 +83,58 @@
 
 <oj-dialog id="autoMateDlg" title="Enter Target Details" modality="modeless"
 style="display:none;width:350px;min-width:240px;max-width:450px;" cancel-behavior="[[CancelBehaviorOpt]]">
-<div slot="body">
-    <div class="oj-panel ">
-        <oj-form-layout id="fl1" readonly="[[isFormReadonly()]]">
-            <div class="oj-panel io-color demo-center-items">
-                <h7>Target Deployment</h7>
-            </div>
-            <oj-select-single required id="tgtschema" label-hint="Choose Target Deployment" class="oj-form-control-max-width" 
-                label-edge="inside" data="{{onepDepListDP}}" value="{{TgtOnePDepName}}"
-                on-value-changed="[[SelectTGTDeployment]]">
-            </oj-select-single>
-            <oj-select-single required label-hint="Choose Credential Alias" label-edge="inside" class="oj-form-control-max-width-md" 
-                id="CredentialAlias" data="[[TgtDBDetDP]]" value="{{TGTcurrentPDB}}"
-                on-value-changed="[[DBTgtSchema]]">
-            </oj-select-single>
-            <oj-switch id="s3BucketCheck" value="{{s3BucketChecked}}" label-hint="Save S3 Bucket"></oj-switch>
-            <oj-bind-if test="[[s3BucketChecked]]">
-                <oj-select-single id="tgtS3Bucket" label-hint="Choose S3 Bucket" class="oj-form-control-max-width-md" 
-                    label-edge="inside" data="{{s3BucketListDp}}" value="{{s3Bucket}}">
-            </oj-bind-if>
-        </oj-form-layout>
+    <div slot="body">
+        <div class="oj-panel ">
+            <oj-form-layout id="fl1" readonly="[[isFormReadonly()]]">
+                <div class="oj-panel io-color demo-center-items">
+                    <h7>Target Deployment</h7>
+                </div>
+                <oj-select-single required id="tgtschema" label-hint="Choose Target Deployment" class="oj-form-control-max-width" 
+                    label-edge="inside" data="{{onepDepListDP}}" value="{{TgtOnePDepName}}"
+                    on-value-changed="[[SelectTGTDeployment]]">
+                </oj-select-single>
+                <oj-select-single required label-hint="Choose Credential Alias" label-edge="inside" class="oj-form-control-max-width-md" 
+                    id="CredentialAlias" data="[[TgtDBDetDP]]" value="{{TGTcurrentPDB}}"
+                    on-value-changed="[[DBTgtSchema]]">
+                </oj-select-single>
+            </oj-form-layout>
+        </div>
     </div>
-</div>
-<div slot="footer">
-    <oj-button id="okdelButton" chroming='solid'  on-oj-action="[[automateClose]]">
-        Cancel
-    </oj-button>
-    <oj-button id="okdelButton" chroming='solid'  on-oj-action='[[automateTable]]'>
-        Automate
-    </oj-button>
+    <div slot="footer">
+        <oj-button id="okdelButton" chroming='solid'  on-oj-action="[[automateClose]]">
+            Cancel
+        </oj-button>
+        <oj-button id="okdelButton" chroming='solid'  on-oj-action='[[automateRole]]'>
+            Automate
+        </oj-button>
     </div>
 </oj-dialog>
 
-<oj-dialog id="convertResultDialog" dialog-title="Converting....">
-    <oj-progress-bar id="progressBar" value="-1"></oj-progress-bar>
-    <div slot="body" style="white-space: pre-wrap; word-wrap: break-word;">           
-        <pre data-bind="text: convertResult"
-            style="
-                white-space: pre-wrap;
-                word-wrap: break-word;
-                word-break: break-word;
-                overflow-wrap: break-word;
-                font-family: monospace;
-                max-width: 100%;
-                ">
-        </pre>
-        <!-- <oj-bind-text value="[[convertResult]]"></oj-bind-text> -->
+<oj-dialog id="createRoleDlg" title="Enter Target Details" modality="modeless"
+style="display:none;width:350px;min-width:240px;max-width:450px;" cancel-behavior="[[CancelBehaviorOpt]]">
+    <div slot="body">
+        <div class="oj-panel ">
+            <oj-form-layout id="fl1" readonly="[[isFormReadonly()]]">
+                <div class="oj-panel io-color demo-center-items">
+                    <h7>Target Deployment</h7>
+                </div>
+                <oj-select-single required id="tgtschema" label-hint="Choose Target Deployment" class="oj-form-control-max-width" 
+                    label-edge="inside" data="{{onepDepListDP}}" value="{{TgtOnePDepName}}"
+                    on-value-changed="[[SelectTGTDeployment]]">
+                </oj-select-single>
+                <oj-select-single required label-hint="Choose Credential Alias" label-edge="inside" class="oj-form-control-max-width-md" 
+                    id="CredentialAlias" data="[[TgtDBDetDP]]" value="{{TGTcurrentPDB}}"
+                    on-value-changed="[[DBTgtSchema]]">
+                </oj-select-single>
+            </oj-form-layout>
+        </div>
     </div>
     <div slot="footer">
-        <oj-button id="okButton" on-oj-action="[[closeConvertResultDialog]]">OK</oj-button>
+        <oj-button id="okdelButton" chroming='solid'  on-oj-action="[[createRoleDlgClose]]">
+            Cancel
+        </oj-button>
+        <oj-button id="okdelButton" chroming='solid'  on-oj-action='[[createRole]]'>
+            Create
+        </oj-button>
     </div>
 </oj-dialog>

@@ -59,11 +59,11 @@ define([
                     //console.log(e);
                 },
                 success: function (data) {
-                    console.log(data)
+                    // console.log(data)
                     for (var i = 0; i < data[0].length; i++) {
                         self.DBDet.push({'value' : data[0][i].dbname, 'label' : data[0][i].dbname});
                 }
-                console.log(self.DBDet())
+                // console.log(self.DBDet())
             }
             })
         }
@@ -91,11 +91,11 @@ define([
                     self.tableDetail([]);
                  for (var key in data[0]) {
                      for (var newkey in data[0][key]){
-                         console.log(newkey)
+                        //  console.log(newkey)
                         self.tableDetail.push({'tabname': key,'count': data[0][key][newkey] ,'creator': newkey});
                      }
                     }
-                    console.log(self.tableDetail())
+                    // console.log(self.tableDetail())
                     self.schemaList([]);
                     for (var i = 0; i < data[1].length; i++) {
                         self.schemaList.push({'label': data[1][i], 'value': data[1][i]})
@@ -151,7 +151,7 @@ define([
                          self.tableNameDetails([]);
                     for (var i = 0; i < data[0].length; i++) {
                         for (var j = 0; j < data[0][i].length; j++) {
-                            console.log(data[0][i])
+                            // console.log(data[0][i])
                         self.tableNameDetails.push({ 'tname': data[0][i][j]['tname'],'cname': data[0][i][j]['cname'] , 'coltype': data[0][i][j]['coltype'], 'width': data[0][i][j]['width'], 'syslength': data[0][i][j]['syslength'], 'NN': data[0][i][j]['NN'] , 'in_primary_key': data[0][i][j]['in_primary_key'], 'default_value': data[0][i][j]['default_value'], 'column_kind': data[0][i][j]['column_kind'], 'remarks': data[0][i][j]['remarks']});
                     }
                 }

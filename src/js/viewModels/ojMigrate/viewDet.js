@@ -678,8 +678,18 @@ define([
         })
     }
 
+    self.convertIntervalId = null;
+
     self.closeConvertResultDialog = ()=>{
         document.querySelector('#convertResultDialog').close();
+    } 
+
+    self.cancelConvertResultDialog = ()=>{
+        document.querySelector('#convertResultDialog').close();
+        if (self.convertIntervalId) {
+            clearInterval(self.convertIntervalId);
+            self.convertIntervalId = null;
+        }
     } 
 
     self.procConvertedText = ko.observable('');
@@ -688,7 +698,8 @@ define([
         self.procConvertedText('');  
         document.querySelector('#SelectSchemaViewDialog').open();
         const viewProcString = self.viewText().join(' ')
-        var intervalId = setInterval(()=>self.fetchConvertResult(), 1000);
+        self.convertIntervalId = setInterval(()=>self.fetchConvertResult(), 1000);
+        document.getElementById("log-progressBar").style.display = "block"
         $.ajax({
             // url: self.TGTonepDepUrl() + "/convertViewProc",
             url: self.DepName() + "/viewDDLGenAi",
@@ -707,11 +718,13 @@ define([
                 console.log(e);
             },
             success: function (data) {
-                clearInterval(intervalId);
+                clearInterval(self.convertIntervalId);
+                self.convertIntervalId = null;
                 document.querySelector('#convertResultDialog').close();
                 setTimeout(()=>{
                     document.querySelector('#convertResultDialog').close();
                 }, 1000)
+                document.getElementById("log-progressBar").style.display = "none"
                 // const singleLine = data.converted_lines.replace(/[\r\n]+/g, '');
                 self.procConvertedText(data.converted_lines);
                 return self;

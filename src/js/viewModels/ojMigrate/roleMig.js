@@ -167,7 +167,7 @@ define([
                         if (row.values().size > 0) {
                             row.values().forEach(function (key) {
                                 rowKeys.push(key)
-                                self.firstSelectedItem({ tabname: key })
+                                self.firstSelectedItem({ name: key })
                                 selectionText += selectionText.length === 0 ? key : ', ' + key;
                             });
                         }
@@ -201,8 +201,41 @@ define([
                 self.clickedRole = ko.observable("")
 
                 self.createUserRoles  =  function(rowData, event) {
-                    document.querySelector('#SelectSchemaDialog').open();
-                    self.clickedRole(rowData.name)                    
+                    document.querySelector('#createRoleDlg').open();
+                    self.firstSelectedItem({ name: rowData.name })
+                    self.clickedRole(rowData.name)    
+                }
+
+                self.roleCreationMsg = ko.observable("");
+
+                self.createRole = ()=>{
+                    document.querySelector('#createRoleDlg').close();
+                    document.querySelector('#SelectSchemaViewDialog').open();
+                    $.ajax({
+                        url: self.TGTonepDepUrl()  + "/createRole",
+                        type: 'POST',
+                        data: JSON.stringify({
+                            roleName : self.clickedRole(),
+                            dbName : self.TGTcurrentPDB(),
+                        }),
+                        dataType: 'json',
+                        timeout: sessionStorage.getItem("timeInetrval"),
+                        context: self,
+                        error: function (xhr, textStatus, errorThrown) {
+                            if(textStatus == 'timeout' || textStatus == 'error'){
+                                document.querySelector('#SelectSchemaViewDialog').close();
+                            }
+                        },
+                        success: function (data) {
+                            document.querySelector('#SelectSchemaViewDialog').close();
+                            document.querySelector('#openDialog').open();
+                            self.roleCreationMsg(data.msg);
+                        }
+                    })
+                }
+
+                self.createRoleDlgClose = ()=>{
+                    document.querySelector('#createRoleDlg').close();
                 }
 
                 self.buttonValAutomate = ko.observable(false)
@@ -257,16 +290,16 @@ define([
                 });
 
                 self.progressValue = ko.observable(0);        
-                self.automateTable = (tableList)=>{
+                self.automateRole = (tableList)=>{
                     document.querySelector('#autoMateDlg').close();            
-                    var intervalId = setInterval(fetchAutomateResults, 1000);
+                    var intervalId = setInterval(()=>fetchAutomateResults(), 1000);
                     self.progressValue(-1)
                     let procNameList = self.userRoleDetail()
                     if(tableList && tableList.length > 0){
                         procNameList = tableList
                     }
                     $.ajax({
-                        url: self.DepName()  + "/automateTable",
+                        url: self.DepName()  + "/automateRole",
                         type: 'POST',
                         data: JSON.stringify({
                             sourceDbname : self.currentDB(),
@@ -287,6 +320,7 @@ define([
                             }
                         },
                         success: function (data) {
+                            console.log(data);                            
                             setTimeout(() => {
                                 self.progressValue(100)
                             }, 3000);
@@ -300,7 +334,7 @@ define([
                 self.listFunction = ko.observableArray([]);
                 function fetchAutomateResults() {
                     $.ajax({
-                        url: self.DepName()  + "/fetchAutomateTableExcel",
+                        url: self.DepName()  + "/fetchAutomateRoleExcel",
                         type: 'POST',
                         data: JSON.stringify({
                             sourceDbname : self.currentDB(),
@@ -314,13 +348,13 @@ define([
                                 document.querySelector('#TimeoutInLoad').open();
                             }
                         },
-                        success: function (data) {
+                        success: function (data) {                       
                             self.listFunction([])
                             var csvContent = '';
                             var headers = ['No', 'Function', 'Result'];
                             csvContent += headers.join(',') + '\n';
                             for (var i =0; i<data.length;i++) {
-                                if(data[i].Function == self.userRoleDetail()[i].tabname) {
+                                if(data[i].Function == self.userRoleDetail()[i].name) {
                                     if(data[i].Output == "Created" ||  data[i].Output == "Already Exist") {
                                         self.userRoleDetail()[i].output = 'Success';
                                     } else if (data[i].Output == "Error"){
@@ -330,7 +364,7 @@ define([
                                     }
                                 } else {
                                     for (var j =0; j<self.userRoleDetail().length;j++) {
-                                        if (self.userRoleDetail()[j].tabname == data[i].Function ) {
+                                        if (self.userRoleDetail()[j].name == data[i].Function ) {
                                             if(data[i].Output == "Created" ||  data[i].Output == "Already Exist") {
                                                 self.userRoleDetail()[j].output = 'Success';
                                             } else if (data[i].Output == "Error"){
@@ -349,7 +383,7 @@ define([
                                 self.listFunction.valueHasMutated();
                             }
                             var blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-                            var fileName = 'DBA_Table_Report'+ '.csv';
+                            var fileName = 'DBA_Role_Report'+ '.csv';
                             self.excelBlob(blob);
                             self.excelFileName(fileName);
                             document.querySelector('#SelectSchemaViewDialog').close();
@@ -677,11 +711,11 @@ define([
                         console.log(data)
                         console.log(self.firstSelectedItem())
                         for (var j =0; j<self.userRoleDetail().length;j++) {
-                            if (self.userRoleDetail()[j].tabname == self.firstSelectedItem().tabname ) {
-                                if (data == "Created" || data.includes("already used")) {
+                            if (self.userRoleDetail()[j].name == self.firstSelectedItem().name ) {
+                                if (data == "Created" || data.includes("conflicts with another user or role")) {
                                     self.userRoleDetail()[j].output = "Success";
                                     var output = 'Created';
-                                    if(data.includes("already used")) {
+                                    if(data.includes("conflicts with another user or role")) {
                                         var output = 'Already Exist';
                                     }
                                 }
@@ -693,7 +727,7 @@ define([
                         }
                         self.userRoleDetail.valueHasMutated();
                         $.ajax({
-                            url: self.DepName()  + "/updateExcelTable",
+                            url: self.DepName()  + "/updateExcelRole",
                             data: JSON.stringify({
                                 functionName : self.firstSelectedItem().tabname,
                                 output : output,
@@ -711,36 +745,7 @@ define([
                             }
                         })
                     }
-
-                    self.saveDDLMsg = ko.observable();
-
-                    self.SaveDDL = function (data, event) {
-                        self.saveDDLMsg('');  
-                        document.querySelector('#SelectSchemaViewDialog').open();
-                        console.log(self.tableDDLConvertedText())
-                        console.log(self.TGTcurrentPDB())
-                        $.ajax({
-                            url: self.TGTonepDepUrl() + "/saveddl",
-                            data: JSON.stringify({
-                                dbname : self.TGTcurrentPDB(),
-                                tableDDLConvertedText : self.tableDDLConvertedText()
-                            }),
-                            type: 'POST',
-                            dataType: 'json',
-                            context: self,
-                            error: function (e) {
-                                //console.log(e);
-                            },
-                            success: function (data) {
-                                document.querySelector('#SelectSchemaViewDialog').close();
-                                document.querySelector('#openDialog').open();
-                                self.saveDDLMsg(data.msg);
-                                updateExcel(data.msg)
-                                return self;
-                            }
-                        })
-                    };
-
+                    
                     self.saveOKTable= function (data, event) {
                         document.querySelector('#openDialog').close();
                     }

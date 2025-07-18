@@ -700,8 +700,18 @@ define([
             })
         }
 
+        self.convertIntervalId = null;
+
         self.closeConvertResultDialog = ()=>{
             document.querySelector('#convertResultDialog').close();
+        } 
+
+        self.cancelConvertResultDialog = ()=>{
+            document.querySelector('#convertResultDialog').close();
+            if (self.convertIntervalId) {
+                clearInterval(self.convertIntervalId);
+                self.convertIntervalId = null;
+            }
         } 
 
         self.procConvertedText = ko.observable('');
@@ -710,8 +720,8 @@ define([
         self.clickConvert = function (data, event) {
             self.procConvertedText('');  
             document.querySelector('#SelectSchemaTriggerDialog').open();
-            var intervalId = setInterval(()=>self.fetchConvertResult(), 1000);
-               
+            self.convertIntervalId = setInterval(()=>self.fetchConvertResult(), 1000);
+            document.getElementById("log-progressBar").style.display = "block"
             $.ajax({
                 url: self.DepName() + "/trigDDLGenAi",
                 data: JSON.stringify({
@@ -729,11 +739,13 @@ define([
                     console.log(e);
                 },
                 success: function (data) {
-                    clearInterval(intervalId);
+                    clearInterval(self.convertIntervalId);
+                    self.convertIntervalId = null;
                     document.querySelector('#convertResultDialog').close();
                     setTimeout(()=>{
                         document.querySelector('#convertResultDialog').close();
                     }, 1000)
+                    document.getElementById("log-progressBar").style.display = "none"
                     self.procConvertedText(data.converted_lines);
                     return self;
                 }

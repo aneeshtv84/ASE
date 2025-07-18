@@ -245,7 +245,7 @@ define([
 
         self.clickTableGetDetails  =  function(data, event) {
             document.querySelector('#SelectSchemaDialog').open();
-            console.log(self.selectionInfo());    
+            // console.log(self.selectionInfo());    
             
             if(self.selectionInfo()!=="" && self.currentDB()!==""){                
                 $.ajax({
@@ -265,7 +265,7 @@ define([
                         }
                     },
                     success: function (data) {
-                        console.log(data);
+                        // console.log(data);
                         let indexBlocks = [];
                         let buffer = [];
                         data.constraintText.forEach(line => {
@@ -281,7 +281,7 @@ define([
                         if (buffer.length > 0) {
                            indexBlocks.push(buffer.join('').trim());
                         }
-                        console.log(indexBlocks)
+                        // console.log(indexBlocks)
                         self.constraintDDL(indexBlocks);
                         self.constraintDDLConvertedText('');
                         document.querySelector('#SelectSchemaDialog').close();
@@ -773,7 +773,7 @@ define([
             } 
         }
         self.tableDetail.valueHasMutated();
-        console.log(self.firstSelectedItem().tabname);        
+        // console.log(self.firstSelectedItem().tabname);        
         $.ajax({
             url: self.DepName()  + "/updateExcelIndexes",
             data: JSON.stringify({
@@ -800,13 +800,13 @@ define([
         self.SaveDDL = function (data, event) {
             self.saveDDLMsg('');  
             document.querySelector('#SelectSchemaViewDialog').open();
-            console.log(self.constraintDDLConvertedText())
-            console.log(self.TGTcurrentPDB())
+            // console.log(self.constraintDDLConvertedText())
+            // console.log(self.TGTcurrentPDB())
             const indexArray = self.constraintDDLConvertedText()
                                     .split(/(?=CREATE UNIQUE INDEX)/i)
                                     .map(item => item.trim().replace(/,\s*$/, ''))
                                     .filter(block => block);
-            console.log(indexArray);
+            // console.log(indexArray);
             $.ajax({
                 url: self.TGTonepDepUrl() + "/saveIndexes",
                 data: JSON.stringify({
@@ -820,7 +820,7 @@ define([
                     //console.log(e);
                 },
                 success: function (data) {
-                    console.log(data);                    
+                    // console.log(data);                    
                     document.querySelector('#SelectSchemaViewDialog').close();
                     document.querySelector('#openDialog').open();
                     self.saveDDLMsg(data.msg);

@@ -71,7 +71,7 @@ function (oj, ko, $, app,NumberConverter, layout, keySet ,attributeGroupHandler,
 
 
         function getReplionFlow(dep,dep_url) {
-          console.log(dep)
+          // console.log(dep)
           self.NodeExt([]);
           self.NodePmp([]);
           self.NodeRep([]);

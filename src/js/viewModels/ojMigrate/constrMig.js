@@ -115,7 +115,7 @@ define([
                             continue;
                         self.tableDetail.push({'tabname': data[i]});
                     }
-                    console.log(self.tableDetail());                    
+                    // console.log(self.tableDetail());                    
                     return self;
                 }
             })
@@ -261,7 +261,7 @@ define([
 
         self.clickTableGetDetails  =  function(data, event) {
             document.querySelector('#SelectSchemaDialog').open();
-            console.log(self.selectionInfo());            
+            // console.log(self.selectionInfo());            
             if(self.selectionInfo()!=="" && self.currentDB()!==""){
                 $.ajax({
                     url: self.DepName()  + "/getKeyConstraintsLines",
@@ -281,7 +281,7 @@ define([
                     },
                     success: function (data) {
                         let constraint_lines = data.constraintText;
-                        console.log(constraint_lines)
+                        // console.log(constraint_lines)
                         let cleanLines = constraint_lines.map(line => line.trim()).filter(line => line.length);
                         self.constraintDDL(cleanLines);
                         self.constraintDDLConvertedText('');
@@ -816,8 +816,8 @@ define([
         self.SaveDDL = function (data, event) {
             self.saveDDLMsg('');  
             document.querySelector('#SelectSchemaViewDialog').open();
-            console.log(self.constraintDDLConvertedText())
-            console.log(self.TGTcurrentPDB())
+            // console.log(self.constraintDDLConvertedText())
+            // console.log(self.TGTcurrentPDB())
             $.ajax({
                 url: self.TGTonepDepUrl() + "/saveConstraints",
                 data: JSON.stringify({

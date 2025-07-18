@@ -507,7 +507,7 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'appController',"ojs/ojoffcanvas", '
                                 }
                             }
                             self.ExtPrmList(data[0]);
-                            console.log(data[0])
+                            // console.log(data[0])
                             var output = '';
                             for (var j = 0; j < data[0].length; j++) {
                                 // if (data[0][j].search("TABLE") != "-1") {
