@@ -927,7 +927,7 @@ self.addAutoILProc = function (data, event) {
     self.AddExtractMsg([]);
     self.dialogTitle('Preparing Processes for InitialLoad')
     document.querySelector('#CreateExtractDialog').open();
-    console.log(self.currentChkptTbl())
+    // console.log(self.currentChkptTbl())
     $.ajax({
         url: self.SRConepDepUrl() + "/addautoilproc",
         type: 'POST',
@@ -1222,7 +1222,7 @@ self.currentExtParam = ko.computed( {
                                     }
                                 },
                                 success: function (data) {
-                                    console.log(data)
+                                    // console.log(data)
                                     document.querySelector('#CreateTableProgress').close();
                                     document.getElementById('metatbl').refresh();
                                     document.querySelector('#CreateTableDialog').open();
@@ -1376,7 +1376,7 @@ self.currentExtParam = ko.computed( {
                             for (var i = 0; i < data[0].length; i++) {
                                 self.schemaNameList.push({ 'label': data[0][i].username, 'value': data[0][i].username });
                             }
-                            console.log(data[1])
+                            // console.log(data[1])
                             let serverInfo = data[1].ProductName;
                             let parts = serverInfo.split('/');
                             let productName = parts[0].trim();
@@ -1575,7 +1575,7 @@ self.currentExtParam = ko.computed( {
                             }
                         },
                         success: function (data) {
-                            console.log(data)
+                            // console.log(data)
                             document.getElementById('tableNameList').refresh();
                             let total=0;
                             for (var i = 0; i < data[0].length; i++) {

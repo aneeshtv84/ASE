@@ -71,7 +71,7 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'appController',
                             self.ExtData1([]);
                             self.PmpData1([]);
                             self.RepData1([]);
-                            console.log(data)
+                            // console.log(data)
                             for (var i = 0; i < data[0].length; i++) {
                                 if (data[0][i].extstat == 'ABENDED') {
                                     self.styleExt = { "background-color": "IndianRed" };
@@ -1084,7 +1084,7 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'appController',
                                         self.extStats.push({'TabName' : key ,'Inserts' : data[2][key]['Totalinserts'] ,'Updates' :  data[2][key]['Totalupdates'],'Deletes' : data[2][key]['Totaldeletes'] ,'Discards' : data[2][key]['Totaldiscards'] , 'Operations' : data[2][key]['Totaloperations']})
                                     }
                                     self.extStats.valueHasMutated();
-                                    console.log(self.extStats())
+                                    // console.log(self.extStats())
                                     self.popUpResize("ViewExtractStatDialog");
                                     document.querySelector('#ViewExtractStatDialog').open();
                                 }
@@ -1127,7 +1127,7 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'appController',
                                 document.querySelector('#Progress').close();
                                 document.querySelector('#EditExtDialog').open();
                                 self.extPrmRead(data[1]);
-                                console.log(data[1]);
+                                // console.log(data[1]);
                                 return self;
                             }
                         })
@@ -1191,7 +1191,7 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'appController',
                                 }
                             },
                             success: function (data) {
-                                console.log(data[0])
+                                // console.log(data[0])
                                 document.querySelector('#GettingTrailName').close();
                                 if (data[0].length > 0) {
                                     document.querySelector('#TrailForDelete').open();
@@ -1331,7 +1331,7 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'appController',
 
 
                                 self.savePmpPrm = function (event, data) {
-                                    console.log(self.PmpName)
+                                    // console.log(self.PmpName)
                     $.ajax({
                         url: self.DepName() + "/saveprm",
                         type: 'POST',
@@ -2059,7 +2059,7 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'appController',
                                 document.querySelector('#Progress').close();
                                 document.querySelector('#EditPmpDialog').open();
                                 self.pmpPrmRead(data[1]);
-                                console.log(data[1]);
+                                // console.log(data[1]);
                                 return self;
                             }
                         })
@@ -2299,7 +2299,7 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'appController',
                                 document.querySelector('#Progress').close();
                                 document.querySelector('#EditRepDialog').open();
                                 self.repPrmRead(data[1]);
-                                console.log(data[1]);
+                                // console.log(data[1]);
                                 return self;
                             }
                         })

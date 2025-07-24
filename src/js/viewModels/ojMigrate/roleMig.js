@@ -53,7 +53,7 @@ define([
                         dataType: 'json',
                         context: self,
                         error: function (e) {
-                            console.log(e);
+                            // console.log(e);
                         },
                         success: function (data) {
                             for (var i = 0; i < data[0].length; i++) {
@@ -80,7 +80,7 @@ define([
                         dataType: 'json',
                         context: self,
                         error: function (e) {
-                            console.log(e);
+                            // console.log(e);
                         },
                         success: function (data) {
                             self.schemaList([]);
@@ -104,7 +104,7 @@ define([
                         dataType: 'json',
                         context: self,
                         error: function (e) {
-                            console.log(e);
+                            // console.log(e);
                         },
                         success: function (data) {
                             let userRoles = data.user_role_list
@@ -270,7 +270,7 @@ define([
                         context: self,
                         error: function (xhr, textStatus, errorThrown) {
                             if(textStatus == 'timeout' || textStatus == 'error'){
-                                console.log(textStatus);                       
+                                // console.log(textStatus);                       
                             }
                         },
                         success: function (data) {
@@ -320,7 +320,7 @@ define([
                             }
                         },
                         success: function (data) {
-                            console.log(data);                            
+                            // console.log(data);                            
                             setTimeout(() => {
                                 self.progressValue(100)
                             }, 3000);
@@ -644,7 +644,7 @@ define([
                         timeout: sessionStorage.getItem("timeInetrval"),
                         context: self,
                         error: function (xhr, textStatus, errorThrown) {
-                            console.log(textStatus)
+                            // console.log(textStatus)
                         },
                         success: function (data) {
                             if (data && data.length !== 0) {
@@ -690,7 +690,7 @@ define([
                         dataType: 'json',
                         context: self,
                         error: function (e) {
-                            console.log(e);
+                            // console.log(e);
                         },
                         success: function (data) {
                             clearInterval(intervalId);
@@ -708,8 +708,8 @@ define([
                 };
                     
                     function updateExcel (data) {
-                        console.log(data)
-                        console.log(self.firstSelectedItem())
+                        // console.log(data)
+                        // console.log(self.firstSelectedItem())
                         for (var j =0; j<self.userRoleDetail().length;j++) {
                             if (self.userRoleDetail()[j].name == self.firstSelectedItem().name ) {
                                 if (data == "Created" || data.includes("conflicts with another user or role")) {

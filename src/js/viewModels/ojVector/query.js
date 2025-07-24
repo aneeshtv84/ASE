@@ -18,11 +18,11 @@ define(['ojs/ojcore', 'knockout', 'jquery','appController','ojs/ojarraydataprovi
                         context: self,
                         error: function (xhr, textStatus, errorThrown) {
                             if(textStatus == 'timeout' || textStatus == 'error'){
-                                console.log(textStatus);
+                                // console.log(textStatus);
                             }
                         },
                         success: function (data) {
-                            console.log(data);                            
+                            // console.log(data);                            
                             let content = data || "";       
                             content = content.replace(/</g, "&lt;").replace(/>/g, "&gt;");
                             const formattedContent = `<div class="oj-panel" style="background: #f4f4f4; padding: 10px; border-radius: 6px;">
@@ -63,7 +63,7 @@ define(['ojs/ojcore', 'knockout', 'jquery','appController','ojs/ojarraydataprovi
                         context: self,
                         error: function (xhr, textStatus, errorThrown) {
                             if(textStatus == 'timeout' || textStatus == 'error'){
-                                console.log(textStatus);
+                                // console.log(textStatus);
                             }
                         },
                         success: function (data) {

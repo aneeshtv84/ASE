@@ -84,7 +84,7 @@ define([
                 dataType: 'json',
                 context: self,
                 error: function (e) {
-                    console.log(e);
+                    // console.log(e);
                 },
                 success: function (data) {
                     document.querySelector('#SelectSchemaDialog').close();
@@ -108,7 +108,7 @@ define([
                 dataType: 'json',
                 context: self,
                 error: function (e) {
-                    console.log(e);
+                    // console.log(e);
                 },
                 success: function (data) {
                     self.tableDetail([]);
@@ -329,7 +329,7 @@ define([
                 context: self,
                 error: function (xhr, textStatus, errorThrown) {
                     if(textStatus == 'timeout' || textStatus == 'error'){
-                        console.log(textStatus);                       
+                        // console.log(textStatus);                       
                     }
                 },
                 success: function (data) {
@@ -704,7 +704,7 @@ define([
             timeout: sessionStorage.getItem("timeInetrval"),
             context: self,
             error: function (xhr, textStatus, errorThrown) {
-                console.log(textStatus)
+                // console.log(textStatus)
             },
             success: function (data) {
                 if (data && data.length !== 0) {
@@ -761,7 +761,7 @@ define([
             dataType: 'json',
             context: self,
             error: function (e) {
-                console.log(e);
+                // console.log(e);
             },
             success: function (data) {
                 clearInterval(self.convertIntervalId);
@@ -781,8 +781,8 @@ define([
     };
         
         function updateExcel (data) {
-            console.log(data)
-            console.log(self.firstSelectedItem())
+            // console.log(data)
+            // console.log(self.firstSelectedItem())
             for (var j =0; j<self.tableDetail().length;j++) {
                 if (self.tableDetail()[j].tabname == self.firstSelectedItem().tabname ) {
                     if (data == "Created" || data.includes("already used")) {
@@ -824,8 +824,8 @@ define([
          self.SaveDDL = function (data, event) {
             self.saveDDLMsg('');  
             document.querySelector('#SelectSchemaViewDialog').open();
-            console.log(self.tableDDLConvertedText())
-            console.log(self.TGTcurrentPDB())
+            // console.log(self.tableDDLConvertedText())
+            // console.log(self.TGTcurrentPDB())
             $.ajax({
                 url: self.TGTonepDepUrl() + "/saveddl",
                 data: JSON.stringify({

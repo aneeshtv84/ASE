@@ -81,7 +81,7 @@ self.getILTables =    function (event,data)  {
       }),
         timeout: sessionStorage.getItem("timeInetrval"),
         error: function (xhr, textStatus, errorThrown) {
-          console.log(textStatus)
+          // console.log(textStatus)
           if (textStatus == 'timeout' || textStatus == 'error') {
 //            document.querySelector('#TimeoutMon').open();
           }
@@ -129,7 +129,7 @@ self.getILTables =    function (event,data)  {
               self.summaryData.push({'TabName' : key , 'expRows' : data[3][key].ExportRows , 'impRows' : data[3][key].ImportRows})
             }
             document.getElementById("summary_data").style.display="block";
-            console.log(self.summaryData())
+            // console.log(self.summaryData())
             self.xfrPercent.valueHasMutated();
             self.summaryData.valueHasMutated();
           }

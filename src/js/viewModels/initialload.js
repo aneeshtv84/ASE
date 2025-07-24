@@ -1156,7 +1156,7 @@ self.currentExtParam = ko.computed( {
                             for (var i = 0; i < data[0].length; i++) {
                                 self.schemaNameList.push({ 'label': data[0][i].username, 'value': data[0][i].username });
                             }
-                            console.log(data[1])
+                            // console.log(data[1])
                             let serverInfo = data[1].ProductName;
                             let parts = serverInfo.split('/');
                             let productName = parts[0].trim();
@@ -1267,7 +1267,7 @@ self.currentExtParam = ko.computed( {
                             getGGVersion();
                             return self;
 
-                            console.log(self.dbTgtDetList())
+                            // console.log(self.dbTgtDetList())
                             
                         }
     
@@ -1358,15 +1358,15 @@ self.currentExtParam = ko.computed( {
                         success: function (data) {
                             document.getElementById('tableNameList').refresh();
                             let total=0;
-                            console.log(data[0])
+                            // console.log(data[0])
                             for (var i = 0; i < data[0].length; i++) {
-                                console.log(data[0][i])
+                                // console.log(data[0][i])
                                 self.tableNameList.push({'TABLE_NAME': data[0][i].name , 'rowtotal' : data[0][i].rowtotal ,'reserved': data[0][i].reserved , 'data': data[0][i].data , 'index_size': data[0][i].index_size , 'unused': data[0][i].unused});
                                 total = total + parseInt(data[0][i].avg_space);
                             }
                             self.avg_space(total);
                             self.tableNameList.valueHasMutated();
-                            console.log(self);
+                            // console.log(self);
                             document.querySelector('#SelectSchemaDialog').close();
                             if (self.gatherMeta() == true) {
                                 self.ApplyMetaButtonVal(false);

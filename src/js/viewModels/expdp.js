@@ -1046,7 +1046,7 @@ self.currentexpExcludeParam = ko.computed( {
             currentexpExcludeParam = currentexpExcludeParam + '\'\'' +  selectedData1 + '\'\'' + ',';
         }
         currentexpExcludeParam = currentexpExcludeParam.slice(0,-1);
-        console.log(currentexpExcludeParam)
+        // console.log(currentexpExcludeParam)
     }
       return currentexpExcludeParam;
         
@@ -1352,7 +1352,7 @@ self.currentExtParam = ko.computed( {
                                     },
                         success: function (data) {
                             self.CDBCheck(data[0]);
-                            console.log(data)
+                            // console.log(data)
                             if(!Object.values(data[1]).some(val => typeof val === 'string' && val.includes('ORA-'))){
                                 // for (var i = 0; i < data[1].length; i++) {
                                 //     self.PDBNameList.push({ 'label': data[1][i].NAME, 'value': data[1][i].NAME });
@@ -1457,7 +1457,7 @@ self.currentExtParam = ko.computed( {
                                 }
                             },
                             success: function (data) {
-                                console.log(data)
+                                // console.log(data)
                                 self.ButtonChltbl(false);
                                 if(!Object.values(data[1]).some(val => typeof val === 'string' && val.includes('ORA-'))){    
                                     for (var i = 0; i < data[1].length; i++) {
@@ -1735,7 +1735,7 @@ function currTransaction() {
             if(data[0].length>0){
                 self.expXID.push({'INST_ID' : data[0][0].inst_id,'XID' : data[0][0].XIDUSN + '.' + data[0][0].XIDSLOT + '.' + data[0][0].XIDSLOT ,'CURRENT_TIME' : data[1],'START_TIME' : data[0][0].start_time , 'CAPTURE_TIME' : data[2]});   
             }
-            console.log(self.expXID())
+            // console.log(self.expXID())
             return self;
         }
 
@@ -1773,7 +1773,7 @@ self.impdpOptions = function (data, event) {
             for (var i = 0; i < data[0].length; i++) {
             self.impDirNames.push({'label' : data[0][i], 'value' : data[0][i]});
             }
-            console.log(self.impDirNames())
+            // console.log(self.impDirNames())
             return self;
             
         }
@@ -1818,7 +1818,7 @@ self.impdpOptionsOKClose = function(){
             if (valid) {
                 self.Btnimprttcheck(false);
                 if((self.Btnexprtcheck() == false) && (self.Btnimprttcheck() == false)) {
-                    console.log(self.ZDTChk());
+                    // console.log(self.ZDTChk());
                     if(self.ZDTChk() == false){
                         self.BtnCreateJOb(false);
                     }
@@ -1860,11 +1860,11 @@ self.createJob = function(){
             self.pdbRegList.push(self.pdbList());
 
             document.querySelector('#CreateExtractDialog').open();
-            console.log(self.dbMainVersion())
-            console.log(self.dbMinorVersion())
+            // console.log(self.dbMainVersion())
+            // console.log(self.dbMinorVersion())
 if(self.dbMainVersion() == 11 &&  self.dbMinorVersion() <4 )
 {
-    console.log('Inside CE')
+    // console.log('Inside CE')
     self.currentTrailType('exttrail');
     self.newExtParamList('EXTRACT ' + extName + '\n' + 'useridalias ' + self.SRCcurrentPDB() + ' domain ' + self.selectedSRCDomCategory() + '\n' + 'exttrail ' +  self.trailSubDir() + self.trailSubDirSlash() + self.TrailName()  + '\nREPORTCOUNT EVERY 5 MINUTES, RATE\nTRANLOGOPTIONS DBLOGREADER\nTRANLOGOPTIONS _DISABLESTREAMLINEDDBLOGREADER\n'  + self.currentSchemaParam() + self.ExtSchemaParam() );
     $.ajax({
@@ -1909,7 +1909,7 @@ if(self.dbMainVersion() == 11 &&  self.dbMinorVersion() <4 )
 
 else
 {
-    console.log('Inside IE')
+    // console.log('Inside IE')
     if (self.SRConepDepUrl() == self.TGTonepDepUrl())
     {
         self.currentTrailType('exttrail');
@@ -1970,7 +1970,7 @@ else
                     document.querySelector('#AddExtractDialog').open();
                     self.AddExtractMsg(data[0]);
 
-                    console.log(self.AddExtractMsg())
+                    // console.log(self.AddExtractMsg())
                     return self;
                 }
             })
@@ -1999,10 +1999,10 @@ self.startExportJob = function(){
 
 
 function addAutoILProc(){
-    console.log('Inside AddAuto')
+    // console.log('Inside AddAuto')
     document.querySelector('#expdpOptDialog').close();
     document.querySelector('#expdpJob').open();
-    console.log(self.pdbList())
+    // console.log(self.pdbList())
     $.ajax({
         url: self.SRConepDepUrl() + "/expdp",
         type: 'POST',

@@ -100,7 +100,7 @@ define([
                 },
                 success: function (data) {
                     //(data[0])
-                    console.log(data)
+                    // console.log(data)
                     self.viewDetail([]);
                     for (var i = 0; i < data.proc.length; i++) {
                          self.viewDetail.push({'owner': data.proc[i].owner,'procname':   data.proc[i].procName});
@@ -178,7 +178,7 @@ define([
         }
 
         self.reportAction = () => {
-            console.log(self.TGTonepDepUrl())
+            // console.log(self.TGTonepDepUrl())
             self.reportFileContent([])
             $.ajax({
               url: self.TGTonepDepUrl() + "/readProcLog",
@@ -408,7 +408,7 @@ define([
             context: self,
             error: function (xhr, textStatus, errorThrown) {
                 if(textStatus == 'timeout' || textStatus == 'error'){
-                    console.log(textStatus);                       
+                    // console.log(textStatus);                       
                 }
             },
             success: function (data) {
@@ -423,7 +423,7 @@ define([
 
     self.s3BucketChecked.subscribe(function (newValue) {
         if (newValue) {
-            console.log(newValue);
+            // console.log(newValue);
             self.getS3BucketList();
         }
     });
@@ -527,7 +527,7 @@ define([
         self.viewText = ko.observable();
 
         self.getViewText  =  function(data, event) {
-            console.log(self.getDisplayValue(self.selectedView())[0])
+            // console.log(self.getDisplayValue(self.selectedView())[0])
             self.procConvertedText('');
             // document.querySelector('#SelectSchemaProcessDialog').open();
             $.ajax({
@@ -800,7 +800,7 @@ define([
                 timeout: sessionStorage.getItem("timeInetrval"),
                 context: self,
                 error: function (xhr, textStatus, errorThrown) {
-                    console.log(textStatus)
+                    // console.log(textStatus)
                 },
                 success: function (data) {
                     if (data && data.length !== 0) {
@@ -857,7 +857,7 @@ define([
                 dataType: 'json',
                 context: self,
                 error: function (e) {
-                    console.log(e);
+                    // console.log(e);
                 },
                 success: function (data) {
                     clearInterval(self.convertIntervalId);
@@ -882,7 +882,7 @@ define([
             document.querySelector('#openDialog').close();
             self.procConvertedText('');  
             document.querySelector('#SelectSchemaProcessDialog').open();
-            console.log(self.viewText()[0])
+            // console.log(self.viewText()[0])
             $.ajax({
                 url: self.TGTonepDepUrl() + "/pgRetryConvert",
                 data: JSON.stringify({
@@ -905,10 +905,10 @@ define([
         };
     
    self.clickUpload = function (data, event) {
-            console.log(self.procConvertedText())
+            // console.log(self.procConvertedText())
             document.querySelector('#openDialog').close();
             document.querySelector('#SelectSchemaProcessDialog').open();
-            console.log(self.getDisplayValue(self.selectedView())[0])
+            // console.log(self.getDisplayValue(self.selectedView())[0])
             $.ajax({
                 url: self.TGTonepDepUrl() + "/clickUploadFile",
                 data: JSON.stringify({
@@ -922,7 +922,7 @@ define([
                     //console.log(e);
                 },
                 success: function (data) {
-                    console.log(data)
+                    // console.log(data)
                     document.querySelector('#SelectSchemaProcessDialog').close();
                     return self;
                 }

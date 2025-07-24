@@ -76,7 +76,7 @@ define([
         self.schemaList = ko.observableArray([]);
 
         self.clickGetDet = function (data, event) {
-            console.log(self.DepName() )
+            // console.log(self.DepName() )
             $.ajax({
                 url: self.DepName() + "/gettablename",
                 data: JSON.stringify({
@@ -86,10 +86,10 @@ define([
                 dataType: 'json',
                 context: self,
                 error: function (e) {
-                    console.log(e);
+                    // console.log(e);
                 },
                 success: function (data) {
-                    console.log(data)
+                    // console.log(data)
                     self.tableDetail([]);
                  for (var key in data[0]) {
                      for (var newkey in data[0][key]){
@@ -165,7 +165,7 @@ define([
                             csvContent += rowData.join(',') + '\n';
                             self.tableNameDetails.push({ 'id': data[0][i][j]['tname']+j,'tname': data[0][i][j]['tname'],'cname': data[0][i][j]['cname'] , 'coltype': data[0][i][j]['coltype'], 'width': data[0][i][j]['width'], 'syslength': data[0][i][j]['scale'], 'NN': data[0][i][j]['NN'] , 'in_primary_key': data[0][i][j]['in_primary_key'], 'default_value': data[0][i][j]['default_value'], 'column_kind': data[0][i][j]['column_kind'], 'remarks': data[0][i][j]['remarks']});
                         }
-                        console.log(self.tableNameDetails())
+                        // console.log(self.tableNameDetails())
                         var blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
                         var fileName = 'Table_Report'+ '.csv';
                         self.excelBlob(blob);

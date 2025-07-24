@@ -76,7 +76,7 @@ define([
         self.schemaList = ko.observableArray([]);
 
         self.dbchangeActionHandler = function (data, event) {
-            console.log(self.DepName() )
+            // console.log(self.DepName() )
             $.ajax({
                 url: self.DepName() + "/getschemaname",
                 data: JSON.stringify({
@@ -86,10 +86,10 @@ define([
                 dataType: 'json',
                 context: self,
                 error: function (e) {
-                    console.log(e);
+                    // console.log(e);
                 },
                 success: function (data) {
-                    console.log(data)
+                    // console.log(data)
                     // console.log(self.tableDetail())
                     self.schemaList([]);
                     for (var i = 0; i < data[0].length; i++) {
@@ -102,7 +102,7 @@ define([
         };
 
         self.schemachangeActionHandler = function (data, event) {
-            console.log(self.DepName() )
+            // console.log(self.DepName() )
             $.ajax({
                 url: self.DepName() + "/gettypename",
                 data: JSON.stringify({
@@ -112,10 +112,10 @@ define([
                 dataType: 'json',
                 context: self,
                 error: function (e) {
-                    console.log(e);
+                    // console.log(e);
                 },
                 success: function (data) {
-                    console.log(data)
+                    // console.log(data)
                     self.tableDetail([]);
                     for (var i = 0; i < data[0].length; i++) {
                         self.tableDetail.push({'typename': data[0][i]});
@@ -443,7 +443,7 @@ define([
                }
 
                self.TgtDBDet.valueHasMutated();
-               console.log( self.TgtDBDet())
+            //    console.log( self.TgtDBDet())
                return self;
            }
            })
@@ -483,7 +483,7 @@ define([
                             }
                 self.dbTgtDetList.valueHasMutated();
                 document.querySelector('#SelectSchemaViewDialog').close();
-                console.log(self.dbTgtDetList())
+                // console.log(self.dbTgtDetList())
                 return self;
                 
             }
@@ -520,7 +520,7 @@ define([
             dataType: 'json',
             context: self,
             error: function (e) {
-                console.log(e);
+                // console.log(e);
             },
             success: function (data) {
                 document.querySelector('#SelectSchemaViewDialog').close();

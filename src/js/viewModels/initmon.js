@@ -155,7 +155,7 @@ self.getILTables =    function (event,data)  {
           }
         },
         success: function (data) {
-          console.log(data[0])
+          // console.log(data[0])
           self.ILTables([]);
           for (var key in data[0]) {
            self.ILTables.push({ 'TABLE_NAME': key, 'TARGET_ROWS': data[0][key].TargetRows , 'PROCESS_NAME' : data[0][key].Process })
@@ -164,7 +164,7 @@ self.getILTables =    function (event,data)  {
           for (var key in data[0]) {
             self.ILStats.push({ 'TABLE_NAME': key, 'TARGET_ROWS': data[0][key].TargetRows , 'PROCESS_NAME' : data[0][key].Process  })
            }
-          console.log(self.ILStats);
+          // console.log(self.ILStats);
           self.getNodeFlow();
           return self;
         }
@@ -222,7 +222,7 @@ function getILFlow() {
             for (var key in data[2]) {
              self.ILStats.push({'TABLE_NAME' : key,'TARGET_ROWS' : data[2][key].TargetRows,'PROCESS_NAME' : data[2][key].Process ,'EXTCOUNT': data[2][key].TotalEXT, 'EXTDSC': data[2][key].TotalEXTDSC ,'EXTRATE' : data[2][key].ExtRate , 'REPCOUNT': data[2][key].TotalREP, 'REPDSC': data[2][key].TotalREPDSC ,'REPRATE' : data[2][key].RepRate , 'REPELA' : timeConversion(data[2][key].RepElapse),'REPETA' : timeConversion(data[2][key].RepETA), 'Stat' : data[2][key].Status })
             }
-            console.log(self.ILStats())
+            // console.log(self.ILStats())
             self.ILStats.valueHasMutated();
             self.ILException(data[5]);
             if (self.ILException()=='error'){
@@ -594,9 +594,9 @@ function getILFlow() {
           }
         }
 
-        console.log(self.selectedNodesValue()[0].split(' ')[0])
-        console.log(self.selProcType())
-        console.log(self.selectedMenuItem())
+        // console.log(self.selectedNodesValue()[0].split(' ')[0])
+        // console.log(self.selProcType())
+        // console.log(self.selectedMenuItem())
         if (self.selProcType() == 'Ext') {
           self.dialogTitle('View Extract ' + self.selectedNodesValue()[0].split(' ')[0] + ' Info');
           if (self.selectedMenuItem() == 'rpt' || self.selectedMenuItem() == 'chk' || self.selectedMenuItem() == 'stats' || self.selectedMenuItem() == 'startdef' || self.selectedMenuItem() == 'stop' || self.selectedMenuItem() == 'forcestop' || self.selectedMenuItem() == 'kill' || self.selectedMenuItem() == 'edit') {
@@ -617,7 +617,7 @@ function getILFlow() {
                 }
               },
               success: function (data) {
-                console.log(data)
+                // console.log(data)
                 if (self.selectedMenuItem() == 'startdef' || self.selectedMenuItem() == 'stop' || self.selectedMenuItem() == 'forcestop' || self.selectedMenuItem() == 'kill') {
                   self.popUpResizeSM("ViewExtractRptDialog");
                   document.querySelector('#ViewExtractRptDialog').open();
@@ -922,7 +922,7 @@ function getILFlow() {
             }
           },
           success: function (data) {
-            console.log(self.selectedILActionMenuItem())
+            // console.log(self.selectedILActionMenuItem())
             document.querySelector('#RepProgress').close();
             self.ExtRpt(data[0]);
             self.popUpResizeSM('ViewExtractRptDialog');

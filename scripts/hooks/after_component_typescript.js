@@ -8,7 +8,7 @@
 
 module.exports = function (configObj) {
   return new Promise((resolve) => {
-    console.log("Running after_component_typescript hook.");
+    // console.log("Running after_component_typescript hook.");
     resolve(configObj);
   });
 };

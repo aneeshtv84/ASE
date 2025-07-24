@@ -87,7 +87,7 @@ function (oj, ko, $, app,PagingDataProviderView, ArrayDataProvider,ArrayTreeData
                     }
                 },
                 success: function (data) {
-                    console.log(data)
+                    // console.log(data)
                     self.dbSuppInfo.push({ 'DBName': data[0].name , 'Status' : data[0].Truncation})
                     getDomains();
                     document.querySelector('#SuppLogDialog').close();
@@ -405,7 +405,7 @@ function (oj, ko, $, app,PagingDataProviderView, ArrayDataProvider,ArrayTreeData
                 if(self.tranlevelVal() == 'schematrandata'){
                     document.querySelector('#DeleteSupp').close();
                     let valid = self._checkValidationGroup("tracker");
-                    console.log(valid)
+                    // console.log(valid)
                     if (valid) {
                         document.querySelector('#SuppLogDialog').open();
                         self.AddSuppMsg([]);

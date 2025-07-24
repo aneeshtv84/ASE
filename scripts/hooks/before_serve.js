@@ -9,7 +9,7 @@
 
 module.exports = function (configObj) {
   return new Promise((resolve, reject) => {
-    console.log('Running before_serve hook.');
+    // console.log('Running before_serve hook.');
     // ojet custom connect and serve options
     // { connectOpts, serveOpts } = configObj;
     // const express = require('express');

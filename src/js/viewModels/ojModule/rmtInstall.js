@@ -140,7 +140,7 @@ define(['ojs/ojcore', 'knockout', 'jquery','appController','ojs/ojarraydataprovi
                             }
                         },
                success: function (data) {
-                   console.log(data)
+                //    console.log(data)
                  self.ggDephName(data[0]);
                  self.ggDepOSPlat(data[1] + '_' + data[2]);
                  var temp = data[3].toString();

@@ -18,7 +18,7 @@ define(['ojs/ojcore', 'knockout', 'jquery','appController','ojs/ojarraydataprovi
                         context: self,
                         error: function (xhr, textStatus, errorThrown) {
                             if(textStatus == 'timeout' || textStatus == 'error'){
-                                console.log(textStatus);
+                                // console.log(textStatus);
                             }
                         },
                         success: function (data) {
@@ -86,7 +86,7 @@ define(['ojs/ojcore', 'knockout', 'jquery','appController','ojs/ojarraydataprovi
                                 document.getElementById("edit-doc").style.display = "none"  
                                 document.getElementById("editBtn").style.display = "block"        
                                 document.getElementById("docDisplay").style.display = "block"        
-                                console.log(textStatus);
+                                // console.log(textStatus);
                                 self.messages.push({
                                     severity: 'error',
                                     summary: 'Please Check Againg',

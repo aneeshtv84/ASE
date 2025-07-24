@@ -66,11 +66,11 @@ define([
                     //console.log(e);
                 },
                 success: function (data) {
-                    console.log(data)
+                    // console.log(data)
                     for (var i = 0; i < data[0].length; i++) {
                         self.DBDet.push({'value' : data[0][i].dbname, 'label' : data[0][i].dbname});
                 }
-                console.log(self.DBDet())
+                // console.log(self.DBDet())
             }
             })
         }
@@ -94,13 +94,13 @@ define([
                     //console.log(e);
                 },
                 success: function (data) {
-                    console.log(data[0])
+                    // console.log(data[0])
                     self.viewDetail([]);
                     for (var i = 0; i < data[0].length; i++) {
                          self.viewDetail.push({'owner': data[0][i][0],'procname':   data[0][i][1]});
                      }
         
-                    console.log(self.viewDetail())
+                    // console.log(self.viewDetail())
                     self.schemaList([]);
                     for (var i = 0; i < data[1].length; i++) {
                         self.schemaList.push({'label': data[1][i], 'value': data[1][i]})
@@ -151,7 +151,7 @@ define([
                                 }
                             },
                 success: function (data) {
-                    console.log(data[0])
+                    // console.log(data[0])
                          self.viewNameDet([]);
                     for (var i = 0; i < data[0].length; i++) {
                         for (var j = 0; j < data[0][i].length; j++) {
@@ -159,7 +159,7 @@ define([
                         }
                     }
                     self.viewNameDet.valueHasMutated();
-                    console.log(self.viewNameDet())
+                    // console.log(self.viewNameDet())
                 document.querySelector('#SelectSchemaDialog').close();
                     return self;
                     
@@ -202,8 +202,8 @@ define([
         self.viewText = ko.observable();
 
         self.getViewText  =  function(data, event) {
-            console.log(self.getDisplayValue(self.selectedView())[0])
-            console.log(self.firstSelectedItem())
+            // console.log(self.getDisplayValue(self.selectedView())[0])
+            // console.log(self.firstSelectedItem())
             self.procConvertedText('');
             document.querySelector('#SelectSchemaDialog').open();
             $.ajax({
@@ -223,7 +223,7 @@ define([
                                 }
                             },
                 success: function (data) {
-                    console.log(data[0])
+                    // console.log(data[0])
                          self.viewText('');
                          self.viewText(data[0]);
                 document.querySelector('#SelectSchemaDialog').close();
@@ -288,7 +288,7 @@ define([
                }
 
                self.TgtDBDet.valueHasMutated();
-               console.log( self.TgtDBDet())
+            //    console.log( self.TgtDBDet())
                return self;
            }
            })
@@ -354,7 +354,7 @@ define([
                     self.dbTgtDetList.push({ 'DBNAME': data[0].dbName,'ProductName' : data[0].prodName,'ProductVersion' : data[0].prodVersion, 'platform': data[0].osPlat ,'OSVer' : data[0].osVer });
                 self.dbTgtDetList.valueHasMutated();
                 document.querySelector('#SelectSchemaDialog').close();
-                console.log(self.dbTgtDetList())
+                // console.log(self.dbTgtDetList())
                 return self;
                 
             }

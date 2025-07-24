@@ -39,7 +39,7 @@ function (ko, $, app,ArrayDataProvider, keySet) {
                     });
                     
                     self.data(pfile);
-                    console.log(self.data)
+                    // console.log(self.data)
                     self.contactDataSource = new oj.JsonTreeDataSource(pfile);
                     self.dataSource(self.contactDataSource);
 

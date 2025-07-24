@@ -84,7 +84,7 @@ define([
                 dataType: 'json',
                 context: self,
                 error: function (e) {
-                    console.log(e);
+                    // console.log(e);
                 },
                 success: function (data) {
                     document.querySelector('#SelectSchemaDialog').close();
@@ -105,7 +105,7 @@ define([
                 dataType: 'json',
                 context: self,
                 error: function (e) {
-                    console.log(e);
+                    // console.log(e);
                 },
                 success: function (data) {               
                     self.tableDetail([]);
@@ -324,7 +324,7 @@ define([
                 context: self,
                 error: function (xhr, textStatus, errorThrown) {
                     if(textStatus == 'timeout' || textStatus == 'error'){
-                        console.log(textStatus);                       
+                        // console.log(textStatus);                       
                     }
                 },
                 success: function (data) {
@@ -698,7 +698,7 @@ define([
             timeout: sessionStorage.getItem("timeInetrval"),
             context: self,
             error: function (xhr, textStatus, errorThrown) {
-                console.log(textStatus)
+                // console.log(textStatus)
             },
             success: function (data) {
                 if (data && data.length !== 0) {
@@ -745,7 +745,7 @@ define([
             dataType: 'json',
             context: self,
             error: function (e) {
-                console.log(e);
+                // console.log(e);
             },
             success: function (data) {
                 // const singleLine = data.converted_lines.replace(/[\r\n]+/g, '');

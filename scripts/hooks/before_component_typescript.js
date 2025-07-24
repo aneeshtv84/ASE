@@ -8,7 +8,7 @@
 
 module.exports = function (configObj) {
   return new Promise((resolve) => {
-    console.log("Running before_component_typescript hook.");
+    // console.log("Running before_component_typescript hook.");
     //const { tsconfigJson } = configObj.typescript;
     resolve(configObj);
   });

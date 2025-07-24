@@ -88,7 +88,7 @@ define(['knockout', 'jquery', 'appController','ojs/ojasyncvalidator-regexp', 'oj
                     }
                 },
           success: function (data) {
-            console.log(data)
+            // console.log(data)
 
             for (var i = 0; i < data[1].length; i++) {
               self.othdom.push({ label : data[1][i].value,value : data[1][i].value });
@@ -103,7 +103,7 @@ define(['knockout', 'jquery', 'appController','ojs/ojasyncvalidator-regexp', 'oj
             for (var i = 0; i < data[0].length; i++) {
                 self.username1.push({ label: data[0][i].alias, value: data[0][i].alias, 'children': [{ label: data[0][i].uname, value: data[0][i].uname }] });
             }
-              console.log(self.othdom())
+              // console.log(self.othdom())
 
             return self;
           }

@@ -537,7 +537,7 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'appController',"ojs/ojoffcanvas", '
                             }
                             
                             //self.ExtTrailName(data[1]);
-                            console.log(output)
+                            // console.log(output)
                             return self;
                         }
                     })
@@ -727,7 +727,7 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'appController',"ojs/ojoffcanvas", '
                             }
                         },
                         success: function (data) {
-                            console.log(data)
+                            // console.log(data)
                             self.TGTonepDepUrl(data[0]);
                             getRmtHost();
                             return self;
@@ -757,7 +757,7 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'appController',"ojs/ojoffcanvas", '
                                     self.rmtMgrPort(data[0][i].mgrport);
                                 }
                                 self.rmttrailSubDir(data[1])
-                                console.log(self);
+                                // console.log(self);
                                 return self;
 
                             }
@@ -912,7 +912,7 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'appController',"ojs/ojoffcanvas", '
                                 self.schemaNameList.push({ 'label': data[0][i].username, 'value': data[0][i].username });
                             }
 
-                            console.log(self.schemaNameList())
+                            // console.log(self.schemaNameList())
                             self.schemaNameList.valueHasMutated();
                              
                             let serverInfo = data[1].ProductName;
@@ -925,7 +925,7 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'appController',"ojs/ojoffcanvas", '
                             let dbFile = parts[6].trim();
                             let buildID = parts[7].trim();
                             self.dbDetList.push({ 'DBNAME': data[1]['DBNAME'],'ProductName' : productName,'ProductVersion' : productVersion, 'platform': os ,'OSVer' : osVersion , 'OSBIT': osbit, 'DBFile' : dbFile ,'ServerEdition' : buildID });
-                            console.log(self.dbDetList())
+                            // console.log(self.dbDetList())
                             self.dbDetList.valueHasMutated();
                             document.querySelector('#SelectSchemaDialog').close();
                         }
@@ -1186,9 +1186,9 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'appController',"ojs/ojoffcanvas", '
                 //vallidation start
 
                 self._checkValidationGroup = (value) => {
-                    ////console.log(value)
+                    ////(value)
                     var tracker = document.getElementById(value);
-                    ////console.log(tracker.valid)
+                    ////(tracker.valid)
                     if (tracker.valid === "valid") {
                         return true;
                     }
@@ -1818,7 +1818,7 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'appController',"ojs/ojoffcanvas", '
                 self.addRep = function (data, event) {
                     document.querySelector('#CreateReplicatDialog').open();
                     self.AddReplicatMsg([]);
-                    console.log(self.newRepParamList())
+                    // console.log(self.newRepParamList())
                     $.ajax({
                         url: self.TGTonepDepUrl() + "/ggaddreplicat",
                         type: 'POST',
@@ -1934,7 +1934,7 @@ define(['ojs/ojcore', 'knockout', 'jquery', 'appController',"ojs/ojoffcanvas", '
 
                 self.addChkptTbl = function (data, event) {
                     self.AddChkptTblMsg('');
-                    console.log(self.TGTonepDepUrl() )
+                    // console.log(self.TGTonepDepUrl() )
                     document.querySelector('#AddCkptTblDialog').close();
                     document.querySelector('#addChkTblProgress').open();
                     //console.log(self.selectedTGTDomCategory())

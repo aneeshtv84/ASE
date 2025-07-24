@@ -275,8 +275,8 @@ define([
                         },
             success: function (data) {
                 self.listFunction([])
-               console.log("excel====") 
-               console.log(data)
+            //    console.log("excel====") 
+            //    console.log(data)
                var csvContent = '';
                 var headers = ['No', 'Function', 'Result'];
                 csvContent += headers.join(',') + '\n';
@@ -351,7 +351,7 @@ define([
                             }
                         },
             success: function (data) {
-               console.log("out====") 
+            //    console.log("out====") 
             //    console.log(data)
                fetchAutomateResults();
                clearInterval(intervalId);

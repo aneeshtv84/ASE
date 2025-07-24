@@ -69,11 +69,11 @@ define([
                     //console.log(e);
                 },
                 success: function (data) {
-                    console.log(data)
+                    // console.log(data)
                     for (var i = 0; i < data[0].length; i++) {
                         self.DBDet.push({'value' : data[0][i].dbname, 'label' : data[0][i].dbname});
                 }
-                console.log(self.DBDet())
+                // console.log(self.DBDet())
             }
             })
         }
@@ -99,7 +99,7 @@ define([
                 },
                 success: function (data) {
                     document.querySelector('#SelectSchemaViewDialog').close();
-                    console.log(data)
+                    // console.log(data)
                     self.viewDetail([]);
                     for (var i = 0; i < data.views.length; i++) {
                          self.viewDetail.push({'owner': data.views[i].vcreator,'viewname':   data.views[i].viewtext});
@@ -156,12 +156,12 @@ define([
                     }
                 },
                 success: function (data) {
-                    console.log(data)
+                    // console.log(data)
                     self.viewNameDet([]);
                     for (var i = 0; i < data.length; i++) {
                         self.viewNameDet.push({ 'vname': data[i].owner, 'output': 'none'});
                     }
-                    console.log(self.viewNameDet())
+                    // console.log(self.viewNameDet())
                     document.querySelector('#SelectSchemaViewDialog').close();
                     self.viewNameDet.valueHasMutated();
                     self.buttonValAutomate(false)
@@ -260,7 +260,7 @@ define([
         }
 
         function updateExcel (data) {
-            console.log(data)
+            // console.log(data)
             for (var j =0; j<self.viewNameDet().length;j++) {
                 if (self.viewNameDet()[j].vname == self.firstSelectedItem().data.vname ) {
                     if (data == "Created" || data.includes("already used")) {
@@ -314,7 +314,7 @@ define([
                 context: self,
                 error: function (xhr, textStatus, errorThrown) {
                     if(textStatus == 'timeout' || textStatus == 'error'){
-                        console.log(textStatus);                       
+                        // console.log(textStatus);                       
                     }
                 },
                 success: function (data) {
@@ -356,7 +356,7 @@ define([
                     csvContent += headers.join(',') + '\n';
                     for (var i =0; i<data.length;i++) {
                         if(data[i].Function == self.viewNameDet()[i].vname) {
-                            console.log(data[i].Output)
+                            // console.log(data[i].Output)
                             if(data[i].Output == "Created" ||  data[i].Output == "Already Exist") {
                                 self.viewNameDet()[i].output = 'Success';
                             } else if (data[i].Output == "Error"){
@@ -397,7 +397,7 @@ define([
             document.querySelector('#autoMateDlg').close();            
             var intervalId = setInterval(fetchAutomateResults, 1000);
             self.progressValue(-1)
-            console.log(self.viewNameDet());
+            // console.log(self.viewNameDet());
             
             $.ajax({
                 url: self.DepName()  + "/automateOracleView",
@@ -421,8 +421,8 @@ define([
                                 }
                             },
                 success: function (data) {
-                   console.log("out====") 
-                   console.log(data)
+                //    console.log("out====") 
+                //    console.log(data)
                    setTimeout(() => {
                         self.progressValue(100)
                    }, 3000);
@@ -469,8 +469,8 @@ define([
         self.viewText = ko.observable();
 
         self.getViewText  =  function(data, event) {
-            console.log(self.getDisplayValue(self.selectedView())[0])
-            console.log(self.firstSelectedItem())
+            // console.log(self.getDisplayValue(self.selectedView())[0])
+            // console.log(self.firstSelectedItem())
             document.querySelector('#SelectSchemaViewDialog').open();
             $.ajax({
                 url: self.DepName()  + "/getviewtext",
@@ -552,7 +552,7 @@ define([
                }
 
                self.TgtDBDet.valueHasMutated();
-               console.log( self.TgtDBDet())
+            //    console.log( self.TgtDBDet())
                return self;
            }
            })
@@ -621,7 +621,7 @@ define([
                 // self.dbTgtDetList.push({ 'DBNAME': data[1].DBNAME,'ProductName' : data[1].ProductName,'ProductVersion' : data[1].ProductVersion, 'platform': data[1].platform ,'OSVer' : data[1].OSVer });
                 self.dbTgtDetList.valueHasMutated();
                 document.querySelector('#SelectSchemaViewDialog').close();
-                console.log(self.dbTgtDetList())
+                // console.log(self.dbTgtDetList())
                 return self;
                 
             }
@@ -655,7 +655,7 @@ define([
             timeout: sessionStorage.getItem("timeInetrval"),
             context: self,
             error: function (xhr, textStatus, errorThrown) {
-                console.log(textStatus)
+                // console.log(textStatus)
             },
             success: function (data) {
                 if (data && data.length !== 0) {
@@ -715,7 +715,7 @@ define([
             dataType: 'json',
             context: self,
             error: function (e) {
-                console.log(e);
+                // console.log(e);
             },
             success: function (data) {
                 clearInterval(self.convertIntervalId);
@@ -831,10 +831,10 @@ define([
         }
 
         self.clickUpload = function (data, event) {
-            console.log(self.procConvertedText())
+            // console.log(self.procConvertedText())
             document.querySelector('#openDialog').close();
             document.querySelector('#SelectSchemaProcessDialog').open();
-            console.log(self.getDisplayValue(self.selectedView())[0])
+            // console.log(self.getDisplayValue(self.selectedView())[0])
             $.ajax({
                 url: self.TGTonepDepUrl() + "/clickUploadFile1",
                 data: JSON.stringify({
@@ -849,7 +849,7 @@ define([
                     //console.log(e);
                 },
                 success: function (data) {
-                    console.log(data)
+                    // console.log(data)
                     document.querySelector('#SelectSchemaProcessDialog').close();
                     return self;
                 }

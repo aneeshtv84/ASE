@@ -7345,7 +7345,7 @@ def get_embedding(texts):
 def rerank_results(query, docs, top_k=3):
     query_emb = get_embedding(f'query: {query}')
     doc_texts = [f'passage: {doc.page_content}' for doc in docs]
-    print(doc_texts)
+    #print(doc_texts)
     doc_embs = get_embedding(doc_texts)
     scores = torch.matmul(query_emb, doc_embs.T).squeeze(0)
     top_indices = torch.topk(scores, k=top_k).indices.tolist()

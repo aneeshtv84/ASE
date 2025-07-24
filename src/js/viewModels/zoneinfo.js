@@ -119,7 +119,7 @@ define(['knockout', 'jquery','appController',  'ojs/ojasyncvalidator-regexp', 'o
                                 document.querySelector('#LampDialog').close();
                             },
                             success: function (data) {
-                                console.log(data)
+                                // console.log(data)
                                 document.querySelector('#LampDialog').close();
                                 self.zoneFunctions('');
                                 if(data != "No File") {
@@ -132,7 +132,7 @@ define(['knockout', 'jquery','appController',  'ojs/ojasyncvalidator-regexp', 'o
                 };
 
                 self.updateZone = (event,data) =>{
-                console.log(self.zoneFunctions())
+                // console.log(self.zoneFunctions())
                 document.querySelector('#LampDialog').open();
                 self.saveViewMsg('');  
                     $.ajax({
@@ -148,7 +148,7 @@ define(['knockout', 'jquery','appController',  'ojs/ojasyncvalidator-regexp', 'o
                             document.querySelector('#LampDialog').close();
                         },
                         success: function (data) {
-                            console.log(data)
+                            // console.log(data)
                             document.querySelector('#LampDialog').close();
                             document.querySelector('#openDialog').open();
                             if(data == "Success") {
@@ -173,7 +173,7 @@ define(['knockout', 'jquery','appController',  'ojs/ojasyncvalidator-regexp', 'o
                 };
 
                 self.addZone = (event,data) =>{
-                    console.log(self.zoneName())
+                    // console.log(self.zoneName())
                     document.querySelector('#LampDialog').open();
                         $.ajax({
                             url: self.TGTonepDepUrl()  + "/addZone",

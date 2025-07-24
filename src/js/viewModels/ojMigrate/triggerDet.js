@@ -69,11 +69,11 @@ define([
                     //console.log(e);
                 },
                 success: function (data) {
-                    console.log(data)
+                    // console.log(data)
                     for (var i = 0; i < data[0].length; i++) {
                         self.DBDet.push({'value' : data[0][i].dbname, 'label' : data[0][i].dbname});
                 }
-                console.log(self.DBDet())
+                // console.log(self.DBDet())
             }
             })
         }
@@ -94,7 +94,7 @@ define([
                 dataType: 'json',
                 context: self,
                 error: function (e) {
-                    console.log(e);
+                    // console.log(e);
                 },
                 success: function (data) {
                     self.viewDetail([]);
@@ -149,7 +149,7 @@ define([
                     }
                 },
                 success: function (data) {
-                    console.log(data)
+                    // console.log(data)
                     self.viewNameDet([]);
                     for (var i = 0; i < data[0].length; i++) {
                         self.viewNameDet.push({ 'vname': data[0][i].owner, 'output': 'none'});
@@ -251,7 +251,7 @@ define([
                 context: self,
                 error: function (xhr, textStatus, errorThrown) {
                     if(textStatus == 'timeout' || textStatus == 'error'){
-                        console.log(textStatus);                       
+                        // console.log(textStatus);                       
                     }
                 },
                 success: function (data) {
@@ -355,7 +355,7 @@ define([
                }
 
                self.TgtDBDet.valueHasMutated();
-               console.log( self.TgtDBDet())
+            //    console.log( self.TgtDBDet())
                return self;
            }
            })
@@ -423,7 +423,7 @@ define([
                 }
                 self.dbTgtDetList.valueHasMutated();
                 document.querySelector('#SelectSchemaTriggerDialog').close();
-                console.log(self.dbTgtDetList())
+                // console.log(self.dbTgtDetList())
                 return self;
                 
             }
@@ -543,7 +543,7 @@ define([
                     }
                 },
                 success: function (data) {
-                    console.log(data)
+                    // console.log(data)
                     self.listFunction([])
                     var csvContent = '';
                     var headers = ['No', 'Function', 'Result'];
@@ -677,7 +677,7 @@ define([
                 timeout: sessionStorage.getItem("timeInetrval"),
                 context: self,
                 error: function (xhr, textStatus, errorThrown) {
-                    console.log(textStatus)
+                    // console.log(textStatus)
                 },
                 success: function (data) {
                     if (data && data.length !== 0) {
@@ -736,7 +736,7 @@ define([
                 dataType: 'json',
                 context: self,
                 error: function (e) {
-                    console.log(e);
+                    // console.log(e);
                 },
                 success: function (data) {
                     clearInterval(self.convertIntervalId);
@@ -778,10 +778,10 @@ define([
         };
 
         self.clickUpload = function (data, event) {
-            console.log(self.procConvertedText())
+            // console.log(self.procConvertedText())
             document.querySelector('#openDialog').close();
             document.querySelector('#SelectSchemaProcessDialog').open();
-            console.log(self.getDisplayValue(self.selectedView())[0])
+            // console.log(self.getDisplayValue(self.selectedView())[0])
             $.ajax({
                 url: self.TGTonepDepUrl() + "/clickUploadFile1",
                 data: JSON.stringify({
@@ -796,7 +796,7 @@ define([
                     //console.log(e);
                 },
                 success: function (data) {
-                    console.log(data)
+                    // console.log(data)
                     document.querySelector('#SelectSchemaProcessDialog').close();
                     return self;
                 }
