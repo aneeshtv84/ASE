@@ -436,6 +436,61 @@ self.valueChangedHandler = function (data, event) {
         }
         }
 
+        
+        self.getDeploymentDetails = ()=>{
+            $.ajax({
+                url: self.DepName() + "/getDeploymentData",
+                type: 'POST',
+                data: JSON.stringify({
+                    dep_type: self.depOption(),
+                }),
+                dataType: 'json',
+                timeout: sessionStorage.getItem("timeInetrval"),
+                context: self,
+                error: function (xhr, textStatus, errorThrown) {
+                    if(textStatus == 'timeout' || textStatus == 'error'){
+                        
+                    }
+                },
+                success: function (data) {
+                    let connection_data = data.rows[0]               
+                    self.onepUName(connection_data[1])
+                    let url = connection_data[5]
+                    const parsedUrl = new URL(url);
+                    const protocol = parsedUrl.protocol; 
+                    const hostname = parsedUrl.hostname; 
+                    const port = parsedUrl.port;  
+                    self.currentProtocol(protocol)
+                    self.onePHost(hostname)           
+                    self.onepPort(parseInt(port, 10))
+                }
+            })
+        }
+
+        self.handleDepChange = (event) => {
+            let newValue = event.detail.value;  
+            if (self.userButton() === 'editUser' || self.userButton() === 'delUser') {
+                self.getDeploymentDetails();
+            }
+            else{
+                self.onepUName()
+                self.onePHost()           
+                self.onepPort()
+            }
+        };
+
+        self.handleActionChange = (e)=>{
+            let newValue = e.detail.value;
+            if (newValue === 'editUser' || newValue === 'delUser') {
+                self.getDeploymentDetails()
+            }
+            else{
+                self.onepUName()
+                self.onePHost()           
+                self.onepPort()
+            }
+        }
+
         self.editUser = function (data, event) {
             //console.log(self.userButton());
             let valid = self._checkValidationGroup("editUser");

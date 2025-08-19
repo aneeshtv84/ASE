@@ -192,7 +192,8 @@
         style="width: 40%;text-align: left">
         <div class="oj-panel demo-center-items io-color">
             <div class="dbClass">
-                <oj-buttonset-one class="oj-buttonset-width-auto" value="{{userButton}}" style="width: 100%;">
+                <oj-buttonset-one class="oj-buttonset-width-auto" value="{{userButton}}" style="width: 100%;"
+                    on-value-changed="[[handleActionChange]]">
                     <oj-option id="addOption" value="addUser">Add User</oj-option>
                     <oj-option id="edOption" value="editUser">Edit User</oj-option>
                     <oj-bind-if test="[[userRole() === 'admin']]">
@@ -208,7 +209,8 @@
             <oj-form-layout id="fl2" readonly="[[isFormReadonly()]]" label-edge="start" max-columns="1" direction="row" label-width="50%">
                 <div class="oj-panel demo-center-items  panel-color">
                     <oj-radioset id="enabledRadioset" value="{{depOption}}" 
-                         label-hint="Deployment Option" class="oj-choice-direction-row">
+                         label-hint="Deployment Option" class="oj-choice-direction-row"
+                         on-value-changed="[[handleDepChange]]">
                         <oj-option value="ld">Local Deployment</oj-option>
                         <oj-option value="rd">Remote Deployment</oj-option>
                     </oj-radioset>
@@ -258,7 +260,8 @@
             <oj-form-layout id="fl2" readonly="[[isFormReadonly()]]" label-edge="start" max-columns="1" direction="row" label-width="50%">
                 <div class="oj-panel demo-center-items  panel-color">
                     <oj-radioset id="enabledRadioset" value="{{depOption}}" 
-                         label-hint="Deployment Option" class="oj-choice-direction-row">
+                         label-hint="Deployment Option" class="oj-choice-direction-row"
+                         on-value-changed="[[handleDepChange]]">
                         <oj-option value="ld">Local Deployment</oj-option>
                         <oj-option value="rd">Remote Deployment</oj-option>
                     </oj-radioset>
@@ -272,27 +275,26 @@
                 </oj-bind-if>
 
                 
-                <!-- <oj-bind-if test="[[depOption() === 'rd']]">
+                <oj-bind-if test="[[depOption() === 'rd']]">
                     <oj-label for="OnePUName" show-required="[[isRequired]]" help.source='[[helpSource]]'>Remote Deployment UserName
                     </oj-label>
                     <oj-input-text required id="username" value="{{username}}"></oj-input-text>
                     <oj-label for="OnePPasswd" show-required="[[isRequired]]" help.source='[[helpSource]]'>Password</oj-label>
                     <oj-input-password required id="OnePPasswd" value="{{onepPasswd}}"></oj-input-password>
-                <oj-label for="onepProtocol" show-required="[[isRequired]]" help.definition='[[helpDef]]'
-                    help.source='[[helpSource]]'>Remote OneP Protocol
-                </oj-label>
-                <oj-select-single id="onepProtocol" data="[[onepProtocolDP]]" value="{{currentProtocol}}">
-                </oj-select-single>
-                <oj-label for="onepIP" show-required="[[isRequired]]" help.definition='[[helpDef]]'
-                    help.source='[[helpSource]]'>Remote OneP Host/IP
-                </oj-label>
-                <oj-input-text required id="onepIP" value="{{onePHost}}"></oj-input-text>
-                <oj-label for="onepPort" show-required="[[isRequired]]" help.definition='[[helpDef]]'
-                    help.source='[[helpSource]]'>Remote OneP Port
-                </oj-label>
-                <oj-input-number required id="onepPort" converter='[[decimalHalfDownConverter]]' min=1 value="{{onepPort}}"></oj-input-number>
-            </oj-bind-if> -->
-
+                    <oj-label for="onepProtocol" show-required="[[isRequired]]" help.definition='[[helpDef]]'
+                        help.source='[[helpSource]]'>Remote OneP Protocol
+                    </oj-label>
+                    <oj-select-single id="onepProtocol" data="[[onepProtocolDP]]" value="{{currentProtocol}}">
+                    </oj-select-single>
+                    <oj-label for="onepIP" show-required="[[isRequired]]" help.definition='[[helpDef]]'
+                        help.source='[[helpSource]]'>Remote OneP Host/IP
+                    </oj-label>
+                    <oj-input-text required id="onepIP" value="{{onePHost}}"></oj-input-text>
+                    <oj-label for="onepPort" show-required="[[isRequired]]" help.definition='[[helpDef]]'
+                        help.source='[[helpSource]]'>Remote OneP Port
+                    </oj-label>
+                    <oj-input-number required id="onepPort" converter='[[decimalHalfDownConverter]]' min=1 value="{{onepPort}}"></oj-input-number>
+                </oj-bind-if>
             </oj-form-layout>
             </oj-validation-group>
         </oj-bind-if>
@@ -302,7 +304,8 @@
             <oj-form-layout id="fl2" readonly="[[isFormReadonly()]]" label-edge="start" max-columns="1" direction="row" label-width="50%">
                 <div class="oj-panel demo-center-items  panel-color">
                     <oj-radioset id="enabledRadioset" value="{{depOption}}" 
-                         label-hint="Deployment Option" class="oj-choice-direction-row">
+                         label-hint="Deployment Option" class="oj-choice-direction-row"
+                         on-value-changed="[[handleDepChange]]">
                         <oj-option value="ld">Local Deployment</oj-option>
                         <oj-option value="rd">Remote Deployment</oj-option>
                     </oj-radioset>
@@ -315,27 +318,26 @@
                 </oj-bind-if>
 
                 
-                <!-- <oj-bind-if test="[[depOption() === 'rd']]">
+                <oj-bind-if test="[[depOption() === 'rd']]">
                     <oj-label for="OnePUName" show-required="[[isRequired]]" help.source='[[helpSource]]'>Remote Deployment UserName
                     </oj-label>
                     <oj-input-text required id="OnePUName" value="{{onepUName}}"></oj-input-text>
                     <oj-label for="OnePPasswd" show-required="[[isRequired]]" help.source='[[helpSource]]'>Password</oj-label>
                     <oj-input-password required id="OnePPasswd" value="{{onepPasswd}}"></oj-input-password>
-                <oj-label for="onepProtocol" show-required="[[isRequired]]" help.definition='[[helpDef]]'
-                    help.source='[[helpSource]]'>Remote OneP Protocol
-                </oj-label>
-                <oj-select-single id="onepProtocol" data="[[onepProtocolDP]]" value="{{currentProtocol}}">
-                </oj-select-single>
-                <oj-label for="onepIP" show-required="[[isRequired]]" help.definition='[[helpDef]]'
-                    help.source='[[helpSource]]'>Remote OneP Host/IP
-                </oj-label>
-                <oj-input-text required id="onepIP" value="{{onePHost}}"></oj-input-text>
-                <oj-label for="onepPort" show-required="[[isRequired]]" help.definition='[[helpDef]]'
-                    help.source='[[helpSource]]'>Remote OneP Port
-                </oj-label>
-                <oj-input-number required id="onepPort" converter='[[decimalHalfDownConverter]]' min=1 value="{{onepPort}}"></oj-input-number>
-            </oj-bind-if> -->
-
+                    <oj-label for="onepProtocol" show-required="[[isRequired]]" help.definition='[[helpDef]]'
+                        help.source='[[helpSource]]'>Remote OneP Protocol
+                    </oj-label>
+                    <oj-select-single id="onepProtocol" data="[[onepProtocolDP]]" value="{{currentProtocol}}">
+                    </oj-select-single>
+                    <oj-label for="onepIP" show-required="[[isRequired]]" help.definition='[[helpDef]]'
+                        help.source='[[helpSource]]'>Remote OneP Host/IP
+                    </oj-label>
+                    <oj-input-text required id="onepIP" value="{{onePHost}}"></oj-input-text>
+                    <oj-label for="onepPort" show-required="[[isRequired]]" help.definition='[[helpDef]]'
+                        help.source='[[helpSource]]'>Remote OneP Port
+                    </oj-label>
+                    <oj-input-number required id="onepPort" converter='[[decimalHalfDownConverter]]' min=1 value="{{onepPort}}"></oj-input-number>
+                </oj-bind-if>
             </oj-form-layout>
             </oj-validation-group>
         </oj-bind-if>
