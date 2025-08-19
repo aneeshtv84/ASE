@@ -110,41 +110,40 @@ define(['knockout', 'jquery','appController',  'ojs/ojasyncvalidator-regexp', 'o
                  };
 
 
-                 self.SelectTGTDeployment = (event,data) =>{
+                self.SelectTGTDeployment = (event,data) =>{
                     if (self.TgtOnePDepName()){
                         document.querySelector('#SelectSchemaDialog').open();
-                    self.TGTonepDepUrl('');
-                    $.ajax({
-                      url: self.DepName() + "/onepdepurl",
-                      type: 'POST',
-                      data: JSON.stringify({
-                        dep: self.TgtOnePDepName()
-                    }),
-                      dataType: 'json',
-                      timeout: sessionStorage.getItem("timeInetrval"),
-                        context: self,
-                        error: function (xhr, textStatus, errorThrown) {
-                            if(textStatus == 'timeout' || textStatus == 'error'){
-                                document.querySelector('#TimeoutInLoad').open();
+                        self.TGTonepDepUrl('');
+                        $.ajax({
+                            url: self.DepName() + "/onepdepurl",
+                            type: 'POST',
+                            data: JSON.stringify({
+                                dep: self.TgtOnePDepName()
+                            }),
+                            dataType: 'json',
+                            timeout: sessionStorage.getItem("timeInetrval"),
+                            context: self,
+                            error: function (xhr, textStatus, errorThrown) {
+                                if(textStatus == 'timeout' || textStatus == 'error'){
+                                    document.querySelector('#TimeoutInLoad').open();
+                                }
+                            },
+                            success: function (data) {
+                                self.selectedTGTDomCategory('');
+                                self.TGTcurrentPDB('');
+                                self.TGTonepDepUrl(data[0]);
+                                self.TgtonepDepType(data[2]);
+                                if(data[2] != 'bda'){
+                                    getTgtDomains();
+                                }
+                                document.querySelector('#SelectSchemaDialog').close();
+                                self.ButtonVal(true);
+                                self.ApplyMetaButtonVal(true);
+                                return self;
                             }
-                        },
-                      success: function (data) {
-                          self.selectedTGTDomCategory('');
-                          self.TGTcurrentPDB('');
-                          self.TGTonepDepUrl(data[0]);
-                          self.TgtonepDepType(data[2]);
-                          if(data[2] != 'bda'){
-                            getTgtDomains();
-                          }
-                          document.querySelector('#SelectSchemaDialog').close();
-                          self.ButtonVal(true);
-                          self.ApplyMetaButtonVal(true);
-                          return self;
-                      }
-                  })
-                    }
-              
-                 };
+                        })
+                    }              
+                };
 
                  var BigDataTgts = [ {'label' : 'Amazon Kinesis', 'value' : 'Amazon Kinesis'},
                  {'label' : 'Amazon Redshift','value' : 'Amazon Redshift'},
@@ -523,21 +522,18 @@ self.currentExtOptParamList = ko.computed(function() {
                             }
                         },
                         success: function (data) {
-
+                            
                             for (var i = 0; i < data[1].length; i++) {
                                 self.TGTothdom.push({dom : data[1][i].value});
-                                       }
-
-                                       self.TGTaliasname1(data[4]);
-
-
-                                         for (var i = 0; i < data[2].length; i++) {
-                                 self.TGTdomname1.push({label:data[2][i], value:data[2][i] }); 
-                             }
+                            }
+                            self.TGTaliasname1(data[4]);
+                            for (var i = 0; i < data[2].length; i++) {
+                                self.TGTdomname1.push({label:data[2][i], value:data[2][i] }); 
+                            }
     
-                          for (var i = 0; i < data[0].length; i++) {
-                                 self.TGTusername1.push({label:data[0][i].alias, value:data[0][i].alias,'children': [{label:data[0][i].uname,value:data[0][i].uname}] }); 
-                             }
+                            for (var i = 0; i < data[0].length; i++) {
+                                self.TGTusername1.push({label:data[0][i].alias, value:data[0][i].alias,'children': [{label:data[0][i].uname,value:data[0][i].uname}] }); 
+                            }
 
                             return self;
                         }

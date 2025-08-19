@@ -44,11 +44,8 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain_aws import ChatBedrock
 from langchain_core.prompts.chat import SystemMessagePromptTemplate, HumanMessagePromptTemplate
-from transformers import AutoTokenizer, AutoModel
+from transformers import AutoTokenizer, AutoModel , AutoModelForSequenceClassification
 from langchain_huggingface import HuggingFaceEmbeddings
-from RAG import saveClaudeFromat
-from RAG.queryFetch import run_sybase_to_oracle_conversion
-from RAG.s3_list import getS3BucketList, upload_file_to_s3
 import cx_Oracle
 
 app = Flask(__name__, static_folder='./web', static_url_path='/')
@@ -57,10 +54,30 @@ api = Api(app)
 OSPlatBit = platform.processor()
 OSPlat = platform.system()
 sshTimeOut = 120
+
+try:
+    conn = sqlite3.connect('conn.db')
+    cursor = conn.cursor()
+    cursor.execute('''select file from CONFIG''')
+    db_row = cursor.fetchone()
+    if db_row:
+       config_file = db_row[0]
+    else:
+        raise ValueError("No config file entry found in CONFIG table.")
+except Exception as e:
+    raise RuntimeError(f"Error retrieving config file from DB: {e}")
+finally:
+    if conn:
+       cursor.close()
+       conn.close()
 config = configparser.RawConfigParser()
-config.read('config/skyliftai.cfg')
+if not os.path.exists(config_file):
+    raise FileNotFoundError(f"Missing config file: {config_file}")
+config.read(config_file)
+
 agent_base = config.get('AGENT_CONFIG', 'BASE_DIR')
 agent_home = config.get('AGENT_CONFIG', 'HOME_DIR')
+
 gg_home = config.get('AGENT_CONFIG', 'GG_HOME')
 agent_host = config.get('AGENT_CONFIG', 'AGENT_HOST')
 web_port = config.get('AGENT_CONFIG', 'SERVER_PORT')
@@ -98,15 +115,25 @@ if os.path.exists(db_home):
     os.environ['SAP_JRE8'] = sap_jre8_home
 os.environ['USER_AGENT'] = 'sybase-to-oracle-rag/1.0'
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-embedding_fn = HuggingFaceEmbeddings(model_name=embedding_model, encode_kwargs={'normalize_embeddings': True})
+RAG_PATH=os.path.join(agent_home,'RAG')
+#Embedding Model
+e5_model_path=os.path.join(RAG_PATH,'models','e5')
+embedding_fn = HuggingFaceEmbeddings(model_name=e5_model_path, encode_kwargs={'normalize_embeddings': True})
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-reranker_model = AutoModel.from_pretrained(embedding_model).to(device)
-tokenizer = AutoTokenizer.from_pretrained(embedding_model)
-vector_db_path = os.path.join(agent_base, 'RAG')
-if not os.path.exists(vector_db_path):
-    os.makedirs(vector_db_path)
-db = Chroma(persist_directory='./RAG/chroma_claude_db', embedding_function=embedding_fn)
+bge_model_path=os.path.join(RAG_PATH,'models','bge')
+reranker_model = AutoModelForSequenceClassification.from_pretrained(bge_model_path).to(device)
+reranker_tokenizer = AutoTokenizer.from_pretrained(bge_model_path)
+vector_db_path = os.path.join(RAG_PATH,'chroma_claude_db')
+from chromadb.config import Settings
+chroma_settings = Settings(anonymized_telemetry=False)
+db = Chroma(persist_directory=vector_db_path, embedding_function=embedding_fn,client_settings=chroma_settings)
 retriever = db.as_retriever(search_kwargs={'k': db_search_args})
+from RAG import saveClaudeFromat
+from RAG import queryFetch
+
+queryFetch.init_query_fetch(RAG_PATH)
+
+from RAG.s3_list import getS3BucketList, upload_file_to_s3
 llm_model_kwargs = json.loads(llm_model_kwargs)
 llm = ChatBedrock(model_id=llm_model_id, provider=llm_model_provider, region_name=aws_region, model_kwargs=llm_model_kwargs)
 logdump_bin = os.path.join(gg_home, 'logdump')
@@ -441,8 +468,8 @@ class ggDepDet(Resource):
             elif Client_Ver[0] == 19:
                 SoftList.append({'label': 'Oracle GoldenGate 21.3.0.0.0', 'value': '21.3.0.0.0'})
                 SoftList.append({'label': 'Oracle GoldenGate 19.1.0.0.210720 - July 2021', 'value': '19.1.0.0.210720'})
-        except cx_Oracle.DatabaseError as e:
-            Client_Ver = 'Client Binary not Dectected'
+        except pyodbc.Error as e:
+            Client_Ver = 'ODBC Driver not Dectected'
             logger.info(str(e))
         return [hName, OSPlat, OSPlatBit, Client_Ver, GGVer, GGDBVer, gg_home, db_home, SoftList]
 
@@ -810,7 +837,8 @@ def deanonymize_view_sql(anonymized_sql: str, mappings: dict):
     return sql
 
 def convertCodeGenAi(sql_query):
-    system_prompt_text = load_prompt_template('./RAG/code_prompt')
+    code_prompt_template_path = os.path.join(RAG_PATH,'code_prompt')
+    system_prompt_text = load_prompt_template(code_prompt_template_path)
     strict_prompt_template = ChatPromptTemplate.from_messages([SystemMessagePromptTemplate.from_template(system_prompt_text), HumanMessagePromptTemplate.from_template('{input}')])
     context = extract_types_and_query_context(sql_query=sql_query, db=db, top_k_per_type=db_search_args, use_reranker=True, rerank_fn=rerank_results)
     translate = get_sql_rag_chain(llm, retriever, strict_prompt_template, context)
@@ -832,7 +860,8 @@ def convertCodeGenAi(sql_query):
     raise Exception('Max retries exceeded while translating SQL.')
 
 def convertProcedureGenAi(sql_query):
-    system_prompt_text = load_prompt_template('./RAG/procedure_prompt')
+    procedure_prompt_template_path = os.path.join(RAG_PATH,'procedure_prompt')
+    system_prompt_text = load_prompt_template(procedure_prompt_template_path)
     strict_prompt_template = ChatPromptTemplate.from_messages([SystemMessagePromptTemplate.from_template(system_prompt_text), HumanMessagePromptTemplate.from_template('{input}')])
     context = extract_types_and_query_context(sql_query=sql_query, db=db, top_k_per_type=db_search_args, use_reranker=True, rerank_fn=rerank_results)
     translate = get_sql_rag_chain(llm, retriever, strict_prompt_template, context)
@@ -840,7 +869,8 @@ def convertProcedureGenAi(sql_query):
     return oracle_ddl
 
 def convertTableGenAi(sql_query):
-    system_prompt_text = load_prompt_template('./RAG/table_ddl_prompt')
+    table_ddl_prompt_template = os.path.join(RAG_PATH,'table_ddl_prompt')
+    system_prompt_text = load_prompt_template(table_ddl_prompt_template)
     strict_prompt_template = ChatPromptTemplate.from_messages([SystemMessagePromptTemplate.from_template(system_prompt_text), HumanMessagePromptTemplate.from_template('{input}')])
     context = extract_types_and_query_context(sql_query=sql_query, db=db, top_k_per_type=db_search_args, use_reranker=True, rerank_fn=rerank_results)
     translate = get_sql_rag_chain(llm, retriever, strict_prompt_template, context)
@@ -3472,7 +3502,7 @@ class ViewRunInsFile(Resource):
             if ggBaseVer.startswith('21'):
                 ORA_Version = 'ora21c'
             else:
-                db_clientVer = cx_Oracle.clientversion()
+                db_clientVer = pyodbc.clientversion()
                 main_ClientVer = db_clientVer[0]
                 if main_ClientVer > 11:
                     ORA_Version = 'ORA' + str(main_ClientVer) + 'c'
@@ -4678,7 +4708,7 @@ class ggILAction(Resource):
         conn = sqlite3.connect('conn.db')
         cursor = conn.cursor()
         try:
-            ILEXT = 'select distinct a.*,b.dep_url url_src from ILEXT a, onepconn b\n                            where a.srcdep=b.dep and a.jobname=:jobName'
+            ILEXT = 'select distinct a.*,b.dep_url url_src from ILEXT a, onepconn b  where a.srcdep=b.dep and a.jobname=:jobName'
             param = {'jobName': jobName}
             ILEXT_fetch = pd.read_sql_query(ILEXT, conn, params=[param['jobName']])
             extName = []
@@ -4697,7 +4727,7 @@ class ggILAction(Resource):
         except Exception as e:
             pass
         try:
-            ILREP = 'select distinct a.*,b.dep_url url_tgt from ILREP a, onepconn b\n                            where a.tgtdep=b.dep and jobname=:jobName'
+            ILREP = 'select distinct a.*,b.dep_url url_tgt from ILREP a, onepconn b   where a.tgtdep=b.dep and jobname=:jobName'
             param = {'jobName': jobName}
             ILREP_fetch = pd.read_sql_query(ILREP, conn, params=[param['jobName']])
             repDet = []
@@ -4735,7 +4765,7 @@ class ggILProcesses(Resource):
         TgtLinkNode = []
         conn = sqlite3.connect('conn.db')
         cursor = conn.cursor()
-        ILEXT = 'select distinct a.*,b.dep_url url_src from ILEXT a, onepconn b\n                            where a.srcdep=b.dep and a.jobname=:jobName'
+        ILEXT = 'select distinct a.*,b.dep_url url_src from ILEXT a, onepconn b  where a.srcdep=b.dep and a.jobname=:jobName'
         param = {'jobName': jobName}
         ILEXT_fetch = pd.read_sql_query(ILEXT, conn, params=[param['jobName']])
         for dfname in glob.glob(os.path.join(agent_home, jobName, '*.csv')):
@@ -7219,7 +7249,7 @@ def selectConn(dbname):
             db_det_fetch = pd.read_sql_query(db_det, con)
             db_det = db_det_fetch.to_dict('records')
             db_main_ver = db_det[0]['version']            
-        except cx_Oracle.DatabaseError as e:
+        except pyodbc.Error as e:
             db_main_ver = str(e)
             logger.info(str(e))
     return [con, db_main_ver]
@@ -7307,8 +7337,7 @@ def infoall():
     return [GG_Data]
 
 def write_extract_log(msg):
-    log_file = 'convert_output.txt'
-    os.makedirs(os.path.dirname(log_file) or '.', exist_ok=True)
+    log_file = os.path.join(agent_home,'convert_output.txt')
     with open(log_file, 'a', encoding='utf-8', buffering=1) as f:
         f.write(msg)
         f.flush()
@@ -7330,31 +7359,34 @@ def bytes2human(n):
             return '%.1f%s' % (value, s)
     return '%sB' % n
 
-def get_embedding(texts):
-    if isinstance(texts, str):
-        texts = [texts]
-    if not texts or not all((isinstance(t, str) and t.strip() for t in texts)):
-        raise ValueError('get_embedding() received invalid or empty input.')
-    inputs = tokenizer(texts, padding=True, truncation=True, return_tensors='pt').to(device)
-    with torch.no_grad():
-        model_output = reranker_model(**inputs)
-        embeddings = model_output.last_hidden_state[:, 0]
-        embeddings = F.normalize(embeddings, p=2, dim=1)
-    return embeddings
-
 def rerank_results(query, docs, top_k=3):
-    query_emb = get_embedding(f'query: {query}')
-    doc_texts = [f'passage: {doc.page_content}' for doc in docs]
-    #print(doc_texts)
-    doc_embs = get_embedding(doc_texts)
-    scores = torch.matmul(query_emb, doc_embs.T).squeeze(0)
-    top_indices = torch.topk(scores, k=top_k).indices.tolist()
-    reranked_docs = [docs[i] for i in top_indices]
-    return reranked_docs
+    # Prepare (query, doc) pairs
+    pairs = [(query, doc.page_content) for doc in docs]
+    
+    # Tokenize all pairs
+    encoded = reranker_tokenizer.batch_encode_plus(
+        pairs,
+        padding=True,
+        truncation=True,
+        return_tensors="pt",
+        max_length=512
+    ).to(device)
+
+    # Forward pass
+    with torch.no_grad():
+        logits = reranker_model(**encoded).logits.squeeze(-1)
+
+    scores = logits.detach().cpu().tolist()
+
+    # Sort and return top_k docs
+    ranked = sorted(zip(scores, docs), key=lambda x: x[0], reverse=True)
+    top_docs = [doc for _, doc in ranked[:top_k]]
+
+    return top_docs
 
 def extract_types_and_query_context(sql_query: str, db, top_k_per_type: int=3, use_reranker: bool=False, rerank_fn=None, verbose: bool=True) -> str:
     
-    with open(os.path.join(agent_home,'RAG','rag_search_pattern')) as f:
+    with open(os.path.join(RAG_PATH,'rag_search_pattern')) as f:
          rag_search_pattern = f.read().strip()
     
     raw_types = re.findall(rag_search_pattern, sql_query, re.IGNORECASE)
@@ -7402,7 +7434,7 @@ def load_prompt_template(file_path: str) -> str:
 class RagDocumentView(Resource):
     def get(self):
         try:
-            file_path = os.path.join(agent_home, 'RAG', 'Latest_Claude_Sonnet_Mappings')
+            file_path = os.path.join(RAG_PATH, 'Latest_Claude_Sonnet_Mappings')
 
             if not os.path.exists(file_path):
                 return {"error": "File not found"}, 404
@@ -7419,7 +7451,7 @@ class RagDocumentView(Resource):
 class RagPatternView(Resource):
     def get(self):
         try:
-            file_path = os.path.join(agent_home, 'RAG', 'rag_search_pattern')
+            file_path = os.path.join(RAG_PATH, 'rag_search_pattern')
 
             if not os.path.exists(file_path):
                 return {"error": "File not found"}, 404
@@ -7436,8 +7468,8 @@ class savePattern(Resource):
     def post(self):
         data = request.get_json(force=True)
         new_pattern = data['pattern']
-        target_file = os.path.join(agent_home, 'RAG', 'rag_search_pattern')
-        backup_dir = os.path.join(agent_home, 'RAG', 'PatternBackups')
+        target_file = os.path.join(RAG_PATH , 'rag_search_pattern')
+        backup_dir = os.path.join(RAG_PATH, 'PatternBackups')
         
         try:
             os.makedirs(backup_dir, exist_ok=True)       
@@ -7457,7 +7489,7 @@ class getQueryContext(Resource):
         data = request.get_json(force=True)
         query = data['query']
 
-        run_sybase_to_oracle_conversion(query)
+        queryFetch.run_sybase_to_oracle_conversion(query,db)
         
         return("Completed")
 
@@ -7481,7 +7513,7 @@ class uploadS3Bucket(Resource):
 
 class getQueryLog(Resource):
     def get(self):
-        file_path = os.path.join(agent_home, 'RAG', 'save_db_query_log.txt')
+        file_path = os.path.join(RAG_PATH, 'save_db_query_log.txt')
         try:
             with open(file_path, 'r', encoding='utf-8') as f:
                 content = f.read()
@@ -7498,11 +7530,10 @@ class saveChromaDB(Resource):
         data = request.get_json(force=True)
         new_content = data['content']
 
-        target_file = os.path.join(agent_home, 'RAG', 'Latest_Claude_Sonnet_Mappings')
-        backup_dir = os.path.join(agent_home, 'RAG', 'Backups')
-        chroma_dir = os.path.join(agent_home, 'RAG', 'chroma_claude_db')
-        save_script = os.path.join(agent_home, 'RAG', 'saveClaudeFromat.py')
-        log_file = os.path.join(agent_home, 'RAG', 'save_db_log.txt')
+        target_file = os.path.join(RAG_PATH, 'Latest_Claude_Sonnet_Mappings')
+        backup_dir = os.path.join(RAG_PATH, 'Backups')
+        chroma_dir = os.path.join(RAG_PATH, 'chroma_claude_db')
+        log_file = os.path.join(RAG_PATH, 'save_db_log.txt')
 
         with open(log_file, 'w', encoding='utf-8') as lf:
             lf.write("🔄 Log initialized...\n")
@@ -7530,7 +7561,7 @@ class saveChromaDB(Resource):
 
 class readSaveDBFile(Resource):
     def get(self):
-        file_path = os.path.join(agent_home, 'RAG', 'save_db_log.txt')
+        file_path = os.path.join(RAG_PATH, 'save_db_log.txt')
         try:
             with open(file_path, 'r', encoding='utf-8') as f:
                 content = f.read()

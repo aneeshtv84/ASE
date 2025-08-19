@@ -449,6 +449,8 @@ self.valueChangedHandler = function (data, event) {
                         onepOps : 'edit',
                         user: self.username(),
                         passwd : self.onepPasswd(),
+                        dep_type: self.depOption(),
+                        dep_url: self.currentProtocol() + '://' + self.onePHost() + ':' +  self.onepPort() 
                     }),
                     dataType: 'json',
                     timeout: sessionStorage.getItem("timeInetrval"),

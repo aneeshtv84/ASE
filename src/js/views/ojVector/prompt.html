@@ -1,0 +1,71 @@
+
+<div class="oj-md-margin-4x">
+    <div class="oj-flex oj-md-margin-2x  oj-sm-justify-content-flex-end">
+        <oj-button id="editTableBtn" on-oj-action='[[editTableDoc]]'>
+            <!-- <span slot="startIcon" class="oj-ux-ico-edit-inline-s"></span> -->
+            Edit Table Prompt
+        </oj-button>
+        <oj-button id="cancelTableBtn" on-oj-action='[[cancelTableDoc]]' style="display: none;">
+            <!-- <span slot="startIcon" class="oj-ux-ico-edit-inline-s"></span> -->
+            Cancel
+        </oj-button>
+        <oj-button id="saveTableBtn" class="oj-md-margin-2x-start" on-oj-action='[[saveTableDoc]]' style="display: none;">
+            <!-- <span slot="startIcon" class="oj-ux-ico-edit-inline-s"></span> -->
+            Save Table Prompt
+        </oj-button>
+    </div>
+
+    <div id="tableDocDisplay"></div>
+    <div id="edit-table-doc" style="display: none;">
+        <oj-text-area id="text-area" value="{{docTableContent}}" rows="35" style="width: 100%; min-width: 100%" label-hint="Doc Text"></oj-text-area>
+    </div>
+
+    <div class="oj-flex oj-md-margin-2x  oj-sm-justify-content-flex-end">
+        <oj-button id="editProcBtn" on-oj-action='[[editProcDoc]]'>
+            <!-- <span slot="startIcon" class="oj-ux-ico-edit-inline-s"></span> -->
+            Edit Proc Prompt
+        </oj-button>
+        <oj-button id="cancelProcBtn" on-oj-action='[[cancelProcDoc]]' style="display: none;">
+            <!-- <span slot="startIcon" class="oj-ux-ico-edit-inline-s"></span> -->
+            Cancel
+        </oj-button>
+        <oj-button id="saveProcBtn" class="oj-md-margin-2x-start" on-oj-action='[[saveProcDoc]]' style="display: none;">
+            <!-- <span slot="startIcon" class="oj-ux-ico-edit-inline-s"></span> -->
+            Save Proc Prompt
+        </oj-button>
+    </div>
+    <div id="procDocDisplay"></div>
+    <div id="edit-proc-doc" style="display: none;">
+        <oj-text-area id="text-area" value="{{docProcContent}}" rows="35" style="width: 100%; min-width: 100%" label-hint="Doc Text"></oj-text-area>
+    </div>
+
+    <div class="oj-flex oj-md-margin-2x  oj-sm-justify-content-flex-end">
+        <oj-button id="editCodeBtn" on-oj-action='[[editCodeDoc]]'>
+            <!-- <span slot="startIcon" class="oj-ux-ico-edit-inline-s"></span> -->
+            Edit Code Prompt
+        </oj-button>
+        <oj-button id="cancelCodeBtn" on-oj-action='[[cancelCodeDoc]]' style="display: none;">
+            <!-- <span slot="startIcon" class="oj-ux-ico-edit-inline-s"></span> -->
+            Cancel
+        </oj-button>
+        <oj-button id="saveCodeBtn" class="oj-md-margin-2x-start" on-oj-action='[[saveCodeDoc]]' style="display: none;">
+            <!-- <span slot="startIcon" class="oj-ux-ico-edit-inline-s"></span> -->
+            Save Code Prompt
+        </oj-button>
+    </div>
+    <div id="codeDocDisplay"></div>
+    <div id="edit-code-doc" style="display: none;">
+        <oj-text-area id="text-area" value="{{docCodeContent}}" rows="35" style="width: 100%; min-width: 100%" label-hint="Doc Text"></oj-text-area>
+    </div>
+
+    <oj-messages
+        id="oj-messages-id"
+        class="oj-color-invert"
+        messages="[[messagesDataprovider]]"
+        position="{}"
+        display="notification"
+        display-options.category="none"></oj-messages>
+        
+    <div id="saveDoc" style="display: none;"></div>
+
+</div>
