@@ -5,6 +5,21 @@
     <oj-status-meter-gauge readonly class="circular-status-meter-large" min="0" max="100" value="{{LoadAvg}}"
       start-angle="180" labelled-by="startAngle" angle-extent="180" reference-lines="[[referenceLines]]"
       orientation="circular">
+      <template slot="centerTemplate">
+        <div
+          class="oj-flex oj-sm-justify-content-center oj-sm-flex-direction-column oj-sm-align-items-center"
+          :style="[[{
+          position: 'absolute',
+          width: $current.innerBounds.width + 'px',
+          height: $current.innerBounds.height+ 'px',
+          top: $current.innerBounds.y + 'px',
+          left: $current.innerBounds.x + 'px', 
+          pointerEvents: 'none'}]]">
+          <div class="oj-typography-subheading-md oj-typography-bold">
+            <oj-bind-text value="[[LoadAvg]]"></oj-bind-text>
+          </div>
+        </div>
+      </template>
     </oj-status-meter-gauge>
   </div>
 
@@ -14,6 +29,21 @@
     <oj-status-meter-gauge readonly class="circular-status-meter-large" min="0" max="100" value="{{CpuUser}}"
       start-angle="180" labelled-by="startAngle" angle-extent="180" reference-lines="[[referenceLines]]"
       orientation="circular">
+      <template slot="centerTemplate">
+        <div
+          class="oj-flex oj-sm-justify-content-center oj-sm-flex-direction-column oj-sm-align-items-center"
+          :style="[[{
+          position: 'absolute',
+          width: $current.innerBounds.width + 'px',
+          height: $current.innerBounds.height+ 'px',
+          top: $current.innerBounds.y + 'px',
+          left: $current.innerBounds.x + 'px', 
+          pointerEvents: 'none'}]]">
+          <div class="oj-typography-subheading-md oj-typography-bold">
+            <oj-bind-text value="[[CpuUser]]"></oj-bind-text>
+          </div>
+        </div>
+      </template>
     </oj-status-meter-gauge>
   </div>
   <div
@@ -22,6 +52,21 @@
     <oj-status-meter-gauge readonly class="circular-status-meter-large" min="0" max="100" value="{{CpuSystem}}"
       start-angle="180" labelled-by="startAngle" angle-extent="180" reference-lines="[[referenceLines]]"
       orientation="circular">
+      <template slot="centerTemplate">
+        <div
+          class="oj-flex oj-sm-justify-content-center oj-sm-flex-direction-column oj-sm-align-items-center"
+          :style="[[{
+          position: 'absolute',
+          width: $current.innerBounds.width + 'px',
+          height: $current.innerBounds.height+ 'px',
+          top: $current.innerBounds.y + 'px',
+          left: $current.innerBounds.x + 'px', 
+          pointerEvents: 'none'}]]">
+          <div class="oj-typography-subheading-md oj-typography-bold">
+            <oj-bind-text value="[[CpuSystem]]"></oj-bind-text>
+          </div>
+        </div>
+      </template>
     </oj-status-meter-gauge>
   </div>
   <div
@@ -30,6 +75,21 @@
     <oj-status-meter-gauge readonly class="circular-status-meter-large" min="0" max="100"
       value="{{Total_System_Memory_Usage}}" start-angle="180" labelled-by="startAngle" angle-extent="180"
       reference-lines="[[referenceLines]]" orientation="circular">
+      <template slot="centerTemplate">
+        <div
+          class="oj-flex oj-sm-justify-content-center oj-sm-flex-direction-column oj-sm-align-items-center"
+          :style="[[{
+          position: 'absolute',
+          width: $current.innerBounds.width + 'px',
+          height: $current.innerBounds.height+ 'px',
+          top: $current.innerBounds.y + 'px',
+          left: $current.innerBounds.x + 'px', 
+          pointerEvents: 'none'}]]">
+          <div class="oj-typography-subheading-md oj-typography-bold">
+            <oj-bind-text value="[[Total_System_Memory_Usage]]"></oj-bind-text>
+          </div>
+        </div>
+      </template>
     </oj-status-meter-gauge>
   </div>
 
@@ -38,6 +98,21 @@
     <oj-status-meter-gauge readonly class="circular-status-meter-large" min="0" max="100"
       value="{{Total_Process_Memory}}" start-angle="180" labelled-by="startAngle" angle-extent="180"
       reference-lines="[[referenceLines]]" orientation="circular">
+      <template slot="centerTemplate">
+        <div
+          class="oj-flex oj-sm-justify-content-center oj-sm-flex-direction-column oj-sm-align-items-center"
+          :style="[[{
+          position: 'absolute',
+          width: $current.innerBounds.width + 'px',
+          height: $current.innerBounds.height+ 'px',
+          top: $current.innerBounds.y + 'px',
+          left: $current.innerBounds.x + 'px', 
+          pointerEvents: 'none'}]]">
+          <div class="oj-typography-subheading-md oj-typography-bold">
+            <oj-bind-text value="[[Total_Process_Memory]]"></oj-bind-text>
+          </div>
+        </div>
+      </template>
     </oj-status-meter-gauge>
   </div>
 </div>

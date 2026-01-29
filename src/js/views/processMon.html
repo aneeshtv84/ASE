@@ -12,6 +12,21 @@
     reference-lines="[[referenceLines]]"
     orientation="circular" 
     readonly >
+    <template slot="centerTemplate">
+      <div
+        class="oj-flex oj-sm-justify-content-center oj-sm-flex-direction-column oj-sm-align-items-center"
+        :style="[[{
+        position: 'absolute',
+        width: $current.innerBounds.width + 'px',
+        height: $current.innerBounds.height+ 'px',
+        top: $current.innerBounds.y + 'px',
+        left: $current.innerBounds.x + 'px', 
+        pointerEvents: 'none'}]]">
+        <div class="oj-typography-subheading-md oj-typography-bold">
+          <oj-bind-text value="[[cpuSysResult]]"></oj-bind-text>
+        </div>
+      </div>
+    </template>
 </oj-status-meter-gauge>
     </oj-form-layout>
             <oj-form-layout id="fl2" class="oj-form-layout" readonly="[[isFormReadonly()]]" label-edge="start"
@@ -35,6 +50,21 @@
                 reference-lines="[[referenceLines]]"
                 orientation="circular" 
                 readonly >
+                  <template slot="centerTemplate">
+                    <div
+                      class="oj-flex oj-sm-justify-content-center oj-sm-flex-direction-column oj-sm-align-items-center"
+                      :style="[[{
+                      position: 'absolute',
+                      width: $current.innerBounds.width + 'px',
+                      height: $current.innerBounds.height+ 'px',
+                      top: $current.innerBounds.y + 'px',
+                      left: $current.innerBounds.x + 'px', 
+                      pointerEvents: 'none'}]]">
+                      <div class="oj-typography-subheading-md oj-typography-bold">
+                        <oj-bind-text value="[[mem]]"></oj-bind-text>
+                      </div>
+                    </div>
+                  </template>
             </oj-status-meter-gauge>
             <div class="oj-panel demo-center-items  oj-sm-margin-1x-bottom oj-xl-margin-1x oj-xl-padding-1x oj-lg-margin-1x oj-lg-padding-1x oj-md-margin-1x oj-md-padding-1x oj-sm-margin-1x oj-sm-padding-1x" style="width: 40%;text-align: center">
                 <oj-form-layout id="fl2" class="oj-form-layout" readonly="[[isFormReadonly()]]" label-edge="start"

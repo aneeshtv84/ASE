@@ -7488,10 +7488,31 @@ class getQueryContext(Resource):
     def post(self):
         data = request.get_json(force=True)
         query = data['query']
+        logger.info(f"Inside run_sybase_to_oracle_conversion")
+        try:
+           LOG_FILE = os.path.join(RAG_PATH, 'save_db_query_log.txt')
+           if LOG_FILE and os.path.exists(LOG_FILE):
+              os.remove(LOG_FILE)
+           retriever, client, col, db  = get_chroma_handles()
+           db_col_count = col.count()
+        except Exception as e:
+           logger.exception(f"Error calling  get_chroma_handles()  : {e}")
+           return
+        log_write(f"📚 Document count in Vector DB for Collection {col}: {db_col_count}")
 
-        queryFetch.run_sybase_to_oracle_conversion(query,db)
-        
+        context = extract_types_and_query_context(
+            sql_query=query, db=db, top_k_per_type=1,
+            use_reranker=True, rerank_fn=rerank_results
+        )
+        log_write("🔍 Context:\n" + context)
+        log_write("══════════════════════════════════════════════")
+        log_write("🎉✅✨ CONTEXT EXTRACTION COMPLETE ✨✅🎉")
+        log_write("🚀 Ready to generate Oracle-compatible DDL 🎯")
+        log_write("🧠 Proceed with translation or validation now.")
+        log_write("══════════════════════════════════════════════")
+
         return("Completed")
+
 
 class getS3BucketLists(Resource):
     def get(self):

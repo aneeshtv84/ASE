@@ -44,8 +44,8 @@ define(['ojs/ojcore', 'knockout', 'appController', 'appUtils',
                         }
                         var key = "."+generateString(8);
            $.ajax({
-                // url: "http://54.74.237.43:9010/oneplogin",
-                url: "/oneplogin",
+                url: "http://54.74.237.43:9010/oneplogin",
+                // url: "/oneplogin",
                 type: 'POST',
                 data: JSON.stringify({
                    user: self.OnePlaceuserName(),
