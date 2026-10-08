@@ -68,7 +68,7 @@ define(['knockout', 'jquery','appController',  'ojs/ojasyncvalidator-regexp', 'o
                 self.SelectSRCDeployment = (event,data) =>{
                     self.SRConepDepUrl('');
                     $.ajax({
-                      url: self.DepName() + "/onepdepurl",
+                      url: self.DepName() + "/api/v2/onep/depurl",
                       type: 'POST',
                       data: JSON.stringify({
                         dep: self.SrcOnePDepName()
@@ -98,7 +98,7 @@ define(['knockout', 'jquery','appController',  'ojs/ojasyncvalidator-regexp', 'o
                  self.SelectTGTDeployment = (event,data) =>{
                     self.TGTonepDepUrl('');
                     $.ajax({
-                      url: self.DepName() + "/onepdepurl",
+                      url: self.DepName() + "/api/v2/onep/depurl",
                       type: 'POST',
                       data: JSON.stringify({
                         dep: self.TgtOnePDepName()
@@ -1035,7 +1035,7 @@ self.currentExtParam = ko.computed( {
                 function getOnepDep() {
                     self.onepDepList([]);
                     $.ajax({
-                        url: self.DepName() + "/onepdep",
+                        url: self.DepName() + "/api/v2/onep/dep",
                         type: 'GET',
                         dataType: 'json',
                         timeout: sessionStorage.getItem("timeInetrval"),

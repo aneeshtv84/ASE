@@ -225,7 +225,7 @@ self.TgtDBDetDP = new ArrayDataProvider(self.TgtDBDet, {keyAttributes: 'value'})
                     if(self.SrcOnePDepName()){
                     self.SRConepDepUrl('');
                     $.ajax({
-                      url: self.DepName() + "/onepdepurl",
+                      url: self.DepName() + "/api/v2/onep/depurl",
                       type: 'POST',
                       data: JSON.stringify({
                         dep: self.SrcOnePDepName()
@@ -259,7 +259,7 @@ self.TgtDBDetDP = new ArrayDataProvider(self.TgtDBDet, {keyAttributes: 'value'})
                      if (self.TgtOnePDepName()){
                     self.TGTonepDepUrl('');
                     $.ajax({
-                      url: self.DepName() + "/onepdepurl",
+                      url: self.DepName() + "/api/v2/onep/depurl",
                       type: 'POST',
                       data: JSON.stringify({
                         dep: self.TgtOnePDepName()
@@ -1221,7 +1221,7 @@ self.currentExtParam = ko.computed( {
                 function getOnepDep() {
                     self.onepDepList([]);
                     $.ajax({
-                        url: self.DepName() + "/onepdep",
+                        url: self.DepName() + "/api/v2/onep/dep",
                         type: 'GET',
                         dataType: 'json',
                         timeout: sessionStorage.getItem("timeInetrval"),

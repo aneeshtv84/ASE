@@ -1,293 +1,229 @@
+define([
+  "knockout",
+  "jquery",
+  "appController",
+  "ojs/ojarraydataprovider",
+  "ojs/ojarraytreedataprovider",
+  "ojDiagram/viewModels/CircleLayout",
+  "ojs/ojattributegrouphandler",
+  "ojs/ojknockout",
+  "ojs/ojdiagram",
+  "ojs/ojformlayout",
+  "ojs/ojbutton",
+  "ojs/ojtable",
+  "ojs/ojselectsingle",
+  "ojs/ojradioset",
+  "ojs/ojtreeview",
+], function (ko, $, app, ArrayDataProvider, ArrayTreeDataProvider, layout, attributeGroupHandler) {
+  class prtshootViewModel {
+    constructor(context) {
+      var self = this;
+      self.DepName = context.DepName;
 
-define(['knockout', 'jquery', 'appController', 'ojs/ojarraydataprovider','ojs/ojarraytreedataprovider','ojs/ojflattenedtreedatagriddatasource','ojs/ojjsontreedatasource','ojDiagram/viewModels/CircleLayout','ojs/ojattributegrouphandler','ojs/ojknockouttemplateutils','ojs/ojdiagram','ojs/ojformlayout','ojs/ojdatagrid', 'ojs/ojbutton', 'ojs/ojtable', 'ojs/ojdialog', 'ojs/ojinputtext', 'ojs/ojselectsingle','ojs/ojformlayout','ojs/ojanimation','ojs/ojradioset','ojs/ojtreeview'],
-function (ko, $,app, ArrayDataProvider ,ArrayTreeDataProvider,flattenedModule,JsonTreeDataSource,layout,attributeGroupHandler,KnockoutTemplateUtils) {
+      self.RepDet = ko.observableArray([]);
+      self.repName = ko.observable();
+      self.ButtonVal = ko.observable(true);
+      self.currentFormat = ko.observable("tab");
+      self.loaded = ko.observable(false);
 
-    class prtshootViewModel {
-        constructor(context){
-        var self = this;
-        self.DepName = context.DepName;
-        self.KnockoutTemplateUtils = KnockoutTemplateUtils;
-        self.DBMainVer = ko.observable();
-        self.DBMinorVer = ko.observable();
-        self.DBDet = ko.observableArray([]);
-        self.RepDet = ko.observableArray([]);
-        self.PRSession = ko.observableArray([]);
-        self.repName = ko.observable();
-        self.SchedInfo = ko.observableArray([]);
-        self.RunningTxnInfo = ko.observableArray([]);
-        self.NodeData = ko.observableArray([]);
-        self.LinkData = ko.observableArray([]);
-        self.TxnData = ko.observableArray([]);
-        self.WaitTxnData =  ko.observableArray([]);
-        self.Pstack =  ko.observableArray([]);
-        self.currentFormat = ko.observable('tab');
-        self.PStackChilden = ko.observableArray([]);
-        self.ButtonVal = ko.observable(true);
+      self.DBDet = ko.observableArray([]);
+      self.PRSession = ko.observableArray([]);
+      self.SchedInfo = ko.observableArray([]);
+      self.RunningTxnInfo = ko.observableArray([]);
+      self.NodeData = ko.observableArray([]);
+      self.LinkData = ko.observableArray([]);
+      self.Pstack = ko.observableArray([]);
+      self.sectionErrors = ko.observableArray([]);
 
-        self.isRequired = ko.observable(true);
-        self.checkboxValues = ko.observableArray(['required', 'helpSource', 'helpDef']);
-
-        self.isRequired = ko.computed(function () {
-            return self.checkboxValues.indexOf('required') !== -1;
+      // ── Replicat list ──
+      function getRep() {
+        self.RepDet([]);
+        $.ajax({
+          url: self.DepName() + "/api/v2/rep-type",
+          type: "GET",
+          dataType: "json",
+          progressMessage: "Fetching replicat list",
+          error: function (xhr) {
+            app.showGlobalError(app.extractErrorMessage(xhr), "Replicat List Error");
+          },
+          success: function (data) {
+            self.RepDet((data[0] || [])
+              .filter(function (r) { return String(r.RepType || "").toUpperCase() === "PARALLEL"; })
+              .map(function (r) { return { value: r.RepName, label: r.RepName }; }));
+            self.ButtonVal(true);
+          },
         });
+      }
+      self.RepDetDP = new ArrayDataProvider(self.RepDet, { keyAttributes: "value" });
 
-        self.helpDef = ko.computed(function () {
-            return (self.checkboxValues.indexOf('helpDef') !== -1) ? self._HELP_DEF : null;
-        });
+      self.valueChangedHandler = function () {
+        self.ButtonVal(!self.repName());
+      };
 
-        self.helpSource = ko.computed(function () {
-            return (self.checkboxValues.indexOf('helpSource') !== -1) ? self._HELP_SOURCE : null;
-        });
+      // ── Troubleshoot ──
+      self.PRTShoot = function () {
+        if (!self.repName()) return;
+        self.DBDet([]);
+        self.PRSession([]);
+        self.SchedInfo([]);
+        self.RunningTxnInfo([]);
+        self.NodeData([]);
+        self.LinkData([]);
+        self.Pstack([]);
+        self.sectionErrors([]);
+        self.loaded(false);
 
-        function getRep() {
-            self.RepDet([]);
-            $.ajax({
-                url: self.DepName() + "/reptype",
-                type: 'GET',
-                dataType: 'json',
-                context: self,
-                error: function (e) {
-                    //console.log(e);
-                },
-                success: function (data) {
+        $.ajax({
+          url: self.DepName() + "/api/v2/pr-tshoot",
+          type: "POST",
+          contentType: "application/json",
+          data: JSON.stringify({ repName: self.repName() }),
+          dataType: "json",
+          timeout: 120000,
+          progressMessage: "Analyzing parallel replicat",
+          error: function (xhr) {
+            app.showGlobalError(app.extractErrorMessage(xhr), "Troubleshoot Error");
+          },
+          success: function (data) {
+            // [db_det, sessions, schedulers, running_txn, nodes, links, pstack, errors]
+            self.DBDet(data[0] || []);
+            self.PRSession(data[1] || []);
 
-                    for (var i = 0; i < data[0].length; i++) {
-                        if (data[0][i].RepType == 'PARALLEL') {
-                        self.RepDet.push({value:data[0][i].RepName,label:data[0][i].RepName});
-                        }
-                }
-                self.RepDet.valueHasMutated();
-                self.ButtonVal(true);
-            }
-            })
-        }
+            self.SchedInfo((data[2] || []).map(function (s) { return { scheduler: s }; }));
 
-        self.RepDetDP = new ArrayDataProvider(self.RepDet, {keyAttributes: 'value'});
+            self.RunningTxnInfo((data[3] || []).map(function (r) {
+              var t = Array.isArray(r.Txn) ? r.Txn : [r.Txn];
+              return { group: r.Group, txnCount: t.length, txn: t.join(", ") };
+            }));
 
-    self.PRTShoot =     function(data,event) {
-            self.DBDet([]);
-            self.PRSession([]);
-            self.SchedInfo([]);
-            self.RunningTxnInfo([]);
-            self.TxnData([]);
-            self.WaitTxnData([]);
-            self.LinkData([]);
-            self.Pstack([]);
-            $.ajax({
-                url: self.DepName() + "/prtshoot",
-                type: 'POST',
-                data: JSON.stringify({
-                    repName: self.repName()
+            self.NodeData((data[4] || []).map(function (n) {
+              return { id: n.id + (n.category === "Txn" ? "-X" : "-Y"), label: n.id, category: n.category };
+            }));
+
+            self.LinkData((data[5] || []).map(function (l) {
+              return {
+                id: l.id, category: l.category,
+                start: l.start + "-X", end: l.end + "-Y",
+                startTxn: l.start, endTxn: l.end, Wait: "is waiting on",
+              };
+            }));
+
+            var tree = [];
+            var stack = data[6] || {};
+            Object.keys(stack).forEach(function (tid) {
+              tree.push({
+                id: "t" + tid,
+                title: tid === "main" ? "Main" : "Thread " + tid,
+                children: (stack[tid] || []).map(function (line, i) {
+                  return { id: "t" + tid + "-" + i, title: line };
                 }),
-                dataType: 'json',
-                context: self,
-                error: function (e) {
-                    //console.log(e);
-                },
-                success: function (data) {
+              });
+            });
+            self.Pstack(tree);
 
-                 for (var i = 0; i < data[0].length; i++) {
-                    self.DBDet.push({
-                    'DATABASE_ROLE': data[0][i].DATABASE_ROLE,
-                    'DBID': data[0][i].DBID,
-                    'DB_EDITION': data[0][i].DB_EDITION,
-                    'HOST': data[0][i].HOST,
-                    'INSTANCE': data[0][i].INSTANCE,
-                    'DBNAME' : data[0][i].DBNAME,
-                    'PDB' : data[0][i].PDB,
-                    'PLATFORM_NAME': data[0][i].PLATFORM_NAME,
-                    'VERSION': data[0][i].VERSION
-                });
-            }
-            for (var i = 0; i < data[1].length; i++) {
-                self.PRSession.push({'SID' : data[1][i].SID,
-                                     'SERIAL' : data[1][i].SERIAL,
-                                     'SPID' : data[1][i].SPID,
-                                     'SQL_ID' : data[1][i].SQL_ID,
-                                     'EVENT' : data[1][i].EVENT,
-                                     'CALL' : data[1][i].CALL,
-                                     'NAME' : data[1][i].NAME });
-            }
+            var errs = data[7] || {};
+            self.sectionErrors(Object.keys(errs).map(function (k) {
+              return { section: k, message: String(errs[k]) };
+            }));
 
-            for (var i = 0; i < data[2].length; i++) {
-                self.SchedInfo.push({'attr' : { 'id' :  data[2][i].Group , 'name' : data[2][i].Group},"children": [{'attr' : { 'id' :  data[2][i].Group , 'name' : data[2][i].Group}}]});
-            }
-            for (var i = 0; i < data[3].length; i++) {
-                self.RunningTxnInfo.push({'id' :  data[3][i].Group ,  'Txn' : data[3][i].Txn});
-            }
-            for (var i = 0; i < data[4].length; i++) {
-                if (data[4][i].category === 'Txn'){
-                self.NodeData.push({'id' : data[4][i].id + '-X' , 'category' : data[4][i].category})
-                }
-                else if (data[4][i].category === 'WaitTxn') {
-                self.NodeData.push({'id' : data[4][i].id + '-Y', 'category' : data[4][i].category})
-                }
-            }
+            self.loaded(true);
+          },
+        });
+      };
 
-            for (var i = 0; i < data[5].length; i++) {
-                self.LinkData.push({'id':data[5][i].id,'category' : data[5][i].category,'start' : data[5][i].start + '-X' , 'end' :data[5][i].end + '-Y','Wait' : 'Waiting on'});
-            }
+      // ── Data providers ──
+      self.DBDetDP = new ArrayDataProvider(self.DBDet, { keyAttributes: "@index" });
+      self.PRSessionDP = new ArrayDataProvider(self.PRSession, { keyAttributes: "@index" });
+      self.SchedInfoDP = new ArrayDataProvider(self.SchedInfo, { keyAttributes: "@index" });
+      self.RunningTxnInfoDP = new ArrayDataProvider(self.RunningTxnInfo, { keyAttributes: "@index" });
+      self.LinkDataDP = new ArrayDataProvider(self.LinkData, { keyAttributes: "id" });
+      self.nodeDataProvider = new ArrayDataProvider(self.NodeData, { keyAttributes: "id" });
+      self.linkDataProvider = new ArrayDataProvider(self.LinkData, { keyAttributes: "id" });
+      self.PstackDataDP = new ArrayTreeDataProvider(self.Pstack, {
+        keyAttributes: "id",
+        childrenAttribute: "children",
+      });
 
+      // ── Columns ──
+      self.PRDBDetcolumnArray = [
+        { headerText: "Server", field: "SERVER_NAME" },
+        { headerText: "Host", field: "HOST" },
+        { headerText: "Database", field: "DBNAME" },
+        { headerText: "Version", field: "VERSION_NUMBER" },
+        { headerText: "Current Time", field: "CURRENT_TIME" },
+      ];
 
-            for(var key in data[6]) {
-                self.PStackChilden([]);
-                        for( var i = 0; i < data[6][key].length; i++ ) {
-                self.PStackChilden.push({'title' : data[6][key][i]})
-                        }
-                self.Pstack.push({'id' : key , 'title' : 'Thread ' + key , "children": self.PStackChilden()});
-            }
+      self.PRSessioncolumnArray = [
+        { headerText: "Process", field: "NAME" },
+        { headerText: "ASE SPID", field: "SID" },
+        { headerText: "KPID", field: "SERIAL" },
+        { headerText: "OS PID", field: "SPID" },
+        { headerText: "Status", field: "STATUS" },
+        { headerText: "Command", field: "EVENT" },
+        { headerText: "Blocked By", field: "BLOCKED_BY" },
+        { headerText: "Time Blocked (s)", field: "CALL" },
+        { headerText: "Transaction", field: "TRAN_NAME" },
+        { headerText: "CPU", field: "CPU" },
+        { headerText: "Physical IO", field: "PHYSICAL_IO" },
+      ];
 
-                
+      self.SchedcolumnArray = [{ headerText: "Scheduler", field: "scheduler" }];
 
-                    self.DBDet.valueHasMutated();
-                    self.PRSession.valueHasMutated();
-                    self.SchedInfo.valueHasMutated();
-                    self.RunningTxnInfo.valueHasMutated();
-                    self.TxnData.valueHasMutated();
-                    self.WaitTxnData.valueHasMutated();
-                    self.LinkData.valueHasMutated();
+      self.RunningTxncolumnArray = [
+        { headerText: "Group", field: "group" },
+        { headerText: "Txn Count", field: "txnCount" },
+        { headerText: "Transaction IDs", field: "txn", style: "white-space:normal" },
+      ];
 
-                    //console.log(self);
-                    return self;
-                }
+      self.WaitTxncolumnArray = [
+        { headerText: "Transaction (X)", field: "startTxn" },
+        { headerText: "", field: "Wait" },
+        { headerText: "Transaction (Y)", field: "endTxn" },
+      ];
 
-            })
+      // ── Diagram ──
+      self.colorHandler = new attributeGroupHandler.ColorAttributeGroupHandler();
+      self.layoutFunc = layout.layout;
+      self.highlightedCategoriesValue = ko.observable(null);
+      self.hoverBehaviorValue = ko.observable("dim");
+      self.styleDefaults = {
+        nodeDefaults: { icon: { width: 150, shape: "rectangle" } },
+        linkDefaults: { svgStyle: { vectorEffect: "non-scaling-stroke", opacity: 0.4 } },
+      };
 
+      self.formatDetails = function (id) {
+        return "Waiting on " + id;
+      };
+
+      var tooltipElem = document.createElement("div");
+      tooltipElem.innerHTML =
+        '<div style="float:left;padding:10px 8px 10px 3px;">' +
+        '<span style="font-weight:bold;color:#606060;"></span><br>' +
+        '<span style="font-style:italic;"></span></div>';
+      var labelText = tooltipElem.children[0].children[0];
+      var valueText = tooltipElem.children[0].children[2];
+
+      self.tooltipFunction = function (ctx) {
+        var d = ctx.itemData || ctx.data || {};
+        if (d.startTxn) {                      // link
+          labelText.textContent = d.startTxn;
+          valueText.textContent = "is waiting on " + d.endTxn;
+        } else {                               // node
+          labelText.textContent = d.label || d.id || "";
+          valueText.textContent = d.category === "Txn" ? "Waiting transaction" : "Blocking transaction";
         }
+        return { insert: tooltipElem };
+      };
 
-
-        self.dataSource = ko.observable();
-        var options = {
-          expanded: 'all',
-          rowHeader: 'name',
-          columns: ['Txn']
-        };
-        var flattenedData = new flattenedModule.FlattenedTreeDataGridDataSource(new JsonTreeDataSource(self.RunningTxnInfo), options);
-        this.dataSource(flattenedData);
-    
-        self.DBDetDP = new ArrayDataProvider(self.DBDet,{keyAttributes: 'DBID'});
-        self.PRSessionDP = new ArrayDataProvider(self.PRSession,{keyAttributes: 'SPID'});
-        self.RunningTxnInfoDP = new ArrayDataProvider(self.RunningTxnInfo,{keyAttributes: 'Group'});
-        self.LinkDataDP = new ArrayDataProvider(self.LinkData,{keyAttributes: 'id'});
-        self.PstackDataDP = new ArrayTreeDataProvider(self.Pstack,{keyAttributes: 'id'});
-
-
-        self.PRDBDetcolumnArray = [{headerText: 'Database Name',
-                            field: 'DBNAME'},
-                            {headerText: 'PDB Name',
-                            field: 'PDB'},
-                            {headerText: 'DBID',
-                            field: 'DBID'},
-                            {headerText: 'Instance ID',
-                            field: 'INSTANCE'},
-                            {headerText: 'Database|Edition',
-                            field: 'DB_EDITION'},
-                            {headerText: 'Host',
-                            field: 'HOST'},
-                            {headerText: 'Database|Role',
-                            field: 'DATABASE_ROLE'},
-                            {headerText: 'Version',
-                            field: 'VERSION'}
-                            ];    
-
-        self.PRSessioncolumnArray = [{headerText: 'Session ID',
-                            field: 'SID'},
-                            {headerText: 'Serial#',
-                            field: 'SERIAL'},
-                            {headerText: 'Database PID',
-                            field: 'SPID'},
-                            {headerText: 'SQL ID',
-                            field: 'SQL_ID'},
-                            {headerText: 'Database Wait Event',
-                            field: 'EVENT'},
-                            {headerText: 'Last Call ET',
-                            field: 'CALL'},
-                            {headerText: 'Process',
-                            field: 'NAME'}
-                            ];    
-
-        self.WaitTxncolumnArray = [{headerText: 'Transaction ID',
-                            field: 'start'},
-                            {headerText: 'Wait',
-                            field: 'Wait'},
-                            {headerText: 'Transaction ID',
-                            field: 'end'}
-                            ];   
-
-        self.RunningTxncolumnArray = [{headerText: 'Group',
-                            field: 'id'},
-                            {headerText: 'Transaction ID',
-                            field: 'Txn'}];  
-
-        self.PstackcolumnArray = [{headerText: 'Thread',
-                            field: 'Thread'},
-                            {headerText: 'Stack',
-                            field: 'Stack'},
-                        ];          
-
-                              self.colorHandler = new attributeGroupHandler.ColorAttributeGroupHandler();
-                              self.layoutFunc = layout.layout;
-                              self.highlightedCategoriesValue = ko.observable(null);
-                              self.hoverBehaviorValue = ko.observable("dim");
-                              self.hoverBehaviorValueChange = function(event) {
-                                // reset initial highlighted categories
-                                if (event.detail.value === 'none')
-                                self.highlightedCategoriesValue(null);
-                              };
-                              self.nodeDataProvider = new ArrayDataProvider(self.NodeData, {keyAttributes: 'id'});
-                              self.linkDataProvider = new ArrayDataProvider(self.LinkData, {keyAttributes: 'id'});
-                              self.styleDefaults = {
-                                nodeDefaults : {
-                                  icon : {width :150, shape : "rectangle"}
-                                },
-                                linkDefaults:{svgStyle: {vectorEffect: 'non-scaling-stroke', opacity: .4}}
-                              };
-                        
-                              self.formatDetails = function(data) {
-                                return 'Waiting on ' +  data ;
-                              }
-
-                     
-                              //use custom tooltip for the object to present data in readable format
-                              var tooltipElem = document.createElement('div');
-                              
-                              tooltipElem.innerHTML='<div style="float:left;padding:10px 8px 10px 3px;"> \
-                                                       <span style="font-weight:bold;color:#606060;"></span> \
-                                                       <br> \
-                                                       <span style="font-style:italic;"></span> \
-                                                     </div>';
-
-
-                              var labelText = tooltipElem.children[0].children[0];
-                              var valueText = tooltipElem.children[0].children[2];
-                        
-                              self.tooltipFunction = function(dataContext) {
-                                var id = dataContext.id;
-                                dataContext.parentElement.style.borderWidth = "2px";
-                                dataContext.parentElement.style.borderColor = "gray";
-                                labelText.textContent = dataContext.itemData.start;
-                                valueText.textContent = self.formatDetails(dataContext.itemData.end);
-                                return {'insert':tooltipElem};
-                              };
-
-                              self.valueChangedHandler = (event) => {
-                                self.ButtonVal(false);
-                            };
-
-                              self.connected = function () { 
-                                if (sessionStorage.getItem("userName")==null) {
-                                  oj.Router.rootInstance.go('signin');
-                              }
-                              else
-                              { app.onAppSuccess();      
-                                self.RepDet([]);      
-                                getRep();
-                              }
-                            };
-
-            
+      self.connected = function () {
+        if (sessionStorage.getItem("userName") == null) {
+          oj.Router.rootInstance.go("signin");
+        } else {
+          app.onAppSuccess();
+          getRep();
+        }
+      };
     }
-}
-    return  prtshootViewModel;
-}
-)
+  }
+  return prtshootViewModel;
+});

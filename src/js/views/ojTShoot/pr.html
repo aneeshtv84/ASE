@@ -1,128 +1,125 @@
-
-<div class="oj-panel " >
-    <oj-form-layout id="fl2" class="oj-form-layout"  label-edge="start" max-columns="2" direction="row">
-    <oj-select-single  id="Database"
-                    label-hint="Parallel Replicat Name"
-                    data="[[RepDetDP]]" 
-                    value="{{repName}}" on-value-changed="[[valueChangedHandler]]" >
-    </oj-select-single >
-    <oj-button disabled="{{ButtonVal}}" id="PRTShootBtn" chroming="callToAction"  on-oj-action="[[PRTShoot]]">Get Details
+<div class="oj-panel">
+  <oj-form-layout id="fl2" class="oj-form-layout" label-edge="start" max-columns="2" direction="row">
+    <oj-select-single id="Replicat" label-hint="Parallel Replicat Name"
+        data="[[RepDetDP]]" value="{{repName}}" on-value-changed="[[valueChangedHandler]]">
+    </oj-select-single>
+    <oj-button id="PRTShootBtn" chroming="callToAction" disabled="[[ButtonVal]]" on-oj-action="[[PRTShoot]]">
+      Get Details
     </oj-button>
-    
-    </oj-form-layout>
+  </oj-form-layout>
+</div>
+
+<oj-bind-if test="[[loaded]]">
+
+  <oj-bind-if test="[[sectionErrors().length > 0]]">
+    <div class="oj-panel oj-bg-warning-10 oj-sm-margin-2x-vertical">
+      <div class="oj-typography-subheading-xs">Some details could not be collected</div>
+      <oj-bind-for-each data="[[sectionErrors]]">
+        <template>
+          <div class="oj-typography-body-sm">
+            <b><oj-bind-text value="[[$current.data.section]]"></oj-bind-text>:</b>
+            <oj-bind-text value="[[$current.data.message]]"></oj-bind-text>
+          </div>
+        </template>
+      </oj-bind-for-each>
     </div>
-    <div class="oj-flex">
-                         <div class="oj-panel" style="width:40%;">
-                          <div class="oj-panel io-color oj-margin " >
-                            <h7>Database</h7>  
-                        </div>
-                   
-                    <oj-table id='table' aria-label='All Table'
-                              data='[[DBDetDP]]'
-                              display='grid'
-                              selection-mode='{"row": "single"}' 
-                              columns='{{PRDBDetcolumnArray}}'
-                              style='width: 100%;'>
-                
-                    </oj-table>
-                    </div>
-                    <div class="oj-panel" style="width:60%;">
-                      <div class="oj-panel io-color oj-margin " >
-                        <h7>Database Session Waits</h7>  
-                    </div>
-                        <oj-table id='table' aria-label='All Table'
-                        data='[[PRSessionDP]]'
-                        display='grid'
-                        selection-mode='{"row": "single"}' 
-                        columns='{{PRSessioncolumnArray}}'
-                        style='width: 100%;'>
-                        </oj-table>
-                    </div>
-                </div>
-                    <div class="oj-panel">
-                      <div class="oj-panel io-color oj-margin">
-                      <h7>Running Transactions</h7>  
-                    </div>
-                      <oj-table id='table' aria-label='All Table'
-                      data='[[RunningTxnInfoDP]]'
-                      display='grid'
-                      selection-mode='{"row": "single"}' 
-                      columns='{{RunningTxncolumnArray}}'
-                      style='width: 100%;'>
-                      </oj-table>
-                  </div>
-                        <div class="oj-panel ">
-                          <div class="oj-panel io-color oj-margin">
-                            <h7>Wait Dependencies</h7>  
-                          </div>
-                         <oj-radioset class="oj-choice-direction-row"   value="{{currentFormat}}" >
-                            <oj-option id="tab" value="tab">Table</oj-option>
-                            <oj-option id="graph" value="graph">Graph</oj-option>
-                        </oj-radioset>
-                        <oj-bind-if test="[[currentFormat()==='tab']]">
-                          <oj-table id='table' aria-label='All Table'
-                          data='[[LinkDataDP]]'
-                          display='grid'
-                          selection-mode='{"row": "single"}' 
-                          columns='{{WaitTxncolumnArray}}'
-                          style='width: 100%;'>
-                          </oj-table>
+  </oj-bind-if>
 
-                        </oj-bind-if>
-                        <oj-bind-if test="[[currentFormat()==='graph']]">
-                          <br>
-                          <br>
-                          <h7>X is Waiting on Y</h7>
-                        <oj-diagram id='diagram'
-                        node-data = '[[nodeDataProvider]]'
-                        link-data = '[[linkDataProvider]]'
-                        highlight-match = 'any'
-                        highlighted-categories = '{{highlightedCategoriesValue}}'
-                        hover-behavior = '[[hoverBehaviorValue]]'
-                        layout = '[[layoutFunc]]'
-                        link-highlight-mode = 'linkAndNodes'
-                        node-highlight-mode = 'nodeAndLinks'
-                        selection-mode = 'none'
-                        style-defaults = '[[styleDefaults]]'
-                        tooltip.renderer = '[[tooltipFunction]]'
-                        style='max-width:2200px;width:100%;height:1200px;'>
-                        <template slot='nodeTemplate' data-oj-as='node'>
-                          <oj-diagram-node
-                            label='[[node.data.id]]'
-                            label-style='{"font-size": "40px"}'
-                            short-desc='[[node.data.id + ":" + formatDetails(node.data.id)]]'
-                            icon.color='[[colorHandler.getValue(node.data.category)]]'
-                            icon.border-color='[[colorHandler.getValue(node.data.category)]]'
-                            icon.height=20>
-                          </oj-diagram-node>
-                        </template>
-                        <template slot='linkTemplate' data-oj-as='link'>
-                          <oj-diagram-link
-                            start-node='[[link.data.start]]' 
-                            end-node='[[link.data.end]]'
-                            short-desc='[[link.data.id + ":" + formatDetails(link.data.id)]]'
-                            color='[[colorHandler.getValue(link.data.id)]]'
-                            width=1>
-                          </oj-diagram-link>
-                        </template>
-                      </oj-diagram>
-                        </oj-bind-if>
-                    </div>
+  <div class="oj-flex">
+    <div class="oj-panel oj-flex-item" style="flex:0 0 35%;">
+      <div class="oj-panel io-color oj-margin"><h7>Database</h7></div>
+      <oj-table aria-label="Database" data="[[DBDetDP]]" columns="[[PRDBDetcolumnArray]]"
+          display="grid" class="oj-sm-width-full"></oj-table>
+    </div>
+    <div class="oj-panel oj-flex-item" style="flex:0 0 65%;">
+      <div class="oj-panel io-color oj-margin">
+        <h7>Replicat ASE Sessions (Appliers)</h7>
+        <span class="tooltip fa fa-info-circle">
+          <span class="tooltiptext">One ASE session per applier. Appliers blocking each other
+            (Blocked By = another applier SPID) means the tables need better partitioning or unique keys.</span>
+        </span>
+      </div>
+      <oj-table aria-label="Sessions" data="[[PRSessionDP]]" columns="[[PRSessioncolumnArray]]"
+          display="grid" class="oj-sm-width-full"></oj-table>
+    </div>
+  </div>
 
-                    
-                    <div class="oj-panel" style="width:100%;">
-                      <div class="oj-panel io-color oj-margin " >
-                        <h7>Process Stack of the Scheduler</h7>  
-                    </div>
-                    <oj-tree-view id="treeview1"
-                    data="[[PstackDataDP]]"
-                    aria-label="Tree View with JSON Data">
-                    <template slot="itemTemplate" data-oj-as="thread">
-                      <span class="oj-treeview-item-icon"></span>
-                      <span class="oj-treeview-item-text">
-                        <oj-bind-text value="[[thread.data.title]]"></oj-bind-text>
-                      </span>
-                    </template>
-                    </oj-tree-view>
-                </div>
+  <div class="oj-flex">
+    <div class="oj-panel oj-flex-item" style="flex:0 0 25%;">
+      <div class="oj-panel io-color oj-margin"><h7>Schedulers</h7></div>
+      <oj-table aria-label="Schedulers" data="[[SchedInfoDP]]" columns="[[SchedcolumnArray]]"
+          display="grid" class="oj-sm-width-full"></oj-table>
+    </div>
+    <div class="oj-panel oj-flex-item" style="flex:0 0 75%;">
+      <div class="oj-panel io-color oj-margin"><h7>Running Transactions</h7></div>
+      <oj-bind-if test="[[RunningTxnInfo().length === 0]]">
+        <div class="oj-typography-body-sm oj-text-color-secondary">No running transactions.</div>
+      </oj-bind-if>
+      <oj-bind-if test="[[RunningTxnInfo().length > 0]]">
+        <oj-table aria-label="Running Transactions" data="[[RunningTxnInfoDP]]"
+            columns="[[RunningTxncolumnArray]]" display="grid" class="oj-sm-width-full"></oj-table>
+      </oj-bind-if>
+    </div>
+  </div>
 
+  <div class="oj-panel">
+    <div class="oj-panel io-color oj-margin"><h7>Wait Dependencies</h7></div>
+
+    <oj-bind-if test="[[LinkData().length === 0]]">
+      <div class="oj-typography-body-sm oj-text-color-secondary">No transactions are waiting on each other.</div>
+    </oj-bind-if>
+
+    <oj-bind-if test="[[LinkData().length > 0]]">
+      <oj-radioset class="oj-choice-direction-row" value="{{currentFormat}}">
+        <oj-option value="tab">Table</oj-option>
+        <oj-option value="graph">Graph</oj-option>
+      </oj-radioset>
+
+      <oj-bind-if test="[[currentFormat() === 'tab']]">
+        <oj-table aria-label="Wait Dependencies" data="[[LinkDataDP]]" columns="[[WaitTxncolumnArray]]"
+            display="grid" class="oj-sm-width-full"></oj-table>
+      </oj-bind-if>
+
+      <oj-bind-if test="[[currentFormat() === 'graph']]">
+        <div class="oj-typography-body-sm oj-sm-margin-2x-vertical">X is waiting on Y</div>
+        <oj-diagram id="diagram"
+            node-data="[[nodeDataProvider]]"
+            link-data="[[linkDataProvider]]"
+            highlight-match="any"
+            highlighted-categories="{{highlightedCategoriesValue}}"
+            hover-behavior="[[hoverBehaviorValue]]"
+            layout="[[layoutFunc]]"
+            link-highlight-mode="linkAndNodes"
+            node-highlight-mode="nodeAndLinks"
+            selection-mode="none"
+            style-defaults="[[styleDefaults]]"
+            tooltip.renderer="[[tooltipFunction]]"
+            style="width:100%;height:800px;">
+          <template slot="nodeTemplate" data-oj-as="node">
+            <oj-diagram-node
+                label="[[node.data.label]]"
+                short-desc="[[node.data.label]]"
+                icon.color="[[colorHandler.getValue(node.data.category)]]"
+                icon.border-color="[[colorHandler.getValue(node.data.category)]]"
+                icon.height="20">
+            </oj-diagram-node>
+          </template>
+          <template slot="linkTemplate" data-oj-as="link">
+            <oj-diagram-link
+                start-node="[[link.data.start]]"
+                end-node="[[link.data.end]]"
+                short-desc="[[link.data.startTxn + ' is waiting on ' + link.data.endTxn]]"
+                color="[[colorHandler.getValue('link')]]"
+                width="1">
+            </oj-diagram-link>
+          </template>
+        </oj-diagram>
+      </oj-bind-if>
+    </oj-bind-if>
+  </div>
+
+  <div class="oj-panel">
+    <div class="oj-panel io-color oj-margin"><h7>Process Stack of the Parallel Replicat</h7></div>
+    <oj-bind-if test="[[Pstack().length === 0]]">
+      <div class="oj-typography-body-sm oj-text-color-secondary">No stack output.</div>
+    </oj-bind-if>

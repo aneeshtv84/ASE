@@ -9,7 +9,7 @@
         user-assistance-density='compact' >
         
         <oj-combobox-one required label-hint="Select the Initial Load Group" label-edge="inside" class='demo-rem-max-width'
-        id="SRCCredentialAlias" options="[[ILjobDataProvider]]" value="{{currentILJOb}}"
+        id="SRCSecretAlias" options="[[ILjobDataProvider]]" value="{{currentILJOb}}"
         on-oj-value-updated="[[getILTables]]" class="oj-sm-4">
         </oj-combobox-one>
     </oj-form-layout>
@@ -51,7 +51,46 @@
     </div>
   </div> -->
   <!-- end -->
+    <div class="oj-panel demo-centering-container oj-sm-margin-1x-bottom oj-xl-margin-10x oj-xl-padding-1x oj-lg-margin-1x oj-lg-padding-1x oj-md-margin-1x oj-md-padding-1x oj-sm-margin-1x oj-sm-padding-1x">
+        
+        <oj-label for="select1"></oj-label>
+        <oj-bind-if test="[[ExtData().length > 0]]">
+            <oj-bind-for-each data="[[ExtDataDP]]">
+                <template data-oj-as="Extract">
+                    <oj-action-card :id="[[Extract.data.ExtName]]" class="oj-flex-item oj-sm-margin-2x" :style="[[Extract.data.styleExt]]">
+                        <onep-initmon-card-layout>
+                            <div
+                                class="oj-text-primary-color onep-initmon-card-layout-proc-name oj-typography-subheading-lg">
+                                <oj-bind-text value="[[Extract.data.ExtName]]"></oj-bind-text>
+                            </div>
+                            <div
+            class="oj-text-primary-color onep-initmon-card-layout-proc-name oj-typography-subheading-lg">
+                                <oj-bind-text value="[[Extract.data.ExtStat]]"></oj-bind-text>
+                            </div>
+                        </onep-initmon-card-layout>
+                    </oj-action-card>
+                </template>
+            </oj-bind-for-each>
+        </oj-bind-if>
+        <oj-bind-if test="[[RepData().length > 0]]">
+            <oj-bind-for-each data="[[RepDataDP]]">
+                <template data-oj-as="Replicat">
+                    <oj-action-card :id="[[Replicat.data.RepName]]" class="oj-flex-item oj-sm-margin-2x" :style="[[Replicat.data.styleExt]]">
+                        <onep-initmon-card-layout>
+                            <div
+                                class="oj-text-primary-color onep-initmon-card-layout-proc-name oj-typography-subheading-lg">
+                                <oj-bind-text value="[[Replicat.data.RepName]]"></oj-bind-text>
+                            </div>
+                            <div class="oj-text-primary-color onep-initmon-card-layout-proc-name oj-typography-subheading-lg">
+                                <oj-bind-text value="[[Replicat.data.RepStat]]"></oj-bind-text>
+                            </div>
+                        </onep-profile-card-layout>
+                    </oj-action-card>
+                </template>
+            </oj-bind-for-each>
+        </oj-bind-if>
 
+    </div>
 <oj-bind-if test="[[NodeData().length > 0]]">
     <div class="oj-panel demo-centering-container oj-sm-margin-1x-bottom oj-xl-margin-10x oj-xl-padding-1x oj-lg-margin-1x oj-lg-padding-1x oj-md-margin-1x oj-md-padding-1x oj-sm-margin-1x oj-sm-padding-1x">
         <svg xmlns="http://www.w3.org/2000/svg" width='0' height="0">
@@ -132,7 +171,7 @@
                 <oj-menu id="stop_menu">
                     <oj-option id="stop" value="stop">Stop
                     </oj-option>
-                    <oj-option id="forcestop" value="forcestop">Force Stop
+                    <oj-option id="forcestop" value="stop">Force Stop
                     </oj-option>
                     <oj-option id="kill" value="kill">Kill
                     </oj-option>
@@ -166,7 +205,13 @@
     <div class="oj-panel io-color demo-center-items">
         <h7>InitialLoad Statistics</h7>
     </div>
-    <oj-table id='table' aria-label='ILStats Table' data='[[ILStatsDP]]' display='grid' scroll-policy="loadAll"
+    <oj-input-search
+        placeholder="Search tables"
+        raw-value="{{tableSearchTextRaw}}"
+        value="{{tableSearchText}}"
+        class="oj-sm-full-width oj-sm-margin-2x-bottom">
+    </oj-input-search>     
+    <oj-table id='table' aria-label='ILStats Table' data='[[dataproviderView]]' display='grid' scroll-policy="loadAll"
         selection-mode='{"row": "single"}' columns='{{ILStatscolumnArray}}' style="height: calc(100vh - 70vh);width: 100%;" >
     </oj-table>
 </oj-bind-if>
@@ -212,6 +257,27 @@ OK
 </div>
 </oj-dialog>
 
+<oj-dialog id="ExtValidityDialog" dialog-title="[[dialogTitleValidity]]" modality="modeless"
+cancel-behavior="[[CancelBehaviorOpt]]" style="display:none;width:800px;min-width:800px;max-width:800px;">
+<div slot="body">
+<oj-bind-for-each data="[[ExtRpt]]">
+<template data-oj-as="ExtMsg">
+<p>
+    <span id="resultsExtDel" class="oj-typography-body-lg ">
+        <oj-bind-text value='[[ExtMsg.data]]'></oj-bind-text>
+    </span>
+</p>
+</template>
+</oj-bind-for-each>
+</div>
+<div slot="footer">
+<oj-button id="okdelExtBtn" chroming="callToAction" on-oj-action="[[ValExtractRptOKClose]]">
+OK
+</oj-button>
+</div>
+</oj-dialog>
+
+
 <oj-dialog id="RepDelDialog" dialog-title="Delete Replicat Info" modality="modeless"
 cancel-behavior="[[CancelBehaviorOpt]]" style="display:none;width:800px;min-width:800px;max-width:800px;">
 <div slot="body">
@@ -237,13 +303,19 @@ OK
 cancel-behavior="[[CancelBehaviorOpt]]" style="display:none;width:300px;min-width:300px;max-width:300px;background-color: gainsboro;">
 <div slot="body">
 <oj-form-layout id="fl2" class="oj-form-layout" label-edge="start" max-columns="1">
-<oj-label  for="extdom" >Credential Domain
+    <oj-label  for="extdom" >Deployment
+    </oj-label>
+    <oj-select-single required id="tgtschema" label-hint="Choose Target Deployment"
+        label-edge="inside" data="{{onepDepListDP}}" value="{{TgtOnePDepName}}"
+        class="demo-max-width" on-value-changed="[[SelectTGTDeployment]]">
+    </oj-select-single>
+<oj-label  for="extdom" >Secret Domain
 </oj-label>
 <oj-combobox-one required id="extdom" style="max-width:18em"  
 options="{{domname1}}" value="{{selectedDomCategory}}" 
 on-oj-value-updated="[[domSelectionChanged]]">
 </oj-combobox-one>
-<oj-label  for="extalias" >Credential Alias</oj-label>
+<oj-label  for="extalias" >Secret Alias</oj-label>
 <oj-combobox-one required  id="extalias" options="[[aliascategories]]"
 value="{{selectedAliascategory}}">
 </oj-combobox-one>
@@ -271,16 +343,16 @@ cancel-behavior="[[CancelBehaviorOpt]]" style="display:none;width:550px;min-widt
 <div class="oj-panel  oj-sm-margin-4x-bottom  style="text-align: left">  
 <oj-form-layout id="fl2" readonly="[[isFormReadonly()]]" label-edge="start" max-columns="1" direction="row">   
     <oj-label for="repcreddombegin" show-required="[[isRequired]]"
-        help.definition='[[helpDef]]' help.source='[[helpSource]]'>Credential Domain
+        help.definition='[[helpDef]]' help.source='[[helpSource]]'>Secret Domain
     </oj-label>
     <oj-combobox-one required  id="repcreddombegin" 
         options="{{domname1}}" value="{{selectedDomCategory}}"
         on-oj-value-updated="[[domSelectionChanged]]">
     </oj-combobox-one>
-    <oj-label for="RepCredentialAliaBegin" show-required="[[isRequired]]"
-        help.definition='[[helpDef]]' help.source='[[helpSource]]'>Credential Alias
+    <oj-label for="RepSecretAliaBegin" show-required="[[isRequired]]"
+        help.definition='[[helpDef]]' help.source='[[helpSource]]'>Secret Alias
     </oj-label>
-    <oj-combobox-one required  id="RepCredentialAliaBegin" options="[[aliascategories]]"
+    <oj-combobox-one required  id="RepSecretAliaBegin" options="[[aliascategories]]"
         value="{{selectedAliascategory}}">
     </oj-combobox-one>
 
@@ -356,4 +428,32 @@ cancel-behavior="[[CancelBehaviorOpt]]" style="display:none;width:850px;min-widt
         Save
     </oj-button>
 </div>
+</oj-dialog>
+
+<oj-dialog id="StatsDialog" dialog-title="[[statsTitle]]" modality="modeless"
+    cancel-behavior="[[CancelBehaviorOpt]]"
+    style="display:none;width:760px;min-width:600px;max-width:95vw;">
+    <div slot="body">
+        <div class="oj-flex oj-sm-align-items-center oj-sm-margin-2x-bottom">
+            <oj-switch value="{{statsHideZero}}" label-hint="Hide zero values"
+                label-edge="inside" class="oj-flex-item oj-sm-flex-initial"></oj-switch>
+            <span class="oj-flex-item oj-typography-body-sm oj-text-color-secondary"
+                  style="text-align:right">
+                <oj-bind-text value="[[statsRows().length + ' statistics']]"></oj-bind-text>
+            </span>
+        </div>
+
+        <oj-bind-if test="[[statsRows().length > 0]]">
+            <oj-table aria-label="Process statistics" data="[[statsDP]]"
+                columns="[[statsColumns]]" display="grid" scroll-policy="loadAll"
+                style="width:100%;max-height:60vh;">
+            </oj-table>
+        </oj-bind-if>
+        <oj-bind-if test="[[statsRows().length === 0]]">
+            <p class="oj-typography-body-md">No statistics available. The process may not have processed any records yet.</p>
+        </oj-bind-if>
+    </div>
+    <div slot="footer">
+        <oj-button chroming="callToAction" on-oj-action="[[closeStats]]">OK</oj-button>
+    </div>
 </oj-dialog>

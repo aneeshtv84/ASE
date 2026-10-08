@@ -1,6 +1,6 @@
 <div class="oj-panel oj-sm-margin-2x">
     <oj-bind-if test='[[sessionStorage.getItem("userName")!=null]]'>
-        <h6 class="oj-flex-item oj-typography-heading-xl demo-center-items">Initial Load</h6>
+        <h6 class="oj-flex-item oj-typography-heading-xl demo-center-items">Heterogeneous Initial Load</h6>
         <div class="oj-panel oj-sm-margin-2x oj-flex-bar">
             <div class="oj-flex-bar-start">
                 <oj-button on-click="[[previousStep]]" disabled="[[selectedStepValue() == 'stp1']]">
@@ -58,26 +58,40 @@
                                 label-edge="inside" data="{{onepDepListDP}}" value="{{SrcOnePDepName}}"
                                 class="demo-max-width" on-value-changed="[[SelectSRCDeployment]]">
                             </oj-select-single>
-                            <oj-label for="SRCCredentialDomain" show-required="[[isRequired]]"
-                                help.definition='[[helpDef]]' help.source='[[helpSource]]'>Credential Domain
+                            <oj-label for="SRCSecretDomain" show-required="[[isRequired]]"
+                                help.definition='[[helpDef]]' help.source='[[helpSource]]'>Secret Domain
+                                <oj-if test="[[domainLoading()]]">
+                                    <span class="field-loading-spinner" aria-label="Loading domains">
+                                        <span class="spinner-ring"></span>
+                                    </span>
+                                </oj-if>
                             </oj-label>
-                            <oj-select-single required id="SRCCredentialDomain" data="[[SRCdomname1DP]]"
+                            <oj-select-single required id="SRCSecretDomain" data="[[SRCdomname1DP]]"
                                 value="{{selectedSRCDomCategory}}" on-value-changed="[[SRCdomSelectionChanged]]">
                             </oj-select-single>
 
-                            <oj-label for="SRCCredentialAlias" show-required="[[isRequired]]"
-                                help.definition='[[helpDef]]' help.source='[[helpSource]]'>Credential Alias</oj-label>
-                            <oj-select-single required label-hint="Choose Database Alias" label-edge="inside"
-                                id="SRCCredentialAlias" data="[[SRCaliascategoriesDP]]" value="{{SRCcurrentPDB}}"
+                            <oj-label for="SRCSecretAlias" show-required="[[isRequired]]"
+                                help.definition='[[helpDef]]' help.source='[[helpSource]]'>Secret Alias</oj-label>
+                            <oj-select-single required label-hint="Choose Secret Alias" label-edge="inside"
+                                id="SRCSecretAlias" data="[[SRCaliascategoriesDP]]" value="{{SRCcurrentPDB}}"
                                 on-value-changed="[[CDBData]]">
                             </oj-select-single>
-
-
-                        
-                                      <oj-select-many required id="srcschema" label-hint="Choose Schema Name"
-                                label-edge="inside" options="{{schemaNameListDP}}" value="{{schemaList}}"
-                                class="demo-max-width" on-value-changed="[[valueChangedHandler]]">
-                            </oj-select-many>
+                            <oj-bind-if test="[[CDBCheck() === 'YES']]">
+                                <oj-select-single required id="srcpdb" label-hint="Choose PDB Name" label-edge="inside"
+                                    data="{{PDBNameListDP}}" value="{{pdbList}}" class="demo-max-width"
+                                    on-value-changed="[[SRCDBSchema]]">
+                                </oj-select-single>
+                                <oj-select-many required id="srcschema" label-hint="Choose Schema Name"
+                                    label-edge="inside" options="{{schemaNameCDBListDP}}" value="{{schemaList}}"
+                                    class="demo-max-width" on-value-changed="[[valueChangedHandler]]">
+                                </oj-select-many>
+                            </oj-bind-if>
+                            <oj-bind-if test="[[CDBCheck() === 'NO']]">
+                                <oj-select-many required id="srcschema" label-hint="Choose Schema Name"
+                                    label-edge="inside" options="{{schemaNameListDP}}" value="{{schemaList}}"
+                                    class="demo-max-width" on-value-changed="[[valueChangedHandler]]">
+                                </oj-select-many>
+                            </oj-bind-if>
 
                             <div class="oj-flex">
                                 <oj-switch id="metaswitch" class="oj-flex-item" value="{{gatherMeta}}"
@@ -113,13 +127,26 @@
                                 on-oj-action="[[SrcDBSchemaFetch]]">
                                 Analyze Selected Schemas
                             </oj-button>
+                        </div>                        
+                        <div class="oj-panel io-color demo-center-items">
+                            <h7>Target Database Details</h7>
                         </div>
-                        <oj-bind-if test="[[TgtonepDepType() != 'bda']]">
-                            <div class="oj-panel io-color demo-center-items">
-                                <h7>Target Database Details</h7>
-                            </div>
+                        <oj-bind-if test="[[TgtonepDepType() == 'oracle']]">
                             <oj-table id='dbTgtDetList' aria-label='All Table' data='[[dbTgtDetListDP]]' display='grid'
-                                selection-mode='{"row": "single"}' columns='{{dbDetTgtcolumnArray}}' style='width: 100%;'>
+                                selection-mode='{"row": "single"}' columns='{{dbDetcolumnArray}}' style='width: 100%;'>
+                            </oj-table>
+                        </oj-bind-if>
+                        <oj-bind-if test="[[TgtonepDepType() == 'postgresql']]">
+                            <oj-table id='dbTgtDetList' aria-label='All Table' data='[[dbTgtDetListDP]]' display='grid'
+                                selection-mode='{"row": "single"}' columns='{{postgresDbDetcolumnArray}}' style='width: 100%;'>
+                            </oj-table>
+                        </oj-bind-if>
+                        <oj-bind-if test="[[TgtonepDepType() == 'sqlserver']]">
+                            <oj-table id='dbTgtDetList' aria-label='Target SQL Server Details'
+                                data='[[dbTgtDetListDP]]' display='grid'
+                                selection-mode='{"row": "single"}'
+                                columns='{{sqlserverDbDetcolumnArray}}'
+                                style='width: 100%;'>
                             </oj-table>
                         </oj-bind-if>
                     </div>
@@ -134,18 +161,18 @@
                                 class="demo-max-width" on-value-changed="[[SelectTGTDeployment]]">
                             </oj-select-single>
                             <oj-bind-if test="[[TgtonepDepType() != 'bda']]">
-                                <oj-label for="TGTCredentialDomain" show-required="[[isRequired]]"
-                                    help.definition='[[helpDef]]' help.source='[[helpSource]]'>Credential Domain
+                                <oj-label for="TGTSecretDomain" show-required="[[isRequired]]"
+                                    help.definition='[[helpDef]]' help.source='[[helpSource]]'>Secret Domain
                                 </oj-label>
-                                <oj-select-single required id="TGTCredentialDomain" data="[[TGTdomname1DP]]"
+                                <oj-select-single required id="TGTSecretDomain" data="[[TGTdomname1DP]]"
                                     value="{{selectedTGTDomCategory}}" on-value-changed="[[TGTdomSelectionChanged]]">
                                 </oj-select-single>
 
-                                <oj-label for="TGTCredentialAlias" show-required="[[isRequired]]"
-                                    help.definition='[[helpDef]]' help.source='[[helpSource]]'>Credential Alias
+                                <oj-label for="TGTSecretAlias" show-required="[[isRequired]]"
+                                    help.definition='[[helpDef]]' help.source='[[helpSource]]'>Secret Alias
                                 </oj-label>
-                                <oj-select-single required label-hint="Choose Database Alias" label-edge="inside"
-                                    id="CredentialAlias" data="[[TGTaliascategoriesDP]]" value="{{TGTcurrentPDB}}"
+                                <oj-select-single required label-hint="Choose Target Secret Alias" label-edge="inside"
+                                    id="SecretAlias" data="[[TGTaliascategoriesDP]]" value="{{TGTcurrentPDB}}"
                                     on-value-changed="[[DBTgtSchema]]">
                                 </oj-select-single>
                                 <!-- <div class="oj-panel demo-center-items">
@@ -162,21 +189,15 @@
                         <oj-bind-if test="[[currentLoadOption() === 'auto']]">
                             <oj-bind-if test="[[TgtonepDepType() != 'bda']]">
                                 <oj-form-layout id="fl2" readonly="[[isFormReadonly()]]" direction="row">
-                                    <div class="oj-flex oj-sm-12"></divclass>
-                                        <div class="oj-flex-item oj-sm-10">
-                                            <oj-select-single class="oj-flex-item oj-sm-10" id="ckpt" data="[[chkpttblDP]]"
-                                                value="{{currentChkptTbl}}" label-edge="inside"
-                                                label-hint="Checkpoint Table">
-                                            </oj-select-single>
-                                            <oj-bind-text value="[[checkPtMessage]]"></oj-bind-text>
-                                        </div>
-                                        <div class="oj-flex-item oj-sm-2 oj-sm-align-self-center">
-                                            <oj-button disabled="[[ButtonChltbl]]" display='icons'
-                                                on-oj-action="[[gotoGGAdmin]]" style="height: 4em !important;">
-                                                &nbsp;&nbsp;
-                                                <span slot='startIcon' class="demo-icon-sprite oj-flex-item oj-sm-2"></span></oj-button>
-                                        </div>
-                                        
+                                    <div>
+                                        <oj-select-single class="oj-flex-item oj-sm-10" id="ckpt" data="[[chkpttblDP]]"
+                                            value="{{currentChkptTbl}}" label-edge="inside"
+                                            label-hint="Checkpoint Table">
+                                        </oj-select-single>
+                                        <oj-button disabled="[[ButtonChltbl]]" display='icons'
+                                            on-oj-action="[[gotoGGAdmin]]" style="height: 4em !important;">
+                                            &nbsp;&nbsp;<span slot='startIcon'
+                                                class="demo-icon-sprite oj-flex-item oj-sm-2"></span></oj-button>
                                     </div>
 
                                 </oj-form-layout>
@@ -212,6 +233,11 @@
                         <div
                             class="oj-panel oj-sm-flex-wrap-nowrap oj-sm-margin-4x-bottom oj-xl-margin-2x oj-xl-padding-10x oj-lg-margin-2x oj-lg-padding-7x oj-md-margin-2x oj-md-padding-4x oj-sm-margin-1x oj-sm-padding-1x ">
                             <h6>Select the tables to exclude from Initail Load</h6>
+                            <oj-input-search
+                                placeholder="Search tables"
+                                raw-value="{{tableSearchTextRaw}}"
+                                class="oj-sm-full-width oj-sm-margin-2x-bottom">
+                            </oj-input-search>
                             <oj-table id='tableNameList' aria-label='All Table' data='[[dataproviderView]]'
                                 class="oj-sm-full-width" selected='{{selectedItems}}'
                                 selection-mode=[[selectedSelectionMode]]
@@ -223,22 +249,18 @@
                                             <oj-bind-text value="[[row.data.TABLE_NAME]]"></oj-bind-text>
                                         </td>
                                         <td>
-                                            <oj-bind-text value="[[row.data.rowtotal]]"></oj-bind-text>
+                                            <oj-bind-text value="[[row.data.ROWCNT]]"></oj-bind-text>
                                         </td>
                                         <td>
-                                            <oj-input-text readonly='true' value="[[row.data.reserved]]">
+                                            <oj-input-text readonly='true' value="[[row.data.AVGSPC]]">
                                             </oj-input-text>
                                         </td>
                                         <td>
-                                            <oj-input-text readonly='true' value="[[row.data.data]]">
+                                            <oj-input-text readonly='true' value="[[row.data.ANALYZETIME]]">
                                             </oj-input-text>
                                         </td>
                                         <td>
-                                            <oj-input-text value="[[row.data.index_size]]">
-                                            </oj-input-text>
-                                        </td>
-                                        <td>
-                                            <oj-input-text value="[[row.data.unused]]">
+                                            <oj-input-text value="[[filter]]">
                                             </oj-input-text>
                                         </td>
                                     </tr>
@@ -694,3 +716,17 @@
         </oj-button>
     </div>
 </oj-dialog>
+
+<style>
+    .spinner-ring {
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+        border: 1.5px solid rgba(0,0,0,.12);
+        border-top-color: #2563eb;
+        border-radius: 50%;
+        animation: spin .7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+</style>

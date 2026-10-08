@@ -1,32 +1,89 @@
- <div class="oj-web-applayout-page">
-  <div class="demo-signin-bg oj-flex oj-sm-justify-content-flex-end">
-    <div class="oj-flex-item oj-sm-9 demo-signin-column oj-flex oj-sm-flex-direction-column oj-sm-flex-wrap-nowrap">
+    <div class="container">
+        <!-- Left Section -->
+        <div class="left-section">
+            <div class="logo-section">
+                <div class="demo-icon-1place"></div>
+                <div class="logo-text">MigDB for Sybase ASE</div>
+            </div>
 
-        <div class="demo-circle-flex-item oj-flex-item oj-sm-align-self-flex-end oj-flex oj-sm-align-items-flex-end">
-          <div class="demo-circle-logo-container">
-            <div class="demo-circle-logo" aria-label="Goldengate OnePlace Login"></div>
-          </div>
+            <div class="welcome-text">
+                <h1>
+                    <span class="highlight">Welcome to the</span>
+                    <span class="highlight">Future of Enterprise</span>
+                    <span class="highlight">Database Migrations</span>
+                </h1>
+            </div>
+
+           <div class="features" data-bind="foreach: features">
+                <div class="feature-item">
+                    <i class="feature-icon" data-bind="css: iconClass"></i>
+                    <div class="feature-content">
+                        <span class="feature-text" data-bind="text: title"></span>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <div class="oj-flex-item">
-          <div class="oj-web-padding-start oj-flex">
-            <img src="css/images/Skylift_logo.png" style="width:8%"> 
-            <h1 class="demo-signin-appname"><div style="font-weight: 400; padding-top: 4px;color:#002060;font-size: 32px;">&nbsp;&nbsp;Skylift for Sybase ASE</div></h1>
-          </div>
+        <!-- Right Section - White Background -->
+        <div class="right-section">
+            <div class="signin-card">
+                <h2>Sign In</h2>
+                <p>Enter your Secrets to access your account</p>
+                <oj-validation-group id="tracker" valid="{{groupValid}}">
+                    <oj-form-layout class="oj-formlayout-full-width">
+        <!-- Email Input -->
 
-          <div class="demo-signin-form-container oj-hybrid-padding">
-            <div class="demo-signin-form oj-web-padding-vertical">
-              <oj-form-layout id="fl1" label-edge="start" max-columns="2" direction="row">
-              <oj-validation-group id="tracker" valid="{{groupValid}}">
-                <oj-input-text required id='OnePlaceUsername' placeholder='User Name' spellcheck='false' aria-label='User Name' value='{{OnePlaceuserName}}' required='true'></oj-input-text>
-                <oj-input-password  required id='OnePlacePassword' placeholder='Password' aria-label='password' value='{{OnePlacepassWord}}' required='true'></oj-input-password>
-              </oj-validation-group>
-              </oj-form-layout>
+       
+         <oj-input-text required id='OnePlaceUsername' label-hint="User Name" placeholder='User Name' spellcheck='false' aria-label='User Name' value='{{OnePlaceuserName}}' required='true'>
+         <span slot="start">
+          <i class="fas fa-user" style="color:#2563EB; font-size:18px; margin-right:6px;"></i>
+         </span>
+         </oj-input-text>
 
-              <div class="oj-hybrid-padding-top">
-                <oj-button id='signInBtn' class='demo-signin-button' chroming='solid'
-                  on-oj-action='[[signIn]]'><span class="demo-signin-button-label"><span class='oj-hybrid-padding-horizontal'>Sign In</span></span></oj-button>
-              </div>
+
+        <!-- Password Input -->
+        <oj-input-password
+          id="password"
+          label-hint="Password"
+          placeholder="Enter your password"
+          value="{{OnePlacepassWord}}"
+          mask-icon="visible"
+          required
+          class="oj-complete">
+          <span slot="start"><i class="fas fa-lock" style="color:#2563EB; font-size:18px; margin-right:6px;"></i></span>
+        </oj-input-password>
+
+        <!-- Remember Me & Forgot Password -->
+          
+
+
+        <!-- Submit Button -->
+                         <oj-button id='signInBtn' class="signin-button"   label="Sign In" chroming="callToAction"
+                  on-oj-action='[[signIn]]'>s</oj-button>
+
+      </oj-form-layout>
+</oj-validation-group>
+            </div>
+        </div>
+    </div>
+
+
+
+
+<oj-dialog id="signInProgress" title="Authenticating...." modality="modeless"
+style="display:none;width:350px;min-width:240px;max-width:450px;">
+<div slot="body">
+<oj-progress-circle  id="createbar" value="-1" >
+</oj-progress-circle >
+</div>
+</oj-dialog>
+
+<oj-dialog id="TimeoutSign" dialog-title="There is a technical issue. Please try again later" modality="modeless"
+style="display:none;width:350px;min-width:240px;max-width:450px;" cancel-behavior="[[CancelBehaviorOpt]]">
+    <div slot="body">
+        
+    </div>
+</oj-dialog>
 
               <oj-dialog id="LoginErrDialog" dialog-title="Login Error" style="display:none;width:500px;min-width:500px;max-width:500px;">
        <div slot="body">
@@ -43,25 +100,3 @@
            </oj-button>
        </div>
    </oj-dialog>
-
-            </div>
-          </div>
-        </div>
-    </div>
-  </div>
-</div>  
-
-<oj-dialog id="signInProgress" title="Authenticating...." modality="modeless"
-style="display:none;width:350px;min-width:240px;max-width:450px;">
-<div slot="body">
-<oj-progress-bar class="oj-progress-bar-embedded" id="createbar" value="-1" >
-</oj-progress-bar>
-</div>
-</oj-dialog>
-
-<oj-dialog id="TimeoutSign" dialog-title="There is a technical issue. Please try again later" modality="modeless"
-style="display:none;width:350px;min-width:240px;max-width:450px;" cancel-behavior="[[CancelBehaviorOpt]]">
-    <div slot="body">
-        
-    </div>
-</oj-dialog>

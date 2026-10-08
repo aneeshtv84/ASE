@@ -1,91 +1,91 @@
-
-<div class="oj-panel " >
-  <oj-form-layout id="fl2" class="oj-form-layout"  label-edge="start" max-columns="2" direction="row">
-  <oj-select-single  id="Database"
-                  label-hint="Classic Replicat Name"
-                  data="[[RepDetDP]]"  on-value-changed="[[valueChangedHandler]]"
-                  value="{{repName}}"  >
-  </oj-select-single >
-  <oj-button disabled="{{ButtonVal}}" id="PRTShootBtn" chroming="callToAction"  on-oj-action="[[PRTShoot]]">Get Details
-  </oj-button>
-  
+<div class="oj-panel">
+  <oj-form-layout id="fl2" class="oj-form-layout" label-edge="start" max-columns="2" direction="row">
+    <oj-select-single id="Replicat" label-hint="Classic Replicat Name"
+        data="[[RepDetDP]]" value="{{repName}}" on-value-changed="[[valueChangedHandler]]">
+    </oj-select-single>
+    <oj-button id="PRTShootBtn" chroming="callToAction" disabled="[[ButtonVal]]" on-oj-action="[[PRTShoot]]">
+      Get Details
+    </oj-button>
   </oj-form-layout>
-  </div>
+</div>
+
+<oj-bind-if test="[[loaded]]">
+
+  <!-- Sections that could not be collected -->
+  <oj-bind-if test="[[sectionErrors().length > 0]]">
+    <div class="oj-panel oj-bg-warning-10 oj-sm-margin-2x-vertical">
+      <div class="oj-typography-subheading-xs">Some details could not be collected</div>
+      <oj-bind-for-each data="[[sectionErrors]]">
+        <template>
+          <div class="oj-typography-body-sm">
+            <b><oj-bind-text value="[[$current.data.section]]"></oj-bind-text>:</b>
+            <oj-bind-text value="[[$current.data.message]]"></oj-bind-text>
+          </div>
+        </template>
+      </oj-bind-for-each>
+    </div>
+  </oj-bind-if>
+
   <div class="oj-flex">
-                       <div class="oj-panel" style="width:40%;">
-                        <div class="oj-panel io-color oj-margin " >
-                          <h7>Database</h7>  
-                      </div>
-                 
-                  <oj-table id='table' aria-label='All Table'
-                            data='[[DBDetDP]]'
-                            display='grid'
-                            selection-mode='{"row": "single"}' 
-                            columns='{{PRDBDetcolumnArray}}'
-                            style='width: 100%;'>
-              
-                  </oj-table>
-                  </div>
-                  <div class="oj-panel" style="width:60%;">
-                    <div class="oj-panel io-color oj-margin " >
-                      <h7>Database Session Waits</h7>  
-                  </div>
-                      <oj-table id='table' aria-label='All Table'
-                      data='[[PRSessionDP]]'
-                      display='grid'
-                      selection-mode='{"row": "single"}' 
-                      columns='{{PRSessioncolumnArray}}'
-                      style='width: 100%;'>
-                      </oj-table>
-                  </div>
-              </div>
-                  <div class="oj-panel">
-                    <div class="oj-panel io-color oj-margin">
-                    <h7>Running SQL</h7>  
-                  </div>
-                    <oj-table id='table' aria-label='All Table'
-                    data='[[RunningSqlInfoDP]]'
-                    display='grid'
-                    selection-mode='{"row": "single"}' 
-                    columns='{{RunningSqlcolumnArray}}'
-                    style='width: 100%;'>
-                    </oj-table>
-                </div>
+    <div class="oj-panel oj-flex-item" style="flex:0 0 35%;">
+      <div class="oj-panel io-color oj-margin"><h7>Database</h7></div>
+      <oj-table aria-label="Database" data="[[DBDetDP]]" columns="[[PRDBDetcolumnArray]]"
+          display="grid" class="oj-sm-width-full"></oj-table>
+    </div>
 
-                <div class="oj-panel">
-                  <div class="oj-panel io-color oj-margin">
-                  <h7>Active Session History for the last 30 minutes</h7>  
-                </div>
-                  <oj-table id='table' aria-label='All Table'
-                  data='[[ActiveSQLInfoDP]]'
-                  display='grid'
-                  selection-mode='{"row": "single"}' 
-                  columns='{{ActiveSQLcolumnArray}}'
-                  style='width: 100%;'>
-                  </oj-table>
-              </div>
-                  
-                  <div class="oj-panel" style="width:100%;">
-                    <div class="oj-panel io-color oj-margin " >
-                      <h7>Process Stack of the Classic Replicat</h7>  
-                  </div>
-                  <oj-tree-view id="treeview1"
-                  data="[[PstackDataDP]]"
-                  aria-label="Tree View with JSON Data">
-                  <template slot="itemTemplate" data-oj-as="thread">
-                    <span class="oj-treeview-item-icon"></span>
-                    <span class="oj-treeview-item-text">
-                      <oj-bind-text value="[[thread.data.title]]"></oj-bind-text>
-                    </span>
-                  </template>
-                  </oj-tree-view>
-              </div>
+    <div class="oj-panel oj-flex-item" style="flex:0 0 65%;">
+      <div class="oj-panel io-color oj-margin">
+        <h7>Replicat ASE Session(s)</h7>
+        <span class="tooltip fa fa-info-circle">
+          <span class="tooltiptext">Matched by the Replicat OS pid (sysprocesses.hostprocess).<br>
+            A non-zero 'Blocked By' means the Replicat is waiting on that SPID.</span>
+        </span>
+      </div>
+      <oj-table aria-label="Sessions" data="[[PRSessionDP]]" columns="[[PRSessioncolumnArray]]"
+          display="grid" class="oj-sm-width-full"></oj-table>
+    </div>
+  </div>
 
-              <oj-dialog id="Progress" dialog-title="Working on it..." modality="modeless"
-              cancel-behavior="[[CancelBehaviorOpt]]"
-              style="display:none;width:350px;min-width:240px;max-width:450px;">
-              <div slot="body">
-                  <oj-progress-bar id="createbar" class="oj-progress-bar-embedded" value="-1">
-                  </oj-progress-bar>
-              </div>
-          </oj-dialog>
+  <div class="oj-panel">
+    <div class="oj-panel io-color oj-margin"><h7>Running SQL</h7></div>
+    <oj-bind-if test="[[CRSQL().length === 0]]">
+      <div class="oj-typography-body-sm oj-text-color-secondary">No SQL currently executing.</div>
+    </oj-bind-if>
+    <oj-bind-if test="[[CRSQL().length > 0]]">
+      <oj-table aria-label="Running SQL" data="[[RunningSqlDP]]" columns="[[RunningSqlcolumnArray]]"
+          display="grid" class="oj-sm-width-full"></oj-table>
+    </oj-bind-if>
+  </div>
+
+  <div class="oj-panel">
+    <div class="oj-panel io-color oj-margin">
+      <h7>Wait Events (MDA, since server start)</h7>
+      <span class="tooltip fa fa-info-circle">
+        <span class="tooltiptext">From monProcessWaits. Requires 'enable monitoring' and 'wait event timing'.</span>
+      </span>
+    </div>
+    <oj-bind-if test="[[CRWaits().length === 0]]">
+      <div class="oj-typography-body-sm oj-text-color-secondary">No wait data.</div>
+    </oj-bind-if>
+    <oj-bind-if test="[[CRWaits().length > 0]]">
+      <oj-table aria-label="Wait Events" data="[[WaitsDP]]" columns="[[WaitscolumnArray]]"
+          display="grid" class="oj-sm-width-full"></oj-table>
+    </oj-bind-if>
+  </div>
+
+  <div class="oj-panel">
+    <div class="oj-panel io-color oj-margin"><h7>Process Stack of the Classic Replicat</h7></div>
+    <oj-bind-if test="[[Pstack().length === 0]]">
+      <div class="oj-typography-body-sm oj-text-color-secondary">No stack output.</div>
+    </oj-bind-if>
+    <oj-tree-view id="treeview1" data="[[PstackDataDP]]" aria-label="Process stack">
+      <template slot="itemTemplate" data-oj-as="node">
+        <span class="oj-treeview-item-icon"></span>
+        <span class="oj-treeview-item-text" style="font-family:monospace;">
+          <oj-bind-text value="[[node.data.title]]"></oj-bind-text>
+        </span>
+      </template>
+    </oj-tree-view>
+  </div>
+
+</oj-bind-if>

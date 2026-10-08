@@ -1,6 +1,8 @@
 <div class="oj-panel demo-centering-container panel_masonary">
-    <oj-button chroming="solid" on-oj-action='[[extRefresh]]'><span slot='startIcon'
-        class="demo-icon-refresh oj-ux-ico-avatar"></span>Extracts</oj-button>
+   <oj-button chroming="solid" on-oj-action="[[extRefresh]]">
+  <span slot="startIcon" class="fas fa-sync-alt"></span>
+  Extracts
+</oj-button>
     <oj-label for="select1"></oj-label>
     <oj-bind-if test="[[ExtData1().length > 0]]">
         <oj-bind-for-each data="[[ExtData1]]">
@@ -29,8 +31,9 @@
 </div>
 
 <div class="oj-panel demo-centering-container panel_masonary">
-    <oj-button chroming="solid" on-oj-action='[[extRefresh]]'><span slot='startIcon'
-            class="demo-icon-refresh oj-ux-ico-avatar"></span>Pumps</oj-button>
+<oj-button chroming="solid" on-oj-action="[[extRefresh]]" label="Distribution">
+  <span slot="startIcon" class="fas fa-sync-alt"></span>
+</oj-button>
     <oj-label for="select1"></oj-label>
     <oj-bind-if test="[[PmpData1().length > 0]]">
         <oj-bind-for-each data="[[PmpData1]]">
@@ -58,8 +61,11 @@
 </div>
 
 <div class="oj-panel demo-centering-container panel_masonary">
-    <oj-button chroming="solid" on-oj-action='[[extRefresh]]'><span slot='startIcon'
-            class="demo-icon-refresh"></span>Replicats</oj-button>
+    <oj-button chroming="solid" on-oj-action="[[extRefresh]]">
+  <span slot="startIcon" class="fas fa-sync-alt"></span>
+  Replicats
+</oj-button>
+
     <oj-label for="select1"></oj-label>
     <oj-bind-if test="[[RepData1().length > 0]]">
         <oj-bind-for-each data="[[RepData1]]">

@@ -5,11 +5,11 @@
                 <div class="oj-panel demo-centering-container oj-xl-margin-1x oj-xl-padding-1x oj-lg-margin-1x oj-lg-padding-1x oj-md-margin-1x oj-md-padding-1x oj-sm-margin-1x oj-sm-padding-1x">
                     <h6 class="oj-flex-item oj-typography-heading-xl">Replication flow </h6>
                 </div>
-                <oj-bind-if test="[[NodeData().length == 0]]">
+                <oj-bind-if test="[[LinkData().length == 0]]">
                     <oj-progress-bar class="oj-progress-bar-embedded" id="createbar" value="-1">
                     </oj-progress-bar>
                 </oj-bind-if>
-                <oj-bind-if test="[[NodeData().length > 0]]">
+                <oj-bind-if test="[[LinkData().length > 0]]">
                     <div class="oj-panel demo-centering-container  oj-xl-margin-1x oj-xl-padding-1x oj-lg-margin-1x oj-lg-padding-1x oj-md-margin-1x oj-md-padding-1x oj-sm-margin-1x oj-sm-padding-1x">
                         <svg xmlns="http://www.w3.org/2000/svg" width='0' height="0">
                             <defs>

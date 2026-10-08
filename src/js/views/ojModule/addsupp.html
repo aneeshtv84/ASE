@@ -1,153 +1,447 @@
-<div class="oj-panel oj-sm-margin-2x-bottom oj-xl-margin-5x  oj-sm-padding-4x ">
-    <oj-select-single required label-hint="Choose Database Alias" label-edge="inside" id="dbdet" style="max-width:18em"
-        label-hint="Database Name" data="[[DBDetDP]]" value="{{currentDB}}" on-value-changed="[[getSuppLog]]">
+<style>
+    .supp-row-enabled        { background: #f0fff0; }
+    .supp-row-already        { background: #fffbe6; }
+    .supp-row-disabled       { background: #fff0f0; }
+    .supp-row-already-dis    { background: #fce8e8; }
+    .supp-row-error          { background: #ffe6e6; }
+
+    .supp-badge-enabled      { color: #2e7d32; font-weight: 600; }
+    .supp-badge-already      { color: #f57c00; font-weight: 600; }
+    .supp-badge-disabled     { color: #c62828; font-weight: 600; }
+    .supp-badge-already-dis  { color: #b71c1c; font-weight: 600; }
+
+    .supp-filter-btn {
+        padding: 3px 12px;
+        border-radius: 12px;
+        border: 1px solid #ccc;
+        font-size: 12px;
+        cursor: pointer;
+        transition: outline 0.1s;
+    }
+    .supp-filter-active {
+        outline: 2px solid #1565c0 !important;
+        font-weight: 600 !important;
+    }
+
+    .field-loading-spinner {
+        display: inline-flex;
+        align-items: center;
+        margin-left: 6px;
+        vertical-align: middle;
+    }
+    .spinner-ring {
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+        border: 1.5px solid rgba(0,0,0,.12);
+        border-top-color: #2563eb;
+        border-radius: 50%;
+        animation: spin .7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+</style>
+
+<div class="oj-panel oj-sm-margin-2x-bottom oj-xl-margin-5x oj-sm-padding-4x">
+    <oj-select-single required label-hint="Choose Database Alias" label-edge="inside" id="dbdet"
+        style="max-width:18em" data="[[DBDetDP]]" value="{{currentDB}}"
+        on-value-changed="[[getSuppLog]]">
     </oj-select-single>
 </div>
 
-<oj-dialog id="dberrDialog" dialog-title="Error" modality="modeless" cancel-behavior="[[CancelBehaviorOpt]]" style="display:none;width:500px;min-width:540px;max-width:550px;">
+<oj-dialog id="dberrDialog" dialog-title="Error" modality="modeless"
+    cancel-behavior="[[CancelBehaviorOpt]]"
+    style="display:none;width:500px;min-width:540px;max-width:550px;">
     <div slot="body">
         <oj-bind-text value='[[dberr]]'></oj-bind-text>
     </div>
 </oj-dialog>
 
-<div class="oj-panel oj-sm-margin-2x-bottom oj-xl-margin-5x  oj-sm-padding-4x " >
+<div class="oj-panel oj-sm-margin-2x-bottom oj-xl-margin-5x oj-sm-padding-4x">
     <h6>Database Checks</h6>
-    <oj-table id='table' aria-label='All Table' data='[[dbsupplogDP]]' display='grid' selection-mode='{"row": "single"}'
-        columns='{{supplogcolumnArray}}' columns-default='{"sortable": "disabled"}' style='width: 100%;'>
-
+    <oj-table id='table' aria-label='All Table' data='[[dbsupplogDP]]' display='grid'
+        selection-mode='{"row": "single"}' columns='{{supplogcolumnArray}}'
+        columns-default='{"sortable": "disabled"}' style='width: 100%;'>
     </oj-table>
     <br>
 </div>
 
 <oj-bind-for-each data="[[dbSuppInfo]]">
     <template data-oj-as="ExtMsg">
-        <oj-bind-if test="[[ExtMsg.data.Status === 'Secondary truncation point is set']]">
-            <div class="oj-panel oj-sm-margin-1x-bottom oj-xl-margin-5x  oj-sm-padding-5x">
-                <h6 class="demo-center-items oj-typography-heading-md">Schema/Table Supplemental Logging</h6>
-                <div class="oj-panel demo-center-items oj-xl-margin-5x">
 
+        <oj-bind-if test="[[ExtMsg.data.Status === 'Secondary truncation point is set']]">
+            <div class="oj-panel oj-sm-margin-1x-bottom oj-xl-margin-5x oj-sm-padding-5x">
+                <h6 class="demo-center-items oj-typography-heading-md">Enable/Disable Trandata</h6>
+
+                <div class="oj-panel demo-center-items oj-xl-margin-5x">
                     <oj-buttonset-one class="oj-buttonset-width-auto" value="{{buttonValue}}">
-                        <oj-option id="addOption" value="add">Add Trandata</oj-option>
-                        <oj-option id="edOption" value="info">View Trandata</oj-option>
-                        <oj-option id="delOption" value="del">Delete Trandata</oj-option>
+                        <oj-option id="addOption"  value="add">Add Trandata</oj-option>
+                        <oj-option id="edOption"   value="info">View Trandata</oj-option>
+                        <oj-option id="delOption"  value="del">Delete Trandata</oj-option>
                     </oj-buttonset-one>
                 </div>
-                <div class="oj-panel oj-sm-margin-1x-bottom oj-xl-margin-5x  oj-sm-padding-5x">
+
+                <div class="oj-panel oj-sm-margin-1x-bottom oj-xl-margin-5x oj-sm-padding-5x">
                     <oj-form-layout id="fl4" label-edge="start" direction="row">
-                        <oj-label for="comboboxed1">Credential Domain</oj-label>
-                        <oj-combobox-one required id="comboboxed1"  options="[[domname1]]"
-                            value="{{selectedDomCategory}}" on-oj-value-updated="[[domSelectionChanged]]">
+                        <oj-label for="comboboxed1">Vault Domain
+                            <oj-if test="[[domainLoading()]]">
+                                <span class="field-loading-spinner" aria-label="Loading domains">
+                                    <span class="spinner-ring"></span>
+                                </span>
+                            </oj-if>
+                        </oj-label>
+                        <oj-combobox-one required id="comboboxed1" options="[[domname1]]"
+                            value="{{selectedDomCategory}}"
+                            on-oj-value-updated="[[domSelectionChanged]]">
                         </oj-combobox-one>
-                        <oj-label for="comboboxed2">Credential Alias</oj-label>
-                        <oj-combobox-one label-hint="Choose Database Alias" label-edge="inside"  style="max-width:25em" id="comboboxed2" options="{{aliascategories}}" value="{{currentPDB}}"
+                        <oj-label for="comboboxed2">Vault Alias</oj-label>
+                        <oj-combobox-one label-hint="Choose Database Alias" label-edge="inside"
+                            style="max-width:25em" id="comboboxed2"
+                            options="{{aliascategories}}" value="{{currentPDB}}"
                             on-oj-value-updated="[[suppLogSchema]]">
                         </oj-combobox-one>
                     </oj-form-layout>
-                    <oj-form-layout id="fl4" label-edge="start" max-columns=2>
-                        <oj-label for="Tranlevel">Trandata</oj-label>
-                        <oj-select-single id="Tranlevel"  style="max-width:25em" data="[[tranlevelDP]]"
-                            value="{{tranlevelVal}}">
-                        </oj-select-single>
-                        <oj-bind-if test="[[buttonValue() != 'info']]">
-                        <oj-select-single id="ST" style="max-width:15em" data="[[STOptionsDP]]" value="{{STVal}}">
-                        </oj-select-single>
-                        </oj-bind-if>
 
+                    <oj-form-layout id="fl4" label-edge="start" max-columns="2">
+                        <oj-label for="Tranlevel">Trandata</oj-label>
+                        <oj-select-single id="Tranlevel" style="max-width:25em"
+                            data="[[tranlevelDP]]" readonly value="{{tranlevelVal}}">
+                        </oj-select-single>
+
+                        <oj-bind-if test="[[buttonValue() != 'info']]">
+                            <oj-select-single id="ST" style="max-width:15em"
+                                data="[[STOptionsDP]]" value="{{STVal}}">
+                            </oj-select-single>
+                        </oj-bind-if>
                     </oj-form-layout>
+
+                    <!-- Schema Trandata section -->
                     <oj-bind-if test="[[tranlevelVal() === 'schematrandata']]">
                         <oj-validation-group id="tracker" valid="{{groupValid}}">
-                            <oj-form-layout id="fl4" label-edge="start" max-columns=2 direction="row">
+                            <oj-form-layout id="fl4" label-edge="start" max-columns="2" direction="row">
                                 <oj-label for="schema">Schema Name</oj-label>
-                                <oj-select-single id="schema"  data="[[schemaListDP]]"
+                                <oj-select-single id="schema" data="[[schemaListDP]]"
                                     value="{{SchemaName}}" required>
                                 </oj-select-single>
                                 <oj-bind-if test="[[buttonValue() === 'add']]">
-                                    <oj-button id="addinfoButton" chroming='solid' on-oj-action="[[addSuppLog]]">Add
-                                        SchemaTrandata</oj-button>
+                                    <oj-button id="addinfoButton" chroming="solid"
+                                        on-oj-action="[[addSuppLog]]">
+                                        Add SchemaTrandata
+                                    </oj-button>
                                 </oj-bind-if>
                                 <oj-bind-if test="[[buttonValue() === 'info']]">
-                                    <oj-button id="addsuppButton" chroming='callToAction' on-oj-action="[[addSuppLog]]">
-                                        Info SchemaTrandata</oj-button>
+                                    <oj-button id="addsuppButton" chroming="callToAction"
+                                        on-oj-action="[[addSuppLog]]">
+                                        View SchemaTrandata
+                                    </oj-button>
                                 </oj-bind-if>
                                 <oj-bind-if test="[[buttonValue() === 'del']]">
-                                    <oj-button id="addsuppButton" on-oj-action="[[openDelSuppLog]]" chroming="danger">Delete SchemaTrandata</oj-button>
+                                    <oj-button id="addsuppButton" on-oj-action="[[openDelSuppLog]]"
+                                        chroming="danger">
+                                        Delete SchemaTrandata
+                                    </oj-button>
                                 </oj-bind-if>
-
                             </oj-form-layout>
                         </oj-validation-group>
                     </oj-bind-if>
 
+                    <!-- Trandata section -->
                     <oj-bind-if test="[[tranlevelVal() === 'trandata']]">
                         <oj-form-layout id="fl4" label-edge="start" direction="row">
                             <oj-label for="schema">Schema Name</oj-label>
-
-                            <oj-select-many id="schema" label-hint="Choose Schema Name" label-edge="inside"
-                                options="{{schemaListDP}}" value="{{schemaList}}" class="demo-max-width"
+                            <oj-select-many id="schema" label-hint="Choose Schema Name"
+                                label-edge="inside" options="{{schemaListDP}}"
+                                value="{{schemaList}}" class="demo-max-width"
                                 on-value-changed="[[TableFetch]]">
                             </oj-select-many>
                         </oj-form-layout>
+
                         <div class="oj-flex">
-                            <div class="oj-panel oj-sm-margin-1x-bottom oj-xl-margin-5x  oj-sm-padding-1x"
-                                style='width: 65%;'>
-                                <h6>Select the tables to to add Trandata</h6>
-                                <oj-table id='tableTrandata' aria-label='All Table' data='[[tableNameListDP]]'
-                                    selected='{{selectedItems}}' selection-mode=[[selectedSelectionMode]]
-                                    on-selected-changed='{{selectedChangedListener}}' scroll-policy="loadAll"
-                                    selection-mode='{"row": "single"}' columns='{{tableListcolumnArray}}'
-                                    style='width: 100%;'>
-                                    <oj-paging-control id="paging" data="[[tableNameListDP]]" page-size="10"
-                                        slot="bottom">
+                            <div class="oj-panel oj-sm-margin-1x-bottom oj-xl-margin-5x oj-sm-padding-1x"
+                                style="width:65%;">
+                                <h6>Select the tables to add Trandata</h6>
+                                <oj-input-search
+                                    placeholder="Search tables"
+                                    raw-value="{{tableSearchTextRaw}}"
+                                    class="oj-sm-full-width oj-sm-margin-2x-bottom">
+                                </oj-input-search>
+                                <oj-table id="tableTrandata" aria-label="All Table"
+                                    data="[[dataproviderView]]"
+                                    selected="{{selectedItems}}"
+                                    selection-mode="[[selectedSelectionMode]]"
+                                    on-selected-changed="{{selectedChangedListener}}"
+                                    scroll-policy="loadAll"
+                                    columns="{{tableListcolumnArray}}"
+                                    style="width:100%;">
+                                    <oj-paging-control id="paging" data="[[tableNameListDP]]"
+                                        page-size="10" slot="bottom">
                                     </oj-paging-control>
                                 </oj-table>
                             </div>
-                            <div class="oj-panel oj-sm-margin-1x-bottom oj-xl-margin-5x  oj-sm-padding-1x"
-                                style='width: 30%;'>
-                                <h6>Tables to Add Trandata</h6>
-                                <oj-text-area readonly max-rows="100000" rows="10" value="[[selectionInfo]]">
-                                </oj-text-area>
+
+                            <div class="oj-panel oj-sm-padding-2x" style="flex:1;">
+                                <h6 class="oj-sm-margin-2x-bottom">Selected Tables</h6>
+                                <oj-table id="selectedTable" aria-label="Selected Tables"
+                                    data="[[selectedRowsDP]]"
+                                    columns-default.sortable="disabled"
+                                    scroll-policy="loadMoreOnScroll"
+                                    columns='[{"headerText":"Table Name","field":"Table"}]'
+                                    style="width:100%; max-height:400px;">
+                                    <template slot="rowTemplate" data-oj-as="row">
+                                        <tr>
+                                            <td>
+                                                <oj-bind-text value="[[row.data.Table]]"></oj-bind-text>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                </oj-table>
                             </div>
                         </div>
+
                         <div class="oj-panel oj-xl-margin-5x oj-sm-margin-4x-bottom">
                             <div class="oj-flex-bar">
                                 <oj-bind-if test="[[buttonValue() === 'add']]">
                                     <oj-button disabled="[[buttonStates]]" id="addsuppButton"
-                                        class="oj-flex-bar-end oj-button-confirm" chroming='solid'
-                                        on-oj-action="[[addSuppLog]]">Add Trandata</oj-button>
+                                        class="oj-flex-bar-end oj-button-confirm" chroming="solid"
+                                        on-oj-action="[[addSuppLog]]">
+                                        Add Trandata
+                                    </oj-button>
                                 </oj-bind-if>
                                 <oj-bind-if test="[[buttonValue() === 'info']]">
                                     <oj-button disabled="[[buttonStates]]" id="infosuppButton"
-                                        class="oj-flex-bar-end oj-button-confirm" chroming='callToAction'
-                                        on-oj-action="[[addSuppLog]]">Info Trandata</oj-button>
+                                        class="oj-flex-bar-end oj-button-confirm" chroming="callToAction"
+                                        on-oj-action="[[addSuppLog]]">
+                                        Info Trandata
+                                    </oj-button>
                                 </oj-bind-if>
                                 <oj-bind-if test="[[buttonValue() === 'del']]">
                                     <oj-button disabled="[[buttonStates]]" id="delsuppButton"
-                                        class="oj-flex-bar-end oj-button-confirm" on-oj-action="[[openDelSuppLog]]"
-                                        chroming="danger">Delete Trandata</oj-button>
+                                        class="oj-flex-bar-end oj-button-confirm"
+                                        on-oj-action="[[openDelSuppLog]]" chroming="danger">
+                                        Delete Trandata
+                                    </oj-button>
                                 </oj-bind-if>
                             </div>
                         </div>
-
                     </oj-bind-if>
                 </div>
 
-                <oj-dialog id="AddTranSuppDialog" dialog-title="Supplemental Logging" modality="modeless"
+                <!-- ── Result dialog ─────────────────────────────────── -->
+                <oj-dialog id="AddTranSuppDialog" dialog-title="[[AddSuppDialogTitle()]]"
+                    modality="modeless"
                     style="display:none;width:900px;min-width:900px;max-width:900px;">
-                    <div slot="body">
-                        <oj-bind-for-each data="[[AddSuppMsg]]">
-                            <template data-oj-as="SuppMsg">
-                                <br>
-                                <oj-bind-text value='[[SuppMsg.data]]'></oj-bind-text>
-                            </template>
-                        </oj-bind-for-each>
 
+                    <div slot="body"
+                        style="display:flex; flex-direction:column; height:60vh; overflow:hidden; padding:0;">
+
+                        <!-- Progress bar (streaming) -->
+                        <oj-bind-if test="[[AddSuppStreaming()]]">
+                            <div style="flex-shrink:0; padding:12px 16px 8px 16px;
+                                        border-bottom:1px solid #e0e0e0; background:#fff;">
+                                <oj-progress-bar class="oj-progress-bar-embedded" value="-1"
+                                    style="width:100%; margin-bottom:10px;">
+                                </oj-progress-bar>
+                                <span style="font-size:13px; color:#555;">
+                                    <oj-bind-if test="[[tranlevelVal() === 'schematrandata']]">
+                                        <oj-bind-if test="[[buttonValue() === 'add']]">Enabling</oj-bind-if>
+                                        <oj-bind-if test="[[buttonValue() === 'del']]">Disabling</oj-bind-if>
+                                        <oj-bind-if test="[[buttonValue() === 'info']]">Fetching</oj-bind-if>
+                                        supplemental logging for schema
+                                        <strong><oj-bind-text value="[[SchemaName()]]"></oj-bind-text></strong>
+                                        &nbsp;—
+                                        <strong><oj-bind-text value="[[AddSuppMsg().length]]"></oj-bind-text></strong>
+                                        table(s) processed...
+                                    </oj-bind-if>
+                                    <oj-bind-if test="[[tranlevelVal() === 'trandata']]">
+                                        <oj-bind-if test="[[buttonValue() === 'add']]">Enabling supplemental logging on table</oj-bind-if>
+                                        <oj-bind-if test="[[buttonValue() === 'del']]">Disabling supplemental logging on table</oj-bind-if>
+                                        <oj-bind-if test="[[buttonValue() === 'info']]">Fetching supplemental logging on table</oj-bind-if>
+                                        <strong><oj-bind-text value="[[AddSuppMsg().length]]"></oj-bind-text></strong>
+                                        of
+                                        <strong><oj-bind-text value="[[tabNameList().length]]"></oj-bind-text></strong>
+                                        ...
+                                    </oj-bind-if>
+                                </span>
+                            </div>
+                        </oj-bind-if>
+
+                        <!-- Warnings / Errors panel -->
+                        <oj-bind-if test="[[AddSuppHasWarning()]]">
+                            <div style="flex-shrink:0; padding:8px 16px; background:#fff3cd;
+                                        border-bottom:1px solid #ffc107;">
+                                <div style="display:flex; align-items:center;
+                                            justify-content:space-between;
+                                            padding:8px 16px; cursor:pointer;"
+                                    data-bind="click: function(){ AddSuppWarningsMinimized(!AddSuppWarningsMinimized()); }">
+                                    <span style="font-weight:600; color:#856404; font-size:13px;">
+                                        &#x26A0;&nbsp;Warnings / Errors
+                                        &nbsp;(<oj-bind-text value="[[AddSuppWarnings().length]]"></oj-bind-text>)
+                                    </span>
+                                    <span style="font-size:18px; color:#856404; line-height:1; user-select:none;">
+                                        <oj-bind-if test="[[AddSuppWarningsMinimized()]]">&#x25BC;</oj-bind-if>
+                                        <oj-bind-if test="[[!AddSuppWarningsMinimized()]]">&#x25B2;</oj-bind-if>
+                                    </span>
+                                </div>
+                                <oj-bind-if test="[[!AddSuppWarningsMinimized()]]">
+                                    <div style="padding:0 16px 10px 16px; max-height:120px; overflow-y:auto;">
+                                        <oj-bind-for-each data="[[AddSuppWarningsDP()]]">
+                                            <template data-oj-as="warn">
+                                                <div style="margin-top:4px; font-size:12px; color:#856404;
+                                                            padding:4px 0; border-bottom:1px solid #ffe082;">
+                                                    &#x26A0;&nbsp;
+                                                    <oj-bind-text value="[[warn.data.message]]"></oj-bind-text>
+                                                </div>
+                                            </template>
+                                        </oj-bind-for-each>
+                                    </div>
+                                </oj-bind-if>
+                            </div>
+                        </oj-bind-if>
+
+                        <!-- Filter bar — only in View/Info mode, outside scroll area -->
+                        <oj-bind-if test="[[buttonValue() === 'info' && !AddSuppStreaming()]]">
+                            <div style="flex-shrink:0; padding:8px 16px;
+                                        border-bottom:1px solid #e0e0e0; background:#fafafa;
+                                        display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
+                                <span style="font-size:12px; color:#555;">Filter:</span>
+
+                                <button class="supp-filter-btn"
+                                    data-bind="click: function(){ activeFilter('') },
+                                               css: { 'supp-filter-active': activeFilter() === '' }"
+                                    style="background:#f5f5f5;">
+                                    All
+                                    (<oj-bind-text value="[[AddSuppMsg().length]]"></oj-bind-text>)
+                                </button>
+
+                                <button class="supp-filter-btn"
+                                    data-bind="click: function(){ activeFilter('Enabled') },
+                                               css: { 'supp-filter-active': activeFilter() === 'Enabled' }"
+                                    style="background:#f0fff0; color:#2e7d32;">
+                                    Enabled
+                                    (<oj-bind-text value="[[AddSuppMsg().filter(function(r){return r.status==='Enabled';}).length]]"></oj-bind-text>)
+                                </button>
+
+                                <button class="supp-filter-btn"
+                                    data-bind="click: function(){ activeFilter('Already Enabled') },
+                                               css: { 'supp-filter-active': activeFilter() === 'Already Enabled' }"
+                                    style="background:#fffbe6; color:#f57c00;">
+                                    Already Enabled
+                                    (<oj-bind-text value="[[AddSuppMsg().filter(function(r){return r.status==='Already Enabled';}).length]]"></oj-bind-text>)
+                                </button>
+
+                                <button class="supp-filter-btn"
+                                    data-bind="click: function(){ activeFilter('Disabled') },
+                                               css: { 'supp-filter-active': activeFilter() === 'Disabled' }"
+                                    style="background:#fff0f0; color:#c62828;">
+                                    Disabled
+                                    (<oj-bind-text value="[[AddSuppMsg().filter(function(r){return r.status==='Disabled';}).length]]"></oj-bind-text>)
+                                </button>
+
+                                <button class="supp-filter-btn"
+                                    data-bind="click: function(){ activeFilter('Error') },
+                                               css: { 'supp-filter-active': activeFilter() === 'Error' }"
+                                    style="background:#ffe6e6; color:#b71c1c;">
+                                    Error
+                                    (<oj-bind-text value="[[AddSuppMsg().filter(function(r){return r.status==='Error';}).length]]"></oj-bind-text>)
+                                </button>
+                            </div>
+                        </oj-bind-if>
+
+                        <!-- Scrollable table area -->
+                        <div style="flex:1; overflow-y:auto;">
+                           <table style="width:100%; border-collapse:collapse; font-size:13px;">
+                                <thead>
+                                    <tr style="background:#a9acaf; color:#fff;">
+                                        <oj-bind-if test="[[tranlevelVal() === 'schematrandata']]">
+                                            <th style="padding:8px; border:1px solid #ccc; text-align:left; position:sticky; top:0; z-index:2; background:#a9acaf;">Schema Name</th>
+                                            <th style="padding:8px; border:1px solid #ccc; text-align:left; position:sticky; top:0; z-index:2; background:#a9acaf;">Scheduling Cols</th>
+                                            <th style="padding:8px; border:1px solid #ccc; text-align:left; position:sticky; top:0; z-index:2; background:#a9acaf;">All Cols</th>
+                                            <th style="padding:8px; border:1px solid #ccc; text-align:left; position:sticky; top:0; z-index:2; background:#a9acaf;">Status</th>
+                                        </oj-bind-if>
+                                        <oj-bind-if test="[[tranlevelVal() === 'trandata']]">
+                                            <th style="padding:8px; border:1px solid #ccc; text-align:left; position:sticky; top:0; z-index:2; background:#a9acaf;">Schema.Table Name</th>
+                                            <th style="padding:8px; border:1px solid #ccc; text-align:left; position:sticky; top:0; z-index:2; background:#a9acaf;">Status</th>
+                                            <th style="padding:8px; border:1px solid #ccc; text-align:left; position:sticky; top:0; z-index:2; background:#a9acaf;">Key Columns</th>
+                                        </oj-bind-if>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Filtered rows (works for all modes;
+                                         filter is '' for add/del so all rows show) -->
+                                    <oj-bind-for-each data="[[filteredSuppMsg]]">
+                                        <template data-oj-as="row">
+                                            <tr data-bind="css: {
+                                                'supp-row-enabled'  : row.data.status === 'Enabled',
+                                                'supp-row-already'  : row.data.status === 'Already Enabled',
+                                                'supp-row-disabled' : row.data.status === 'Disabled',
+                                                'supp-row-error'    : row.data.status === 'Error'
+                                            }">
+                                                <oj-bind-if test="[[tranlevelVal() === 'schematrandata']]">
+                                                    <td style="padding:8px; border:1px solid #eee;"><oj-bind-text value="[[row.data.tableName]]"></oj-bind-text></td>
+                                                    <td style="padding:8px; border:1px solid #eee;"><oj-bind-text value="[[row.data.schedulingCols]]"></oj-bind-text></td>
+                                                    <td style="padding:8px; border:1px solid #eee;"><oj-bind-text value="[[row.data.allCols]]"></oj-bind-text></td>
+                                                    <td style="padding:8px; border:1px solid #eee;">
+                                                        <span data-bind="css: {
+                                                            'supp-badge-enabled'  : row.data.status === 'Enabled',
+                                                            'supp-badge-already'  : row.data.status === 'Already Enabled',
+                                                            'supp-badge-disabled' : row.data.status === 'Disabled'
+                                                        }">
+                                                            <oj-bind-text value="[[row.data.status]]"></oj-bind-text>
+                                                        </span>
+                                                    </td>
+                                                </oj-bind-if>
+                                                <oj-bind-if test="[[tranlevelVal() === 'trandata']]">
+                                                    <td style="padding:8px; border:1px solid #eee;"><oj-bind-text value="[[row.data.tableName]]"></oj-bind-text></td>
+                                                    <td style="padding:8px; border:1px solid #eee;"><oj-bind-text value="[[row.data.status]]"></oj-bind-text></td>
+                                                    <td style="padding:8px; border:1px solid #eee;"><oj-bind-text value="[[row.data.keys || '—']]"></oj-bind-text></td>
+                                                </oj-bind-if>
+                                            </tr>
+                                        </template>
+                                    </oj-bind-for-each>
+ 
+                                    <!-- Streaming placeholder -->
+                                    <oj-bind-if test="[[AddSuppStreaming() && AddSuppMsg().length === 0]]">
+                                        <tr>
+                                            <td colspan="3"
+                                                style="padding:12px; text-align:center; color:#888;">
+                                                Processing tables, please wait...
+                                            </td>
+                                        </tr>
+                                    </oj-bind-if>
+ 
+                                    <!-- Empty state (no data at all) -->
+                                    <oj-bind-if test="[[!AddSuppStreaming() && AddSuppMsg().length === 0 && !AddSuppHasWarning()]]">
+                                        <tr>
+                                            <td colspan="3"
+                                                style="padding:12px; text-align:center; color:#888;">
+                                                No results found.
+                                            </td>
+                                        </tr>
+                                    </oj-bind-if>
+ 
+                                    <!-- Empty state (filter returns nothing, but data exists) -->
+                                    <oj-bind-if test="[[!AddSuppStreaming() && AddSuppMsg().length > 0 && filteredSuppMsg().length === 0]]">
+                                        <tr>
+                                            <td colspan="3"
+                                                style="padding:12px; text-align:center; color:#888;">
+                                                No rows match the selected filter.
+                                            </td>
+                                        </tr>
+                                    </oj-bind-if>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
+
                     <div slot="footer">
-                        <oj-button id="oksuppButton" chroming="callToAction" on-oj-action="[[addsuppOKClose]]">
-                            OK
-                        </oj-button>
+                        <oj-bind-if test="[[!AddSuppStreaming()]]">
+                            <oj-button id="oksuppButton" chroming="callToAction"
+                                on-oj-action="[[addsuppOKClose]]">
+                                OK
+                            </oj-button>
+                        </oj-bind-if>
                     </div>
                 </oj-dialog>
-
 
             </div>
         </oj-bind-if>
@@ -156,7 +450,8 @@
             <br>
             <span class="oj-text-color-danger">Please Initialize the Secondary Truncation Point</span>
         </oj-bind-if>
-     </template>
+
+    </template>
 </oj-bind-for-each>
 
 <oj-dialog id="SelectSchemaDialog" dialog-title="Fetching Schema Details" modality="modeless"
@@ -167,9 +462,9 @@
     </div>
 </oj-dialog>
 
-
 <oj-dialog id="SuppLogDialog" dialog-title="Working on it.." modality="modeless"
-    style="display:none;width:350px;min-width:240px;max-width:450px;" cancel-behavior="[[CancelBehaviorOpt]]">
+    style="display:none;width:350px;min-width:240px;max-width:450px;"
+    cancel-behavior="[[CancelBehaviorOpt]]">
     <div slot="body">
         <oj-progress-bar id="createbar" class="oj-progress-bar-embedded" value="-1">
         </oj-progress-bar>
@@ -177,15 +472,15 @@
 </oj-dialog>
 
 <oj-dialog id="TimeoutSup" dialog-title="There is a technical issue" modality="modeless"
-    style="display:none;width:350px;min-width:240px;max-width:450px;" cancel-behavior="[[CancelBehaviorOpt]]">
-    <div slot="body">
-    </div>
+    style="display:none;width:350px;min-width:240px;max-width:450px;"
+    cancel-behavior="[[CancelBehaviorOpt]]">
+    <div slot="body"></div>
 </oj-dialog>
 
 <oj-dialog id="DeleteSupp" dialog-title="Delete Supplemental Logging" modality="modeless"
     style="display:none;width:900px;min-width:900px;max-width:900px;">
     <div slot="body">
-        <span>Are you sure ?</span>
+        <span>Are you sure?</span>
     </div>
     <div slot="footer">
         <oj-button id="okYesButton" chroming="callToAction" on-oj-action="[[addSuppLog]]">
@@ -196,14 +491,16 @@
         </oj-button>
     </div>
 </oj-dialog>
+
 <oj-dialog id="ErrorLoad" dialog-title="Error" modality="modeless"
-style="display:none;width:450px;min-width:450px;max-width:450px;" cancel-behavior="[[CancelBehaviorOpt]]">
+    style="display:none;width:450px;min-width:450px;max-width:450px;"
+    cancel-behavior="[[CancelBehaviorOpt]]">
     <div slot="body">
         <oj-bind-for-each data="[[OPError]]">
             <template data-oj-as="error">
                 <br>
                 <oj-bind-text value='[[error.data]]'></oj-bind-text>
             </template>
-        </oj-bind-for-each>   
+        </oj-bind-for-each>
     </div>
 </oj-dialog>

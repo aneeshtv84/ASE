@@ -3,23 +3,8 @@
   <div class="oj-panel dashboard_style oj-flex-item oj-sm-margin-1x-bottom oj-xl-margin-1x oj-xl-padding-1x oj-lg-margin-1x oj-lg-padding-1x oj-md-margin-1x oj-md-padding-1x oj-sm-margin-1x oj-sm-padding-1x">
     <span>Load Average</span>
     <oj-status-meter-gauge readonly class="circular-status-meter-large" min="0" max="100" value="{{LoadAvg}}"
-      start-angle="180" labelled-by="startAngle" angle-extent="180" reference-lines="[[referenceLines]]"
-      orientation="circular">
-      <template slot="centerTemplate">
-        <div
-          class="oj-flex oj-sm-justify-content-center oj-sm-flex-direction-column oj-sm-align-items-center"
-          :style="[[{
-          position: 'absolute',
-          width: $current.innerBounds.width + 'px',
-          height: $current.innerBounds.height+ 'px',
-          top: $current.innerBounds.y + 'px',
-          left: $current.innerBounds.x + 'px', 
-          pointerEvents: 'none'}]]">
-          <div class="oj-typography-subheading-md oj-typography-bold">
-            <oj-bind-text value="[[LoadAvg]]"></oj-bind-text>
-          </div>
-        </div>
-      </template>
+      start-angle="180" labelled-by="startAngle" angle-extent="360" reference-lines="[[referenceLines]]"
+      orientation="circular" metric-label='{"rendered":"on"}'>
     </oj-status-meter-gauge>
   </div>
 
@@ -27,92 +12,32 @@
     class="oj-panel dashboard_style oj-flex-item oj-sm-margin-1x-bottom oj-xl-margin-1x oj-xl-padding-1x oj-lg-margin-1x oj-lg-padding-1x oj-md-margin-1x oj-md-padding-1x oj-sm-margin-1x oj-sm-padding-1x">
     <span>%Total CPU User</span>
     <oj-status-meter-gauge readonly class="circular-status-meter-large" min="0" max="100" value="{{CpuUser}}"
-      start-angle="180" labelled-by="startAngle" angle-extent="180" reference-lines="[[referenceLines]]"
-      orientation="circular">
-      <template slot="centerTemplate">
-        <div
-          class="oj-flex oj-sm-justify-content-center oj-sm-flex-direction-column oj-sm-align-items-center"
-          :style="[[{
-          position: 'absolute',
-          width: $current.innerBounds.width + 'px',
-          height: $current.innerBounds.height+ 'px',
-          top: $current.innerBounds.y + 'px',
-          left: $current.innerBounds.x + 'px', 
-          pointerEvents: 'none'}]]">
-          <div class="oj-typography-subheading-md oj-typography-bold">
-            <oj-bind-text value="[[CpuUser]]"></oj-bind-text>
-          </div>
-        </div>
-      </template>
+      start-angle="180" labelled-by="startAngle" angle-extent="360" reference-lines="[[referenceLines]]"
+      orientation="circular" metric-label='{"rendered":"on"}'>
     </oj-status-meter-gauge>
   </div>
   <div
     class="oj-panel dashboard_style oj-flex-item oj-sm-margin-1x-bottom oj-xl-margin-1x oj-xl-padding-1x oj-lg-margin-1x oj-lg-padding-1x oj-md-margin-1x oj-md-padding-1x oj-sm-margin-1x oj-sm-padding-1x">
     <span>%Total CPU Kernel</span>
     <oj-status-meter-gauge readonly class="circular-status-meter-large" min="0" max="100" value="{{CpuSystem}}"
-      start-angle="180" labelled-by="startAngle" angle-extent="180" reference-lines="[[referenceLines]]"
-      orientation="circular">
-      <template slot="centerTemplate">
-        <div
-          class="oj-flex oj-sm-justify-content-center oj-sm-flex-direction-column oj-sm-align-items-center"
-          :style="[[{
-          position: 'absolute',
-          width: $current.innerBounds.width + 'px',
-          height: $current.innerBounds.height+ 'px',
-          top: $current.innerBounds.y + 'px',
-          left: $current.innerBounds.x + 'px', 
-          pointerEvents: 'none'}]]">
-          <div class="oj-typography-subheading-md oj-typography-bold">
-            <oj-bind-text value="[[CpuSystem]]"></oj-bind-text>
-          </div>
-        </div>
-      </template>
+      start-angle="180" labelled-by="startAngle" angle-extent="360" reference-lines="[[referenceLines]]"
+      orientation="circular" metric-label='{"rendered":"on"}'>
     </oj-status-meter-gauge>
   </div>
   <div
     class="oj-panel dashboard_style oj-flex-item oj-sm-margin-1x-bottom oj-xl-margin-1x oj-xl-padding-1x oj-lg-margin-1x oj-lg-padding-1x oj-md-margin-1x oj-md-padding-1x oj-sm-margin-1x oj-sm-padding-1x memory_usage">
     <span>Total Memory Usage %</span>
     <oj-status-meter-gauge readonly class="circular-status-meter-large" min="0" max="100"
-      value="{{Total_System_Memory_Usage}}" start-angle="180" labelled-by="startAngle" angle-extent="180"
-      reference-lines="[[referenceLines]]" orientation="circular">
-      <template slot="centerTemplate">
-        <div
-          class="oj-flex oj-sm-justify-content-center oj-sm-flex-direction-column oj-sm-align-items-center"
-          :style="[[{
-          position: 'absolute',
-          width: $current.innerBounds.width + 'px',
-          height: $current.innerBounds.height+ 'px',
-          top: $current.innerBounds.y + 'px',
-          left: $current.innerBounds.x + 'px', 
-          pointerEvents: 'none'}]]">
-          <div class="oj-typography-subheading-md oj-typography-bold">
-            <oj-bind-text value="[[Total_System_Memory_Usage]]"></oj-bind-text>
-          </div>
-        </div>
-      </template>
+      value="{{Total_System_Memory_Usage}}" start-angle="180" labelled-by="startAngle" angle-extent="360"
+      reference-lines="[[referenceLines]]" orientation="circular" metric-label='{"rendered":"on"}'>
     </oj-status-meter-gauge>
   </div>
 
   <div class="oj-panel dashboard_style oj-flex-item oj-sm-margin-1x-bottom oj-xl-margin-1x oj-xl-padding-1x oj-lg-margin-1x oj-lg-padding-1x oj-md-margin-1x oj-md-padding-1x oj-sm-margin-1x oj-sm-padding-1x memory_usage">
-    <span>Goldengate Memory Usage %</span>
+    <span>CDC Memory Usage %</span>
     <oj-status-meter-gauge readonly class="circular-status-meter-large" min="0" max="100"
-      value="{{Total_Process_Memory}}" start-angle="180" labelled-by="startAngle" angle-extent="180"
-      reference-lines="[[referenceLines]]" orientation="circular">
-      <template slot="centerTemplate">
-        <div
-          class="oj-flex oj-sm-justify-content-center oj-sm-flex-direction-column oj-sm-align-items-center"
-          :style="[[{
-          position: 'absolute',
-          width: $current.innerBounds.width + 'px',
-          height: $current.innerBounds.height+ 'px',
-          top: $current.innerBounds.y + 'px',
-          left: $current.innerBounds.x + 'px', 
-          pointerEvents: 'none'}]]">
-          <div class="oj-typography-subheading-md oj-typography-bold">
-            <oj-bind-text value="[[Total_Process_Memory]]"></oj-bind-text>
-          </div>
-        </div>
-      </template>
+      value="{{Total_Process_Memory}}" start-angle="180" labelled-by="startAngle" angle-extent="360"
+      reference-lines="[[referenceLines]]" orientation="circular" metric-label='{"rendered":"on"}'>
     </oj-status-meter-gauge>
   </div>
 </div>

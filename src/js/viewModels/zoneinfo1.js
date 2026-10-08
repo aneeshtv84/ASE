@@ -29,7 +29,7 @@ define(['knockout', 'jquery','appController',  'ojs/ojasyncvalidator-regexp', 'o
                 function getOnepDep() {
                     self.onepDepList([]);
                     $.ajax({
-                        url: self.DepName() + "/onepdep",
+                        url: self.DepName() + "/api/v2/onep/dep",
                         type: 'GET',
                         dataType: 'json',
                         timeout: sessionStorage.getItem("timeInetrval"),
@@ -62,7 +62,7 @@ define(['knockout', 'jquery','appController',  'ojs/ojasyncvalidator-regexp', 'o
                       //   document.querySelector('#SelectSchemaProcessDialog').open();
                     self.TGTonepDepUrl('');
                     $.ajax({
-                      url: self.DepName() + "/onepdepurl",
+                      url: self.DepName() + "/api/v2/onep/depurl",
                       type: 'POST',
                       data: JSON.stringify({
                         dep: self.TgtOnePDepName()

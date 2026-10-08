@@ -34,7 +34,7 @@ define(['knockout','ojs/ojmoduleanimations','ojs/ojmodule-element-utils', 'ojs/o
         }
         else {
           if (self.onepDepType() == 'sybase') {
-            self.currentModule = ko.observable("rmtInstall");
+            self.currentModule = ko.observable("addcred");
           }
           else if (self.onepDepType() == 'bda') {
             self.currentModule = ko.observable("rmtInstall_BDA");

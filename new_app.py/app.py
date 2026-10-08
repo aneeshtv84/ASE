@@ -4414,7 +4414,7 @@ class AddAutoILProc(Resource):
                 tgt_user = rep[1]['user']
                 tgt_passwd = rep[1]['passwd']
             tgt_api_url = url_tgt + '/addinitialloadrep'
-            trail_api_url = url_tgt + '/onepdepurl'
+            trail_api_url = url_tgt + '/api/v2/onep/depurl'
             tgt_mgr_upd = url_tgt + '/updatemgrfiles'
             rmtTrailPayload = {'dep': tgtdep}
             trail_req = requests.post(trail_api_url, json=rmtTrailPayload, headers=headers, verify=ssl_verify, timeout=sshTimeOut)
@@ -8000,13 +8000,13 @@ api.add_resource(tableList, '/tablelist')
 api.add_resource(rhpAddRep, '/rhpaddrep')
 api.add_resource(AddInitialLoadExt, '/addinitialloadext')
 api.add_resource(AddInitialLoadRep, '/addinitialloadrep')
-api.add_resource(onepDep, '/onepdep')
+api.add_resource(onepDep, '/api/v2/onep/dep')
 api.add_resource(ggCredStoreCheck, '/credstorecheck')
 api.add_resource(ggRmtHostMgr, '/ggrmthostmgr')
 api.add_resource(ggMasterKey, '/ggmasterkey')
 api.add_resource(ggMasterKeyAction, '/ggmasterkeyaction')
 api.add_resource(rhpWallet, '/rhpwallet')
-api.add_resource(onepDepUrl, '/onepdepurl')
+api.add_resource(onepDepUrl, '/api/v2/onep/depurl')
 api.add_resource(AddILEXT, '/addilext')
 api.add_resource(AddILREP, '/addilrep')
 api.add_resource(ggILProcesses, '/ggilprocesses')

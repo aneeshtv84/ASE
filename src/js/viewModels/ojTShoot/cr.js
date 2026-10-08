@@ -1,222 +1,172 @@
+define([
+  "knockout",
+  "jquery",
+  "appController",
+  "ojs/ojarraydataprovider",
+  "ojs/ojarraytreedataprovider",
+  "ojs/ojknockout",
+  "ojs/ojformlayout",
+  "ojs/ojbutton",
+  "ojs/ojtable",
+  "ojs/ojselectsingle",
+  "ojs/ojtreeview",
+], function (ko, $, app, ArrayDataProvider, ArrayTreeDataProvider) {
+  class crtshootViewModel {
+    constructor(context) {
+      var self = this;
+      self.DepName = context.DepName;
 
-define(['knockout', 'jquery', 'appController', 'ojs/ojarraydataprovider','ojs/ojarraytreedataprovider','ojs/ojflattenedtreedatagriddatasource','ojs/ojjsontreedatasource','ojDiagram/viewModels/CircleLayout','ojs/ojattributegrouphandler','ojs/ojknockouttemplateutils','ojs/ojdiagram','ojs/ojformlayout','ojs/ojdatagrid', 'ojs/ojbutton', 'ojs/ojtable', 'ojs/ojdialog', 'ojs/ojinputtext', 'ojs/ojselectsingle','ojs/ojformlayout','ojs/ojanimation','ojs/ojradioset','ojs/ojtreeview'],
-function (ko, $,app, ArrayDataProvider ,ArrayTreeDataProvider,KnockoutTemplateUtils) {
+      self.RepDet = ko.observableArray([]);
+      self.repName = ko.observable();
+      self.ButtonVal = ko.observable(true);
 
-    class crtshootViewModel {
-      constructor(context){
-        var self = this;
-        self.DepName = context.DepName;
-        this.KnockoutTemplateUtils = KnockoutTemplateUtils;
-        self.DBMainVer = ko.observable();
-        self.DBMinorVer = ko.observable();
-        self.DBDet = ko.observableArray([]);
-        self.RepDet = ko.observableArray([]);
-        self.PRSession = ko.observableArray([]);
-        self.repName = ko.observable();
-        self.Pstack =  ko.observableArray([]);
-        self.PStackChilden = ko.observableArray([]);
-        self.ButtonVal = ko.observable(true);
-        self.CRASH = ko.observableArray([]);
-        self.CRSQL = ko.observableArray([]);
+      self.DBDet = ko.observableArray([]);
+      self.PRSession = ko.observableArray([]);
+      self.Pstack = ko.observableArray([]);
+      self.CRWaits = ko.observableArray([]);
+      self.CRSQL = ko.observableArray([]);
+      self.sectionErrors = ko.observableArray([]);
+      self.loaded = ko.observable(false);
 
-
-        self.isRequired = ko.observable(true);
-        self.checkboxValues = ko.observableArray(['required', 'helpSource', 'helpDef']);
-
-        self.isRequired = ko.computed(function () {
-            return self.checkboxValues.indexOf('required') !== -1;
+      // ── Replicat list ──
+      function getRep() {
+        self.RepDet([]);
+        $.ajax({
+          url: self.DepName() + "/api/v2/rep-type",
+          type: "GET",
+          dataType: "json",
+          progressMessage: "Fetching replicat list",
+          error: function (xhr) {
+            app.showGlobalError(app.extractErrorMessage(xhr), "Replicat List Error");
+          },
+          success: function (data) {
+            var list = (data[0] || [])
+              .filter(function (r) { return String(r.RepType || "").toUpperCase() === "CLASSIC"; })
+              .map(function (r) { return { value: r.RepName, label: r.RepName }; });
+            self.RepDet(list);
+            self.ButtonVal(true);
+          },
         });
+      }
 
-        self.helpDef = ko.computed(function () {
-            return (self.checkboxValues.indexOf('helpDef') !== -1) ? self._HELP_DEF : null;
-        });
+      self.RepDetDP = new ArrayDataProvider(self.RepDet, { keyAttributes: "value" });
 
-        self.helpSource = ko.computed(function () {
-            return (self.checkboxValues.indexOf('helpSource') !== -1) ? self._HELP_SOURCE : null;
-        });
+      self.valueChangedHandler = function () {
+        self.ButtonVal(!self.repName());
+      };
 
+      // ── Troubleshoot ──
+      self.PRTShoot = function () {
+        if (!self.repName()) return;
+        self.DBDet([]);
+        self.PRSession([]);
+        self.Pstack([]);
+        self.CRWaits([]);
+        self.CRSQL([]);
+        self.sectionErrors([]);
+        self.loaded(false);
 
-        self.CancelBehaviorOpt = ko.observable('icon');
+        $.ajax({
+          url: self.DepName() + "/api/v2/cr-tshoot",
+          type: "POST",
+          contentType: "application/json",
+          data: JSON.stringify({ repName: self.repName() }),
+          dataType: "json",
+          timeout: 120000,
+          progressMessage: "Analyzing replicat process",
+          error: function (xhr) {
+            app.showGlobalError(app.extractErrorMessage(xhr), "Troubleshoot Error");
+          },
+          success: function (data) {
+            // data = [db_det, sessions, pstack, waits, sql, errors]
+            self.DBDet(data[0] || []);
+            self.PRSession(data[1] || []);
 
-        function getRep() {
-            self.RepDet([]);
-            $.ajax({
-                url: self.DepName() + "/reptype",
-                type: 'GET',
-                dataType: 'json',
-                context: self,
-                error: function (e) {
-                    //console.log(e);
-                },
-                success: function (data) {
-
-                    for (var i = 0; i < data[0].length; i++) {
-                        if (data[0][i].RepType == 'CLASSIC') {
-                        self.RepDet.push({value:data[0][i].RepName,label:data[0][i].RepName});
-                        }
-                }
-                self.RepDet.valueHasMutated();
-                self.ButtonVal(true);
-            }
-            })
-        }
-
-        self.RepDetDP = new ArrayDataProvider(self.RepDet, {keyAttributes: 'value'});
-
-
-
-
-    self.PRTShoot =     function(data,event) {
-        document.querySelector('#Progress').open();
-            self.DBDet([]);
-            self.PRSession([]);
-            self.Pstack([]);
-            self.CRASH([]);
-            self.CRSQL([]);
-            $.ajax({
-                url: self.DepName() + "/crtshoot",
-                type: 'POST',
-                data: JSON.stringify({
-                    repName: self.repName()
+            // pstack → tree (every node needs an id)
+            var tree = [];
+            var stack = data[2] || {};
+            Object.keys(stack).forEach(function (tid) {
+              tree.push({
+                id: "t" + tid,
+                title: tid === "main" ? "Main" : "Thread " + tid,
+                children: (stack[tid] || []).map(function (line, i) {
+                  return { id: "t" + tid + "-" + i, title: line };
                 }),
-                dataType: 'json',
-                context: self,
-                error: function (e) {
-                    //console.log(e);
-                },
-                success: function (data) {
-                    document.querySelector('#Progress').close();
-                 for (var i = 0; i < data[0].length; i++) {
-                    self.DBDet.push({
-                    'DATABASE_ROLE': data[0][i].DATABASE_ROLE,
-                    'DBID': data[0][i].DBID,
-                    'DB_EDITION': data[0][i].DB_EDITION,
-                    'HOST': data[0][i].HOST,
-                    'INSTANCE': data[0][i].INSTANCE,
-                    'DBNAME' : data[0][i].DBNAME,
-                    'PDB' : data[0][i].PDB,
-                    'PLATFORM_NAME': data[0][i].PLATFORM_NAME,
-                    'VERSION': data[0][i].VERSION
-                });
-            }
-            for (var i = 0; i < data[1].length; i++) {
-                self.PRSession.push({'SID' : data[1][i].SID,
-                                     'SERIAL' : data[1][i].SERIAL,
-                                     'SPID' : data[1][i].SPID,
-                                     'SQL_ID' : data[1][i].SQL_ID,
-                                     'EVENT' : data[1][i].EVENT,
-                                     'CALL' : data[1][i].CALL,
-                                     'NAME' : data[1][i].NAME });
-            }
+              });
+            });
+            self.Pstack(tree);
 
-            for(var key in data[2]) {
-                self.PStackChilden([]);
-                        for( var i = 0; i < data[2][key].length; i++ ) {
-                self.PStackChilden.push({'title' : data[2][key][i]})
-                        }
-                self.Pstack.push({'id' : key , 'title' : 'Thread ' + key , "children": self.PStackChilden()});
-            }
+            self.CRWaits(data[3] || []);
 
-            for (var i = 0; i < data[3].length; i++) {
-              self.CRASH.push({'INST_ID' : data[3][i].INST_ID ,'EVENT' : data[3][i].EVENT , 'TOTAL_COUNT' : data[3][i].TOTAL_COUNT});
-          }
+            self.CRSQL((data[4] || []).map(function (r) {
+              return { SID: r.SID, SQL: r.SQL_FULLTEXT };
+            }));
 
-          for (var i = 0; i < data[4].length; i++) {
-            self.CRSQL.push({'SQL' : data[4][i].SQL_FULLTEXT });
+            var errs = data[5] || {};
+            self.sectionErrors(Object.keys(errs).map(function (k) {
+              return { section: k, message: String(errs[k]) };
+            }));
+
+            self.loaded(true);
+          },
+        });
+      };
+
+      // ── Data providers ──
+      self.DBDetDP = new ArrayDataProvider(self.DBDet, { keyAttributes: "@index" });
+      self.PRSessionDP = new ArrayDataProvider(self.PRSession, { keyAttributes: "@index" });
+      self.WaitsDP = new ArrayDataProvider(self.CRWaits, { keyAttributes: "@index" });
+      self.RunningSqlDP = new ArrayDataProvider(self.CRSQL, { keyAttributes: "@index" });
+      self.PstackDataDP = new ArrayTreeDataProvider(self.Pstack, {
+        keyAttributes: "id",
+        childrenAttribute: "children",
+      });
+
+      // ── Columns ──
+      self.PRDBDetcolumnArray = [
+        { headerText: "Server", field: "SERVER_NAME" },
+        { headerText: "Host", field: "HOST" },
+        { headerText: "Database", field: "DBNAME" },
+        { headerText: "Version", field: "VERSION_NUMBER" },
+        { headerText: "Current Time", field: "CURRENT_TIME" },
+      ];
+
+      self.PRSessioncolumnArray = [
+        { headerText: "Process", field: "NAME" },
+        { headerText: "ASE SPID", field: "SID" },
+        { headerText: "KPID", field: "SERIAL" },
+        { headerText: "OS PID", field: "SPID" },
+        { headerText: "Status", field: "STATUS" },
+        { headerText: "Command", field: "EVENT" },
+        { headerText: "Blocked By", field: "BLOCKED_BY" },
+        { headerText: "Time Blocked (s)", field: "CALL" },
+        { headerText: "Transaction", field: "TRAN_NAME" },
+        { headerText: "CPU", field: "CPU" },
+        { headerText: "Physical IO", field: "PHYSICAL_IO" },
+        { headerText: "Database", field: "DBNAME" },
+      ];
+
+      self.WaitscolumnArray = [
+        { headerText: "ASE SPID", field: "SID" },
+        { headerText: "Wait Event", field: "EVENT" },
+        { headerText: "Waits", field: "TOTAL_COUNT" },
+        { headerText: "Wait Time (ms)", field: "WAIT_TIME_MS" },
+      ];
+
+      self.RunningSqlcolumnArray = [
+        { headerText: "ASE SPID", field: "SID", style: "width:90px" },
+        { headerText: "SQL Text", field: "SQL", style: "white-space:pre-wrap" },
+      ];
+
+      self.connected = function () {
+        if (sessionStorage.getItem("userName") == null) {
+          oj.Router.rootInstance.go("signin");
+        } else {
+          app.onAppSuccess();
+          getRep();
         }
-
-                    self.DBDet.valueHasMutated();
-                    self.PRSession.valueHasMutated();
-                    self.CRASH.valueHasMutated();
-                    self.CRSQL.valueHasMutated();
-                    //console.log(self);
-                    return self;
-                }
-
-            })
-
-        }
-
-
-   
-        self.DBDetDP = new ArrayDataProvider(self.DBDet,{keyAttributes: 'DBID'});
-        self.PRSessionDP = new ArrayDataProvider(self.PRSession,{keyAttributes: 'SPID'});
-        self.PstackDataDP = new ArrayTreeDataProvider(self.Pstack,{keyAttributes: 'id'});
-        self.RunningSqlInfoDP = new ArrayTreeDataProvider(self.CRSQL,{keyAttributes: 'SQL'});
-        self.ActiveSQLInfoDP = new ArrayTreeDataProvider(self.CRASH,{keyAttributes: 'EVENT'});
-
-        self.PRDBDetcolumnArray = [{headerText: 'Database Name',
-                            field: 'DBNAME'},
-                            {headerText: 'PDB Name',
-                            field: 'PDB'},
-                            {headerText: 'DBID',
-                            field: 'DBID'},
-                            {headerText: 'Instance ID',
-                            field: 'INSTANCE'},
-                            {headerText: 'Database|Edition',
-                            field: 'DB_EDITION'},
-                            {headerText: 'Host',
-                            field: 'HOST'},
-                            {headerText: 'Database|Role',
-                            field: 'DATABASE_ROLE'},
-                            {headerText: 'Version',
-                            field: 'VERSION'}
-                            ];    
-
-        self.PRSessioncolumnArray = [{headerText: 'Session ID',
-                            field: 'SID'},
-                            {headerText: 'Serial#',
-                            field: 'SERIAL'},
-                            {headerText: 'Database PID',
-                            field: 'SPID'},
-                            {headerText: 'SQL ID',
-                            field: 'SQL_ID'},
-                            {headerText: 'Database Wait Event',
-                            field: 'EVENT'},
-                            {headerText: 'Last Call ET',
-                            field: 'CALL'},
-                            {headerText: 'Process',
-                            field: 'NAME'}
-                            ];    
-
-
-        self.PstackcolumnArray = [{headerText: 'Thread',
-                            field: 'Thread'},
-                            {headerText: 'Stack',
-                            field: 'Stack'},
-                        ];         
-                        
-                        
-        self.RunningSqlcolumnArray = [{headerText: 'SQL',
-                        field: 'SQL'}];   
-
-        self.ActiveSQLcolumnArray = [{headerText: 'Instance',
-                        field: 'INST_ID'},
-                        {headerText: 'Event',
-                        field: 'EVENT'},
-                        {headerText: 'Event Count',
-                        field: 'TOTAL_COUNT'}
-                      ];                    
-                        
-
-                              self.valueChangedHandler = (event) => {
-                                self.ButtonVal(false);
-                            };
-
-                              self.connected = function () { 
-                                if (sessionStorage.getItem("userName")==null) {
-                                  oj.Router.rootInstance.go('signin');
-                              }
-                              else
-                              { app.onAppSuccess();      
-                                self.RepDet([]);      
-                                getRep();
-                              }
-                            };
-
-            
+      };
     }
   }
-    return  crtshootViewModel;
-}
-)
+  return crtshootViewModel;
+});

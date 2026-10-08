@@ -10,11 +10,18 @@ define(['ojs/ojcore', 'knockout', 'appController', 'appUtils',
       constructor() {
     var self = this;
 
-    self.transitionCompleted = function() {
-      appUtils.setFocusAfterModuleLoad('signInBtn');
-      var animateOptions = { 'delay': 0, 'duration': '1s', 'timingFunction': 'ease-out' };
-      oj.AnimationUtils['fadeIn'](document.getElementsByClassName('demo-signin-bg')[0], animateOptions);
-    }
+    self.transitionCompleted = function () {
+        appUtils.setFocusAfterModuleLoad("signInBtn");
+        var animateOptions = {
+          delay: 0,
+          duration: "1s",
+          timingFunction: "ease-out",
+        };
+        var bgEl = document.getElementsByClassName("container")[0];
+        if (bgEl) {
+          oj.AnimationUtils["fadeIn"](bgEl, animateOptions);
+        }
+      };
 
     self.groupValid = ko.observable();
     self.SignIn = ko.observable();
@@ -44,9 +51,10 @@ define(['ojs/ojcore', 'knockout', 'appController', 'appUtils',
                         }
                         var key = "."+generateString(8);
            $.ajax({
-                url: "http://54.74.237.43:9010/oneplogin",
+                url: "http://54.220.174.201:9030/api/v2/onep/login",
                 // url: "/oneplogin",
                 type: 'POST',
+                contentType: 'application/json',
                 data: JSON.stringify({
                    user: self.OnePlaceuserName(),
                    passwd : self.OnePlacepassWord(),
@@ -68,6 +76,7 @@ define(['ojs/ojcore', 'knockout', 'appController', 'appUtils',
                        sessionStorage.setItem("Dep_Url", data[3]);
                        sessionStorage.setItem("Dep_Name", data[4]);
                        sessionStorage.setItem("Dep_Type", data[5]);
+                       sessionStorage.setItem("AccessToken", data[6]);
                        var login = localStorage.getItem('login');
                        self.SignIn('Y');
                        if(login == "yes"){
@@ -94,6 +103,35 @@ define(['ojs/ojcore', 'knockout', 'appController', 'appUtils',
            })
         }
     };
+
+    self.features = ko.observableArray([
+        {
+          iconClass: "fas fa-shield-alt fa-2x",
+          title: "Enterprise-grade security",
+          desc: "Bank-level encryption and compliance",
+        },
+        {
+          iconClass: "fas fa-database fa-2x",
+          title: "Integrated Native Database Tools",
+          desc: "Seamless integration with your existing workflow",
+        },
+        {
+          iconClass: "fas fa-sync-alt fa-2x",
+          title: "Zero Downtime with Enterprise-grade Change Data Capture",
+          desc: "Change Data Capture without interruption",
+        },
+        {
+          iconClass: "fas fa-network-wired fa-2x",
+          title: "Latency-Optimized Cross Region Replication",
+          desc: "Change Data Capture without interruption",
+        },
+        {
+          iconClass: "fas fa-globe fa-2x",
+          title: "Multi-Region Multi-Cloud  Deployment",
+          desc: "Deploy workloads across regions with built-in failover and resilience",
+        },
+      ]);
+
 
 
     self._checkValidationGroup = (value) => {
