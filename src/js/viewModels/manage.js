@@ -324,12 +324,12 @@ define([
               },
             ],
           },
-          { type: "separator" },
-          {
-            key: "extunreg",
-            label: "Unregister Extract",
-            startIcon: { class: "fas fa-user-xmark" },
-          },
+          // { type: "separator" },
+          // {
+          //   key: "extunreg",
+          //   label: "Unregister Extract",
+          //   startIcon: { class: "fas fa-user-xmark" },
+          // },
         ];
       };
 
@@ -495,11 +495,11 @@ define([
                 label: "View Stats",
                 startIcon: { class: "fas fa-chart-bar" },
               },
-              {
-                key: "cdrstats",
-                label: "View CDR Conflicts",
-                startIcon: { class: "fas fa-chart-bar" },
-              },
+              // {
+              //   key: "cdrstats",
+              //   label: "View CDR Conflicts",
+              //   startIcon: { class: "fas fa-chart-bar" },
+              // },
             ],
           },
           { type: "separator" },
@@ -2008,7 +2008,7 @@ self.extStatsDP = new PagingDataProviderView(
               alias: self.selectedAliascategory(),
               beginmode: self.currentExtBeginMode(),
               ctvalue: self.ctvalue(),
-              scnvalue: self.seqnovalue(),
+              scnvalue: self.seqnovalue().toString(),
               extops: self.selectedMenuItem(),
             }),
             type: "POST",
@@ -2483,6 +2483,7 @@ self.extStatsDP = new PagingDataProviderView(
 
       self.DelExt = function (data, event) {
         var valid = self._checkValidationGroup("ExtLoginDialogForm");
+        document.querySelector("#ExtLoginDialog").close();
         if (valid) {
           self.ExtRpt([]);
           $.ajax({
@@ -2737,7 +2738,7 @@ self.extStatsDP = new PagingDataProviderView(
         $.ajax({
           url: self.DepName() + "/api/v2/pump/rmttrail/delete",
           data: JSON.stringify({ pmpName: self.PmpName }),
-          type: "POST",
+          type: "DELETE",
           dataType: "json",
           contentType: "application/json",
           timeout: sessionStorage.getItem("timeInetrval"),
@@ -3020,7 +3021,8 @@ self.extStatsDP = new PagingDataProviderView(
               success: function (data) {
                 self.delTitle("View  Replicat " + self.RepName + " Info");
                 self.RepRpt(data[0]);
-
+                console.log(data);
+                
                 if (
                   self.selectedRepMenuItem() == "repstartdef" ||
                   self.selectedRepMenuItem() == "repstop" ||

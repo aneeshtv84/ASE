@@ -178,7 +178,10 @@ class="oj-panel oj-panel  oj-sm-margin-1x-bottom oj-xl-margin-1x oj-xl-padding-5
 <div class="oj-panel demo-center-items oj-bg-neutral-30">
     <oj-button disabled="[[ButtonVal]]" id="confirmBtn" class="oj-flex-bar-start oj-button-confirm"
         chroming='solid' on-oj-action="[[SrcDBSchemaFetch]]">
-        Analyze Selected Schemas
+        <span slot="startIcon" data-bind="visible: isLoadingSchemas">
+            <oj-progress-circle size="sm" value="-1"></oj-progress-circle>
+        </span>
+        <span data-bind="text: isLoadingSchemas() ? 'Analyzing...' : 'Analyze Selected Schemas'"></span>
     </oj-button>
 </div>
 <div class="oj-panel demo-center-items io-color">
@@ -606,6 +609,7 @@ Next
         <oj-option id="cegettrun" value="GETTRUNCATES">GETTRUNCATES</oj-option>
         <oj-option id="logallsupcols" value="LOGALLSUPCOLS">LOGALLSUPCOLS</oj-option>
         <oj-option id="excludetag" value="TRANLOGOPTIONS EXCLUDETAG 00">TRANLOGOPTIONS EXCLUDETAG</oj-option>
+        <oj-option id="cefiltertab" value="TRANLOGOPTIONS EXCLUDETRANS migdb.ckpt">TRANLOGOPTIONS FILTERTABLE</oj-option>
         <oj-option id="cenousesnap" value="FETCHOPTIONS NOUSESNAPSHOT ">FETCHOPTIONS NOUSESNAPSHOT</oj-option>
         <oj-option id="cedblogrea"value="TRANLOGOPTIONS DBLOGREADER  DBLOGREADERBUFSIZE 4194302  BUFSIZE 4194302 ">TRANLOGOPTIONS DBLOGREADER</oj-option>
         <oj-option id="iefetchpartial" value="TRANLOGOPTIONS FETCHPARTIALLOB">TRANLOGOPTIONS FETCHPARTIALLOB</oj-option>

@@ -91,6 +91,15 @@ define([
       self.rmtOnepPort = ko.observable();
       self.rmtTrailName = ko.observable();
       self.rmttrailSubDir = ko.observable();
+      self.rmttrailSubDirBase = ko.observable('');
+
+      function setRmtDir() {
+        var base = (self.rmttrailSubDirBase() || '').replace(/\/+$/, '');
+        var pmp  = (self.PmpName() || '').trim();
+        self.rmttrailSubDir(base && pmp ? base + '/' + pmp : base);
+      }
+      self.PmpName.subscribe(setRmtDir);
+
       self.dbTgtDetList = ko.observableArray([]);
       self.onepDepList = ko.observableArray([]);
 
@@ -1028,6 +1037,7 @@ define([
           self.rmtHostName("");
           self.rmtMgrPort();
           self.rmttrailSubDir("");
+          self.rmttrailSubDirBase("");
           let url = "/api/v2/info/all"
           if (["postgresql", "mongodb", "sqlserver"].includes(self.TgtonepDepType())) {
             url = "/api/v2/gginfoall"
@@ -1059,11 +1069,19 @@ define([
               self.rmtHostName(
                 self.TGTonepDepUrl().split(":")[1].replace("//", ""),
               );
-              self.rmtMgrPort(data[5])
+              if(self.TgtonepDepType()=='sqlserver'){
+                self.rmtMgrPort(data[3])  
+              }
+              else{
+                self.rmtMgrPort(data[5])
+              }
+              
               // for (var i = 0; i < data[0].length; i++) {
               //   self.rmtMgrPort(data[0][i].mgrport);
               // }
-              self.rmttrailSubDir(data[2]);
+              // self.rmttrailSubDir(data[2]);
+              self.rmttrailSubDirBase(data[2]);
+              setRmtDir();
               return self;
             },
           };
@@ -1575,8 +1593,9 @@ define([
 
       self.tableNameList = ko.observableArray([]);
       let LoadName = "";
-
+      self.isLoadingSchemas = ko.observable(false);
       self.SrcDBSchemaFetch = function (data, event) {
+        self.isLoadingSchemas(true);
         $.ajax({
           url: self.SRConepDepUrl() + "/api/v2/db/tablelist",
           type: "POST",
@@ -1593,8 +1612,10 @@ define([
           timeout: sessionStorage.getItem("timeInetrval"),
           context: self,
           progressMessage: "Fetching table list",
+          showProgress: false,
           suppressGlobalError: true,
           error: function (xhr, textStatus) {
+            self.isLoadingSchemas(false);
             if (textStatus === "abort") return;
             if (xhr.status === 401){
               app.handleSessionExpired();
@@ -1607,6 +1628,7 @@ define([
             );
           },
           success: function (data) {
+            self.isLoadingSchemas(false);
             document.querySelector("#TABLEExclude").open();
 
             self.tableNameList([]);
@@ -2169,6 +2191,7 @@ define([
 
       self.addCE = function (data, event) {
         self.AddExtractMsg([]);
+        document.querySelector('#AddExtract').close();
         $.ajax({
           url: self.SRConepDepUrl() + "/api/v2/extract/add-classic",
           type: "POST",

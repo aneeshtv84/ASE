@@ -5,9 +5,14 @@
                 <div class="oj-panel demo-centering-container oj-xl-margin-1x oj-xl-padding-1x oj-lg-margin-1x oj-lg-padding-1x oj-md-margin-1x oj-md-padding-1x oj-sm-margin-1x oj-sm-padding-1x">
                     <h6 class="oj-flex-item oj-typography-heading-xl">Replication flow </h6>
                 </div>
-                <oj-bind-if test="[[LinkData().length == 0]]">
-                    <oj-progress-bar class="oj-progress-bar-embedded" id="createbar" value="-1">
-                    </oj-progress-bar>
+                <oj-bind-if test="[[loading]]">
+                    <div class="oj-flex oj-sm-flex-direction-column oj-sm-align-items-center oj-sm-padding-6x">
+                        <oj-progress-bar class="oj-progress-bar-embedded" value="-1" style="width:60%"></oj-progress-bar>
+                        <span><oj-bind-text value="[[loadInfo]]"></oj-bind-text></span>
+                    </div>
+                </oj-bind-if>
+                <oj-bind-if test="[[!loading() && !hasNodes()]]">
+                    <div class="oj-panel oj-sm-padding-6x" style="text-align:center">No replication processes found.</div>
                 </oj-bind-if>
                 <oj-bind-if test="[[LinkData().length > 0]]">
                     <div class="oj-panel demo-centering-container  oj-xl-margin-1x oj-xl-padding-1x oj-lg-margin-1x oj-lg-padding-1x oj-md-margin-1x oj-md-padding-1x oj-sm-margin-1x oj-sm-padding-1x">
@@ -25,8 +30,8 @@
                                 </marker>
                             </defs>
                         </svg>
-
-                        <oj-diagram id='diagram-container' animation-on-data-change='auto' animation-on-display='auto'
+                        <oj-bind-if test="[[hasNodes()]]"></oj-bind-if>
+                        <oj-diagram id='dataflow-diagram' animation-on-data-change='none' animation-on-display='auto'
                             node-data='[[nodeDataProvider]]' link-data='[[linkDataProvider]]' layout='[[layoutFunc]]'
                             max-zoom='1.5' promoted-link-behavior='full' node-content.renderer='[[nodeRendererFunc]]'
                             node-content.selection-renderer='[[nodeRendererFunc]]'
@@ -36,8 +41,8 @@
                             link-content.hover-renderer='[[linkRendererFunc]]' selection='{{selectedNodesValue}}'
                             selection-mode='[[selectionValue]]' expanded = '{{expandedNodes}}' >
                             <template slot="nodeTemplate" data-oj-as="node">
-                                <oj-diagram-node label='[[node.data.id]]'
-                                    short-desc='[[node.data.id]]' label-style='{"font-size": "20px"}' >
+                                <oj-diagram-node label='[[node.data.label || node.data.id]]'
+                                    short-desc='[[node.data.id]]' label-style='{"font-size": "14px"}' >
                                 </oj-diagram-node>
                             </template>
                             <template slot="linkTemplate" data-oj-as="link">
@@ -46,5 +51,6 @@
                                 </oj-diagram-link>
                             </template>
                         </oj-diagram>
+                        </oj-bind-if>
     </div>
     </div>

@@ -346,12 +346,12 @@ define([ 'ojs/ojoffcanvas' , 'knockout', 'ojs/ojmodule-element-utils', 'ojs/ojre
         { name: "Troubleshoot", id: "tshoot", icons: "oj-navigationlist-item-icon fa fa-search", path: "tshoot", dep_url: self.onepDepUrl },
         { name: "LogFile", id: "logfile", icons: "oj-navigationlist-item-icon fas fa-file-alt", path: "logfile", dep_url: self.onepDepUrl },
 
-                { name: "Assessment", id: "Assessment", icons: "oj-navigationlist-item-icon fa-solid fa-code-compare",
-          children: [
-            { name: "Create Job", id: "DBAssessment", icons: "fa-solid fa-landmark", path: "DBAssessment", dep_url: self.onepDepUrl },
-            { name: "Monitor Job", id: "DBAssessMon", icons: "fa-solid fa-landmark", path: "DBAssessMon", dep_url: self.onepDepUrl }
-          ]
-        },        
+        // { name: "Assessment", id: "Assessment", icons: "oj-navigationlist-item-icon fa-solid fa-code-compare",
+        //   children: [
+        //     { name: "Create Job", id: "DBAssessment", icons: "fa-solid fa-landmark", path: "DBAssessment", dep_url: self.onepDepUrl },
+        //     { name: "Monitor Job", id: "DBAssessMon", icons: "fa-solid fa-landmark", path: "DBAssessMon", dep_url: self.onepDepUrl }
+        //   ]
+        // },        
         // { name: "Compare Pad", id: "comparePad", icons: "oj-navigationlist-item-icon fa-solid fa-code-compare",
         //   children: [
         //     { name: "Configure", id: "agent", icons: "fa-solid fa-landmark", path: "agent", dep_url: self.onepDepUrl },
@@ -436,8 +436,8 @@ define([ 'ojs/ojoffcanvas' , 'knockout', 'ojs/ojmodule-element-utils', 'ojs/ojre
       if (self.onepDepType() == 'bda'){
         self.appName('SkyliftAI MigDB For BigData Targets')
       }
-      else if(self.onepDepType() == 'oracle'){
-        self.appName('SkyliftAI MigDB For Oracle')
+      else if(self.onepDepType() == 'sybase'){
+        self.appName('SkyliftAI MigDB For Sybase')
       }
     };
 
@@ -462,7 +462,7 @@ define([ 'ojs/ojoffcanvas' , 'knockout', 'ojs/ojmodule-element-utils', 'ojs/ojre
         document.querySelector('#RemoteDeploymentDialog').open();
         self.onepDeployList([]);
         $.ajax({
-          url: "http://54.220.174.201:9030/api/v2/onep/dep",
+          url: "http://46.137.45.173:9030/api/v2/onep/dep",
           type: 'GET',
           dataType: 'json',
           context: self,
@@ -491,7 +491,7 @@ define([ 'ojs/ojoffcanvas' , 'knockout', 'ojs/ojmodule-element-utils', 'ojs/ojre
     self.SwitchDeployment = (event) =>{
       self.onepDepUrl('');
       $.ajax({
-        url: "http://54.220.174.201:9030/api/v2/onep/depurl",
+        url: "http://46.137.45.173:9030/api/v2/onep/depurl",
         type: 'POST',
         data: JSON.stringify({
           dep: self.DepName()

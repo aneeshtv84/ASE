@@ -223,9 +223,98 @@ class CacheHeadersMiddleware:
 
         await self.app(scope, receive, send_wrapper)
 
+_BRAND_DROP_RE = re.compile(
+    r"OGG-04508|CDC-04508|searching the Sybase CS library|^\s*Copyright\b|Oracle and/or its affiliates"
+    r"|^\s*Oracle GoldenGate (?:Command Interpreter|Manager|Capture|Delivery)\b.*Version\b",
+    re.IGNORECASE,
+)
+_BRAND_SUBS = [
+    (re.compile(r"Oracle\s+GoldenGate", re.IGNORECASE), "MigDB"),
+    (re.compile(r"GoldenGate", re.IGNORECASE), "MigDB"),
+    (re.compile(r"\bOGG-(\d+)"), r"CDC-\1"),
+    (re.compile(r"\bOGG\b(?![:/])"), "CDC"),
+    (re.compile(r"\bGGSCI\b", re.IGNORECASE), "MigDB"),
+    (re.compile(r"credential\s*store", re.IGNORECASE), "Secure Vault"),
+]
+
+def _brand_text(s: str) -> str:
+    if "\n" in s:
+        s = "\n".join(l for l in s.split("\n") if not _BRAND_DROP_RE.search(l))
+    for rx, rep in _BRAND_SUBS:
+        s = rx.sub(rep, s)
+    return s
+
+def _brand_obj(o):
+    if isinstance(o, str):
+        return _brand_text(o)
+    if isinstance(o, list):
+        return [_brand_obj(x) for x in o
+                if not (isinstance(x, str) and _BRAND_DROP_RE.search(x))]
+    if isinstance(o, dict):
+        return {k: _brand_obj(v) for k, v in o.items()}
+    return o
+
+class BrandingMiddleware:
+    """Pure ASGI: rewrites JSON / plain-text API responses.
+    Streaming (SSE), file downloads and static pages pass through untouched."""
+    def __init__(self, app):
+        self.app = app
+
+    async def __call__(self, scope, receive, send):
+        if scope["type"] != "http" or not scope["path"].startswith("/api/"):
+            await self.app(scope, receive, send)
+            return
+
+        start_msg = None
+        chunks = []
+        passthrough = False
+
+        async def send_wrapper(message):
+            nonlocal start_msg, passthrough
+            if message["type"] == "http.response.start":
+                ctype = ""
+                for k, v in message.get("headers", []):
+                    if k.lower() == b"content-type":
+                        ctype = v.decode("latin-1").lower()
+                if not (ctype.startswith("application/json") or ctype.startswith("text/plain")):
+                    passthrough = True
+                    await send(message)
+                    return
+                start_msg = message
+                return
+
+            if message["type"] == "http.response.body":
+                if passthrough:
+                    await send(message)
+                    return
+                chunks.append(message.get("body", b""))
+                if message.get("more_body", False):
+                    return
+                body = b"".join(chunks)
+                try:
+                    is_json = any(k.lower() == b"content-type" and v.lower().startswith(b"application/json")
+                                  for k, v in start_msg.get("headers", []))
+                    if is_json:
+                        new = json.dumps(_brand_obj(json.loads(body or b"null"))).encode("utf-8")
+                    else:
+                        new = _brand_text(body.decode("utf-8", "replace")).encode("utf-8")
+                except Exception:
+                    new = body
+                headers = [(k, v) for k, v in start_msg.get("headers", []) if k.lower() != b"content-length"]
+                headers.append((b"content-length", str(len(new)).encode()))
+                start_msg["headers"] = headers
+                await send(start_msg)
+                await send({"type": "http.response.body", "body": new})
+                return
+
+            await send(message)
+
+        await self.app(scope, receive, send_wrapper)
 
 app.add_middleware(JWTAuthMiddleware)
 app.add_middleware(CacheHeadersMiddleware)
+app.add_middleware(BrandingMiddleware)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -963,6 +1052,40 @@ def clean_gg_log(lines: Iterator[str]) -> Iterator[str]:
        line = CREDSTORE_REPLACE_PATTERN.sub("Secure Vault", line)
        line = GGSCI_REPLACE_PATTERN.sub("MigDB", line)
        yield line.rstrip()
+
+_GG_PREFIX_RE = re.compile(
+    r'^\s*\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}\s+'
+    r'(?:INFO|WARNING|ERROR)\s+(?:OGG|CDC)-\d+\s+',
+    re.IGNORECASE,
+)
+
+_GG_NOISE_RE = re.compile(r"OGG-04508|searching the Sybase CS library", re.IGNORECASE)
+
+_GG_ERROR_RE = re.compile(
+    r"(^|\s)ERROR\b|^\s*Msg \d+|(?i:server message)|(?i:sqlstate)",
+    re.MULTILINE,
+)
+
+_SYB_DETAILS_RE = re.compile(r"Details\s*\((.+)\)\.?\s*$", re.IGNORECASE)
+
+def _sybase_reason(line: str) -> str:
+    """'Server message ... Details (X).' -> 'X'"""
+    m = _SYB_DETAILS_RE.search(line)
+    return m.group(1).strip() if m else line
+
+def _clean_gg_line(line) -> str:
+    return _GG_PREFIX_RE.sub("", str(line)).strip()
+
+def _clean_gg_lines(lines):
+    """Drop known harmless lines and strip 'date time LEVEL OGG-nnnnn' prefixes."""
+    out = []
+    for line in lines:
+        if _GG_NOISE_RE.search(str(line)):
+            continue
+        cleaned = _clean_gg_line(line)
+        if cleaned:
+            out.append(cleaned)
+    return out
 
 def load_sybase_env(script, dsquery):
     """Same as: source /opt/sap/SYBASE.sh ; export DSQUERY=testase"""
@@ -3253,10 +3376,21 @@ def view_extract_log(body: ViewExtractLogRequest):
         proc.stdin.write(f"send extract {extname} cachemgr cachestats\n")
  
     elif extops == "extunreg":
-        domain = body.domain or ""
-        alias  = body.alias  or ""
-        proc.stdin.write(f"dblogin sourcedb {sourcedb} useridalias {alias} domain {domain}\n")
-        proc.stdin.write(f"unregister extract {extname} database\n")
+        alias = body.alias or ""
+        msgs = [f"Sybase extracts are not registered in the database - nothing to unregister for {extname}."]
+
+        try:
+            con = selectConn(alias)[0]          # same connection helper used by /api/v2/db/cdbcheck
+            cur = con.cursor()
+            cur.execute("dbcc settrunc('ltm', 'ignore')")
+            con.commit()
+            cur.close()
+            con.close()
+            msgs.append("Secondary truncation point released (dbcc settrunc('ltm','ignore')). "
+                        "The transaction log can be truncated again.")
+        except Exception as exc:
+            msgs.append(f"Could not release the truncation point: {exc}")
+        return JSONResponse(content=[msgs])
  
     else:
         proc.kill()
@@ -3318,6 +3452,34 @@ def _parse_ggsci_output(raw: str) -> list[str]:
         result.append(line)
     return result
 
+# ── Product branding for every text shown to the user ──
+_BRAND_DROP_RE = re.compile(
+    r"^\s*(Copyright \(C\)|Source Context|SourceFile|SourceModule|SourceID|SourceMethod|"
+    r"SourceLine|ThreadBacktrace|: \[)",
+    re.IGNORECASE,
+)
+_BRAND_RULES = [
+    (re.compile(r"Oracle\s+GoldenGate", re.I),        "MigDB"),
+    (re.compile(r"GoldenGate", re.I),                 "MigDB"),
+    (re.compile(r"\s*OGG(CORE|RU)_\S+"),              ""),         # internal build tags
+    (re.compile(r"\bOGG-(\d+)"),                      r"CDC-\1"),  # OGG-01296 -> CDC-01296
+    (re.compile(r"\bOGG\b"),                          "CDC"),
+    (re.compile(r"\bGGSCI\b"),                        "MigDB CLI"),
+    (re.compile(r"Oracle and/or its affiliates", re.I), "SkyliftAI"),
+]
+
+def _brand_lines(lines) -> list[str]:
+    """Drop internal lines (copyright, source context, backtrace) and rebrand the rest."""
+    out = []
+    for line in lines:
+        text = str(line)
+        if _BRAND_DROP_RE.search(text):
+            continue
+        for pattern, repl in _BRAND_RULES:
+            text = pattern.sub(repl, text)
+        out.append(text)
+    return out
+
 @app.post("/api/v2/replicat/ops/view/log", tags=["MigDB Replicat Operations"],
     summary="Perform operations on a MigDB replicat",
     description="Executes replicat operations such as start, stop, kill, stats, checkpoint, integrated/non-integrated mode changes, and begin position alterations for a named replicat.",)
@@ -3337,7 +3499,8 @@ def view_replicat_log(body: ViewReplicatLogRequest):
             if re.match(base, repname + ".rpt", re.IGNORECASE):
                 with open(os.path.join(gg_home, "dirrpt", base)) as f:
                     rep_err_print.extend(f.readlines())
-        return JSONResponse(content=[rep_err_print, prm_file])
+        return JSONResponse(content=[_brand_lines(rep_err_print), prm_file])
+        #return JSONResponse(content=[rep_err_print, prm_file])
  
     if repops == "edit":
         prm_path = os.path.join(gg_home, "dirprm", repname + ".prm")
@@ -3351,7 +3514,7 @@ def view_replicat_log(body: ViewReplicatLogRequest):
     proc = _spawn_ggsci()
  
     if repops == "chk":
-        proc.stdin.write(f"info {repname} showch debug")
+        proc.stdin.write(f"info {repname} showch debug\n")
  
     elif repops == "stats":
         proc.stdin.write(f"stats replicat {repname}\n")
@@ -3428,7 +3591,8 @@ def view_replicat_log(body: ViewReplicatLogRequest):
     with open(chk_path) as f:
         rep_err_print = _parse_ggsci_output(f.read())
  
-    return JSONResponse(content=[rep_err_print, prm_file])
+    return JSONResponse(content=[_brand_lines(rep_err_print), prm_file])
+    #return JSONResponse(content=[rep_err_print, prm_file])
 
 def _save_upload(file: UploadFile, dest: str) -> bytes:
     """Read all bytes from the upload and write to dest, returning the content."""
@@ -4114,6 +4278,7 @@ def gg_info_diagram():
         "nodeext": ext_trail_set,
         "pid":     "Pump",
         "nodepmp": pmp_trail_set,
+        "nodepmprmt": pmp_rmt_trail_set,
         "id":      "Replicats",
         "noderep": rep_trail_set,
     }
@@ -4124,7 +4289,7 @@ def gg_info_diagram():
         pmp_rmt_trail_set,
         rep_trail_set,
     )
- 
+
     return JSONResponse(content=[process_set, trail_links])
 
 
@@ -4606,6 +4771,8 @@ def _parse_login_output(raw: str) -> list[str]:
     result: list[str] = []
  
     for line in raw.splitlines():
+        if _GG_NOISE_RE.search(line): 
+            continue
         if "ERROR" in line.upper():
             msg = line.split(">", 1)[-1].strip()
             if "credential store" in msg.lower():
@@ -6556,21 +6723,39 @@ def gg_il_job_act(body: ILJobActRequest):
  
             if body.ilops == "repstop":
                 for pattern in rep_det:
-                    proc.stdin.write(f"kill {pattern['repname']}\n")
-                    proc.stdin.write(f"alter replicat {pattern['repname']} , extseqno 0 , extrba 0\n")
-                    rep_names.append(pattern["repname"])
-                    for fname in glob.glob(pattern["trail"] + "*", recursive=True):
-                        os.remove(fname)
+                    name = pattern.get("repname")
+                    if not name:
+                        continue
+                    proc.stdin.write(f"kill {name}\n")
+                    proc.stdin.write(f"alter replicat {name} , extseqno 0 , extrba 0\n")
+                    rep_names.append(name)
+                    trail = pattern.get("trail") 
+                    if trail:
+                        for fname in glob.glob(trail + "*"):
+                            try:
+                                os.remove(fname)
+                            except OSError as exc:
+                                logger.warning(f"Could not remove {fname}: {exc}")
                 raw = _communicate(proc)
-                conn.execute(
-                    f"UPDATE ILREP SET status='STOPPED' WHERE repname IN ({_positional_binds(len(rep_names))})",
-                    rep_names,
-                )
-                conn.commit()
+                if rep_names:
+                    conn.execute(
+                        f"UPDATE ILREP SET status='STOPPED' WHERE repname IN ({_positional_binds(len(rep_names))})",
+                        rep_names,
+                    )
+                    conn.commit()
                 # Remove non-table files for this job
-                for entry in os.scandir(os.path.join(agent_home, body.jobName)):
-                    if "_tables" not in entry.name:
-                        os.remove(entry.path)
+                job_dir = os.path.join(agent_home, body.jobName)
+                if os.path.isdir(job_dir): 
+                    for entry in os.scandir(job_dir):
+                        if "_tables" in entry.name:
+                            continue
+                        try:
+                            if entry.is_dir():
+                                shutil.rmtree(entry.path)
+                            else:
+                                os.remove(entry.path)
+                        except OSError as exc:
+                            logger.warning(f"Could not remove {entry.path}: {exc}")
  
             elif body.ilops == "repstart":
                 for pattern in rep_det:
@@ -6588,9 +6773,10 @@ def gg_il_job_act(body: ILJobActRequest):
                 alias  = body.alias  or ""
                 proc.stdin.write(f"dblogin sourcedb {sourcedb} useridalias {alias} domain {domain}\n")
                 for pattern in rep_det:
-                    if pattern.get("status") == "STOPPED":
-                        proc.stdin.write(f"delete replicat {pattern['repname']}\n")
-                        rep_names.append(pattern["repname"])
+                    name = pattern["repname"]
+                    proc.stdin.write(f"kill replicat {name}\n")
+                    proc.stdin.write(f"delete replicat {name}\n")
+                    rep_names.append(name)
                 raw = _communicate(proc)
                 if rep_names:
                     conn.execute(
@@ -6864,8 +7050,16 @@ def gg_rep_proc_stats(body: RepProcStatsRequest):
  
                             ext_entry = il_ext_stats.get(tab_name, {})
                             if ext_entry:
-                                if (int(ext_entry.get("TotalEXT", -1)) == total_rep
-                                        and ext_entry.get("ExtRate") == "Completed"):
+                                ext_done = (ext_entry.get("ExtRate") == "Completed"
+                                            or ext_entry.get("ExtStatus") == "Completed")
+                                target_rows = int(ext_entry.get("TargetRows", 0) or 0)
+                                try:
+                                    ext_total = int(float(ext_entry.get("TotalEXT", -1)))
+                                except (TypeError, ValueError):
+                                    ext_total = -1
+
+                                if ((ext_done and ext_total == total_rep)
+                                        or (target_rows > 0 and total_rep >= target_rows)):
                                     # Extract finished — record or read end-time file
                                     end_file = os.path.join(agent_home, job_name, tab_name + "endtime")
                                     if not os.path.exists(end_file):
@@ -7120,6 +7314,7 @@ def gg_add_ie(body: AddIERequest):
  
     return JSONResponse(content=[ext_err_print])
 
+
 @app.post("/api/v2/chkpt/info", tags=["MigDB Checkpoint Management"],
     summary="Get checkpoint table info",
     description="Looks up the checkpoint table name for the given alias from the database and returns its status from MigDB via GGSCI.")
@@ -7143,26 +7338,37 @@ def gg_info_chkpt_tbl(body: InfoChkptTblRequest):
         finally:
             conn.close()
 
-        sourcedb = get_sourcedb(body.alias)
+        tables = [r[0] for r in rows if r[0]]
+        if not tables:
+            return JSONResponse(content=[[{
+                "info": f"No checkpoint table registered for alias '{body.alias}'. "
+                    f"Use the + button to add one."
+            }]]) 
 
-        if rows:
-            for row in rows:
-                tabname = row[0]
-                proc = _spawn_ggsci()
-                proc.stdin.write(f"dblogin sourcedb {sourcedb} useridalias {body.alias} domain {body.domain}\n")
-                proc.stdin.write(f"info checkpointtable {tabname}\n")
-                info_chkpt_out.append(_communicate(proc))
-        else:
-            info_chkpt_out.append("ERROR : No Checkpoint Table found")
- 
-    # Persist and filter
-    log_path = os.path.join(agent_log, "InfoChkptTbl.lst")
-    with open(log_path, "w") as f:
-        f.writelines(info_chkpt_out)
-    with open(log_path) as f:
-        info_chkpt_err_print = _filter_chkpt_output(f.read())
- 
-    return JSONResponse(content=[info_chkpt_err_print])
+        missing = set()
+        if os.path.exists(ggsci_bin):
+            sourcedb = get_sourcedb(body.alias)
+            proc = _spawn_ggsci()
+            proc.stdin.write(f"dblogin sourcedb {sourcedb} useridalias {body.alias} domain {body.domain}\n")
+            for t in tables:
+                proc.stdin.write(f"info checkpointtable {t}\n")
+            out = _communicate(proc)
+          
+        with open(os.path.join(agent_log, "InfoChkptTbl.lst"), "w") as f:
+            f.write(out)
+
+        for t in tables:
+            if re.search(rf"checkpoint table\s+{re.escape(t)}\s+does not exist", out, re.IGNORECASE):
+                missing.add(t)
+
+    result = [{"tabname": t} for t in tables if t not in missing]
+    if not result:
+        return JSONResponse(content=[[{
+            "info": "The registered checkpoint tables no longer exist in the database. "
+                    "Use the + button to add one."
+        }]])
+  
+    return JSONResponse(content=[result])
 
 def _db_insert_chkpt(alias: str, chkpttbl: str):
     try:
@@ -7222,6 +7428,7 @@ def gg_add_chkpt_tbl(body: AddChkptTblRequest):
         elif ckptOps_norm == "clean":
             proc.stdin.write(f"cleanup checkpointtable {chkpttbl}\n")
         else:
+            proc.kill()
             raise HTTPException(status_code=400, detail=f"Unknown operation: {ckptOps}")
 
         add_chkpt_out.append(_communicate(proc))
@@ -7236,11 +7443,16 @@ def gg_add_chkpt_tbl(body: AddChkptTblRequest):
 
     with open(log_path) as f:
         for raw_line in f:
-            line = raw_line
-            if re.search(r"\bERROR\b", line, re.I) or "OCI" in line:
-                cleaned = line.split(">", 1)[-1].strip()
-                add_chkpt_err_print.append(cleaned)
-                if ckptOps_norm == "add" and "already" in line.lower():
+            line = raw_line.split(">", 1)[-1].strip()   
+            if not line or _GG_NOISE_RE.search(line):  
+                continue
+
+            low = line.lower()
+            shown = _sybase_reason(_clean_gg_line(line))
+
+            if _GG_ERROR_RE.search(line) or "OCI" in line:
+                add_chkpt_err_print.append(shown)
+                if ckptOps_norm == "add" and "already" in low:
                     _db_insert_chkpt(alias, chkpttbl)
 
             elif ckptOps_norm == "add" and "created" in line.lower():
@@ -7268,7 +7480,11 @@ def gg_add_chkpt_tbl(body: AddChkptTblRequest):
 
     if not add_chkpt_err_print:
         with open(log_path) as f:
-            add_chkpt_err_print = [line.strip() for line in f if line.strip()]
+            add_chkpt_err_print = [
+                _clean_gg_line(l.split(">", 1)[-1].strip())
+                for l in f
+                if l.strip() and not _GG_NOISE_RE.search(l)
+            ]
 
     return JSONResponse(content=[add_chkpt_err_print]) 
 
@@ -7931,8 +8147,20 @@ def gg_ext_ops(body: ExtOpsRequest):
         proc.stdin.write(f"send extract {extname} cachemgr cachestats\n")
  
     elif extops == "extunreg":
-        proc.stdin.write(f"dblogin sourcedb {sourcedb} useridalias {body.alias} domain {body.domain}\n")
-        proc.stdin.write(f"unregister extract {extname} database\n")
+        alias = body.alias or ""
+        msgs = [f"Sybase extracts are not registered in the database - nothing to unregister for {extname}."]
+        try:
+            con = selectConn(alias)[0]
+            cur = con.cursor()
+            cur.execute("dbcc settrunc('ltm', 'ignore')")
+            con.commit()
+            cur.close()
+            con.close()
+            msgs.append("Secondary truncation point released (dbcc settrunc('ltm','ignore')). "
+                        "The transaction log can be truncated again.")
+        except Exception as exc:
+            msgs.append(f"Could not release the truncation point: {exc}")
+        return JSONResponse(content=[msgs])
  
     else:
         proc.kill()

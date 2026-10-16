@@ -61,14 +61,110 @@ define([
       });
 
       self.onepDepList = ko.observableArray([]);
+      self.loading = ko.observable(false);
+      self.loadInfo = ko.observable("");
+      self.hasNodes = ko.observable(false);
 
+      // ─────────────────────────────────────────────────────────────
+      // Data collected from ALL deployments, drawn once at the end
+      // ─────────────────────────────────────────────────────────────
+      var col = { ext: {}, pmp: {}, rep: {}, links: {} };
+      var trailOf = { ext: {}, pmp: {}, pmpRmt: {}, rep: {} }; // nodeId -> normalised trail
+
+      var TOKEN_TYPES = ["mongodb", "sqlserver"]; // same list as the Designer page
+
+      function prettyDbType(t) {
+        var map = {
+          oracle: "Oracle", sqlserver: "SQL Server", mssql: "SQL Server", "sql server": "SQL Server",
+          postgresql: "PostgreSQL", sybase: "Sybase", mongodb: "MongoDB", mysql: "MySQL",
+        };
+        return map[String(t || "").toLowerCase()] || t || "";
+      }
+      // "REWERAA MSSQL" -> "REWERAA"
+      function procName(name) { return String(name || "").trim().split(/\s+/)[0]; }
+      function nodeId(dep, name) { return dep + ":" + procName(name); }
+
+      function addNode(kind, dep, name, dbtype) {
+        var id = nodeId(dep, name);
+        if (!col[kind][id]) {
+          var t = prettyDbType(dbtype);
+          col[kind][id] = { id: id, label: "[" + dep + (t ? " · " + t : "") + "] " + procName(name) };
+        }
+        return id;
+      }
+      function addLink(start, end, category, key) {
+        if (!start || !end || start === end) return;
+        var id = key || start + "->" + end;
+        if (!col.links[id]) col.links[id] = { id: id, start: start, end: end, category: category || "" };
+      }
+      // "/cdc_data/TRAILS/JBEX/ZZ000000001" -> "JBEX/ZZ"
+      function normTrail(t) {
+        var s = String(t || "").trim().replace(/\\/g, "/").replace(/\d{6,9}$/, "");
+        return s.split("/").filter(Boolean).slice(-2).join("/").toUpperCase();
+      }
+      // extract on one deployment -> replicat on another reading the same trail
+      function trailMatch(a, b) {
+        if (!a || !b) return false;
+        var x = a.split("/"), y = b.split("/");
+        if (x[x.length - 1] !== y[y.length - 1]) return false;
+        if (x.length < 2 || y.length < 2) return true;
+        return x[x.length - 2] === y[y.length - 2];
+      }
+      function sameDep(a, b) { return a.split(":")[0] === b.split(":")[0]; }
+      function addCrossLinks() {
+        // Extract -> Pump / Distribution Path (same deployment)
+        Object.keys(trailOf.ext).forEach(function (e) {
+          Object.keys(trailOf.pmp).forEach(function (p) {
+            if (sameDep(e, p) && trailMatch(trailOf.ext[e], trailOf.pmp[p])) addLink(e, p, trailOf.ext[e]);
+          });
+        });
+        // Pump / Distribution Path -> Replicat (ANY deployment)
+        Object.keys(trailOf.pmpRmt).forEach(function (p) {
+          Object.keys(trailOf.rep).forEach(function (r) {
+            if (trailMatch(trailOf.pmpRmt[p], trailOf.rep[r])) addLink(p, r, trailOf.pmpRmt[p]);
+          });
+        });
+        // Extract -> Replicat on another deployment (no pump)
+        Object.keys(trailOf.ext).forEach(function (e) {
+          Object.keys(trailOf.rep).forEach(function (r) {
+            if (!sameDep(e, r) && trailOf.ext[e].indexOf("/") > 0 && trailOf.ext[e] === trailOf.rep[r]) addLink(e, r, trailOf.ext[e]);
+          });
+        });
+      }
+      function renderDiagram() {
+        var known = {};
+        ["ext", "pmp", "rep"].forEach(function (k) {
+          Object.keys(col[k]).forEach(function (id) { known[id] = true; });
+        });
+        self.NodeData([
+          { id: "Extracts", label: "Extracts", nodes: Object.values(col.ext) },
+          { id: "Distribution", label: "Distribution", nodes: Object.values(col.pmp) },
+          { id: "Replicats", label: "Replicats", nodes: Object.values(col.rep) },
+        ]);
+        // only links whose both ends exist, otherwise the diagram throws
+        self.LinkData(Object.values(col.links).filter(function (l) { return known[l.start] && known[l.end]; }));
+        self.hasNodes(Object.keys(known).length > 0);
+      }
+
+      // each deployment type has its own diagram route
+      function diagramRoute(dbtype) {
+        var t = String(dbtype || "").toLowerCase().replace(/\s+/g, "");
+        if (t === "sqlserver" || t === "mssql" || t === "mongodb" || t === "postgresql") return "/api/v2/gginfodiagram";
+        return "/api/v2/diagram/info"; // sybase / classic
+      }
+
+      // ─────────────────────────────────────────────────────────────
+      // Deployment list -> load each deployment one after the other
+      // ─────────────────────────────────────────────────────────────
       function getOnepDep() {
+        col = { ext: {}, pmp: {}, rep: {}, links: {} };
+        trailOf = { ext: {}, pmp: {}, pmpRmt: {}, rep: {} };
         self.onepDepList([]);
         self.NodeData([]);
         self.LinkData([]);
-        self.NodeExt([]);
-        self.NodePmp([]);
-        self.NodeRep([]);
+        self.hasNodes(false);
+        self.loading(true);
+        self.loadInfo("Loading deployments...");
         $.ajax({
           url: self.DepName() + "/api/v2/onep/dep",
           type: "GET",
@@ -78,124 +174,152 @@ define([
           progressMessage: "Fetching deployment list",
           suppressGlobalError: true,
           error: function (xhr, textStatus) {
+            self.loading(false);
             if (textStatus === "abort" || xhr.statusText === "abort") return;
-            if (xhr.status === 401){
-              app.handleSessionExpired();
-              return;
-            };
+            if (xhr.status === 401) { app.handleSessionExpired(); return; }
             if (xhr.status == 0) {
-              app.showGlobalError(
-                app.deploymentUnreachableMessage(),
-                "Connection Error",
-              );
+              app.showGlobalError(app.deploymentUnreachableMessage(), "Connection Error");
               return;
             }
-            var msg = app.extractErrorMessage(xhr);
-            app.showGlobalError(
-              `Unable to fetch deployment list. ${msg}`,
-              "Deployment List Error",
-            );
+            app.showGlobalError(`Unable to fetch deployment list. ${app.extractErrorMessage(xhr)}`,
+                                "Deployment List Error");
           },
           success: function (data) {
-            var deployments = data[0];
-            for (var i = 0; i < deployments.length; i++) {
-              self.onepDepList.push({
-                dep: deployments[i].dep,
-                dep_url: deployments[i].dep_url,
-              });
-            }
-            self.onepDepList.valueHasMutated();
-
-            // NEW: run getReplionFlow one at a time, in sequence
+            var deployments = (data && data[0]) || [];
+            deployments.forEach(function (d) { self.onepDepList.push({ dep: d.dep, dep_url: d.dep_url }); });
             runSequentially(deployments, 0);
-
-            return self;
           },
         });
       }
 
-      function runSequentially(deployments, index) {
-        if (index >= deployments.length) return;
-        var current = deployments[index];
-        getReplionFlow(current.dep, current.dep_url, function () {
-          runSequentially(deployments, index + 1);
+      function runSequentially(list, i) {
+        if (i >= list.length) {
+          addCrossLinks();
+          renderDiagram();
+          self.loading(false);
+          self.loadInfo("");
+          return;
+        }
+        self.loadInfo("Loading " + list[i].dep + " (" + (i + 1) + " of " + list.length + ")...");
+        getReplionFlow(list[i].dep, list[i].dep_url, function () { runSequentially(list, i + 1); });
+      }
+
+      // Same as Designer: /onep/depurl -> [url, trailPath, dbtype, token]
+      function depInfo(dep, callback) {
+        $.ajax({
+          url: self.DepName() + "/api/v2/onep/depurl",
+          type: "POST",
+          data: JSON.stringify({ dep: dep }),
+          dataType: "json",
+          contentType: "application/json",
+          timeout: sessionStorage.getItem("timeInetrval"),
+          showProgress: false,
+          suppressGlobalError: true,
+          error: function () { callback(null); },
+          success: function (data) {
+            var key = "Tgt_" + dep + "_AccessToken";
+            if (data && data[3]) sessionStorage.setItem(key, data[3]);
+            callback({ url: data && data[0], dbtype: String((data && data[2]) || "").toLowerCase() });
+          },
         });
       }
 
-      function refreshNodeData() {
-        self.NodeData.removeAll();
-        self.NodeData.push(
-          { id: "Extracts", nodes: self.NodeExt() },
-          { id: "Distribution", nodes: self.NodePmp() },
-          { id: "Replicats", nodes: self.NodeRep() },
-        );
+      // Same as Designer: /onep/deptoken -> fresh token
+      function fetchDepToken(dep, callback) {
+        $.ajax({
+          url: self.DepName() + "/api/v2/onep/deptoken",
+          type: "POST",
+          data: JSON.stringify({ dep: dep }),
+          dataType: "json",
+          contentType: "application/json",
+          showProgress: false,
+          suppressGlobalError: true,
+          skipSessionExpired: true,
+          error: function () { callback(false); },
+          success: function (data) {
+            sessionStorage.setItem("Tgt_" + dep + "_AccessToken", data.access_token);
+            sessionStorage.setItem("Tgt_" + dep + "_DbType", data.dbtype);
+            callback(true);
+          },
+        });
       }
 
-            var DIAGRAM_ROUTE = {
-        sqlserver: "/api/v2/gginfodiagram",
-        mongodb: "/api/v2/gginfodiagram", 
-      };
-
+      // Diagram data of ONE deployment (Sybase: own route, SQL Server: token + gginfodiagram)
       function getReplionFlow(dep, dep_url, onDone) {
-        app.resolveDep(dep, function (ctx, err) {
-          if (!ctx) {
-            app.showGlobalError(`Unable to resolve deployment "${dep}". ${err || ""}`,
-                                "Deployment Error");
-            if (onDone) onDone();
+        var done = false;
+        function finish() { if (!done) { done = true; onDone(); } }
+
+        depInfo(dep, function (info) {
+          if (!info || !info.url) {
+            app.showGlobalError(`Unable to resolve deployment "${dep}".`, "Deployment Error");
+            finish();
             return;
           }
+          var dbtype = info.dbtype;
+          var useToken = TOKEN_TYPES.indexOf(dbtype) !== -1;
+          var retried = false;
 
-          var route = DIAGRAM_ROUTE[ctx.dbtype] || "/api/v2/diagram/info";
+          function authHeader() {
+            if (!useToken) return undefined;
+            var t = sessionStorage.getItem("Tgt_" + dep + "_AccessToken");
+            return t ? { Authorization: "Bearer " + t } : undefined;
+          }
 
-          app.depAjax(dep, {
-            url: (ctx.url || dep_url) + route,
+          var opts = {
+            url: (info.url || dep_url) + diagramRoute(dbtype),
             type: "GET",
             dataType: "json",
             timeout: 60000,
-            progressMessage: `Fetching dataflow for ${dep}`,
+            showProgress: false,
+            suppressGlobalError: true,
+            skipSessionExpired: useToken, // a remote 401 must not log the user out
+            headers: authHeader(),
             error: function (xhr, textStatus) {
-              if (textStatus === "abort") { if (onDone) onDone(); return; }
+              if (textStatus === "abort") { finish(); return; }
+              if (xhr.status === 401 && useToken && !retried) {
+                retried = true; // token expired -> refresh once and retry
+                fetchDepToken(dep, function (ok) {
+                  if (ok) { opts.headers = authHeader(); $.ajax(opts); }
+                  else {
+                    app.showGlobalError(`Deployment "${dep}" rejected the login. Check its user/password in Remote Deployment.`,
+                                        "Dataflow Error");
+                    finish();
+                  }
+                });
+                return;
+              }
               if (textStatus === "timeout" || xhr.status === 0) {
-                app.showGlobalError(`Could not reach deployment "${dep}". It has been skipped.`,
-                                    "Deployment Unreachable");
+                app.showGlobalError(`Could not reach deployment "${dep}". It has been skipped.`, "Deployment Unreachable");
               } else {
                 app.showGlobalError(app.extractErrorMessage(xhr), `Dataflow Error — ${dep}`);
               }
-              if (onDone) onDone();
-            },
-            complete: function (xhr, textStatus) {
-              // depAjax handles 401/503 itself without calling error, so always continue the chain
-              if (textStatus !== "success" && (xhr.status === 401 || xhr.status === 503)) {
-                if (onDone) onDone();
-              }
+              finish();
             },
             success: function (data) {
-              if (!Array.isArray(data) || !data[0]) {          // error object instead of diagram
-                app.showGlobalError(app.extractErrorMessage({ responseJSON: data }),
-                                    `Dataflow Error — ${dep}`);
-                if (onDone) onDone();
-                return;
+              if (Array.isArray(data) && data[0]) {
+                var sets = data[0];
+                Object.keys(sets.nodeext || {}).forEach(function (n) {
+                  var id = addNode("ext", dep, n, dbtype);
+                  trailOf.ext[id] = normTrail(sets.nodeext[n]);
+                });
+                var pmpRmt = sets.nodepmprmt || {}; // pump -> remote trail
+                Object.keys(sets.nodepmp || {}).forEach(function (n) {
+                  var id = addNode("pmp", dep, n, dbtype);
+                  trailOf.pmp[id] = normTrail(sets.nodepmp[n]);
+                  trailOf.pmpRmt[id] = normTrail(pmpRmt[n]);
+                });
+                Object.keys(sets.noderep || {}).forEach(function (n) {
+                  var id = addNode("rep", dep, n, dbtype);
+                  trailOf.rep[id] = normTrail(sets.noderep[n]);
+                });
+                (data[1] || []).forEach(function (l, i) {
+                  addLink(nodeId(dep, l.start), nodeId(dep, l.end), l.category);
+                });
               }
-              addNodes(self.NodeExt, data[0].nodeext);
-              addNodes(self.NodePmp, data[0].nodepmp);
-              addNodes(self.NodeRep, data[0].noderep);
-
-              (data[1] || []).forEach(function (l, i) {
-                self.LinkData.push({ start: l.start, category: l.category, end: l.end, id: dep + "_" + i });
-              });
-              refreshNodeData();
-              if (onDone) onDone();
+              finish();
             },
-          });
-        });
-      }
-
-      // avoid duplicate node ids when two deployments report the same process
-      function addNodes(target, obj) {
-        var existing = {};
-        target().forEach(function (n) { existing[n.id] = true; });
-        Object.keys(obj || {}).forEach(function (key) {
-          if (!existing[key]) target.push({ id: key });
+          };
+          $.ajax(opts);
         });
       }
 

@@ -34,7 +34,7 @@ define(['ojs/ojcore', 'knockout', 'appController', 'appUtils',
         if (valid){
     sessionStorage.setItem("timeInetrval",0);
     // //console.log(timeout: sessionStorage.getItem("timeInetrval"));
-       document.querySelector('#signInProgress').open();
+      //  document.querySelector('#signInProgress').open();
            self.SignIn('');
            self.LoginErr([]);
 
@@ -51,7 +51,7 @@ define(['ojs/ojcore', 'knockout', 'appController', 'appUtils',
                         }
                         var key = "."+generateString(8);
            $.ajax({
-                url: "http://54.220.174.201:9030/api/v2/onep/login",
+                url: "http://46.137.45.173:9030/api/v2/onep/login",
                 // url: "/oneplogin",
                 type: 'POST',
                 contentType: 'application/json',
@@ -63,12 +63,23 @@ define(['ojs/ojcore', 'knockout', 'appController', 'appUtils',
                 dataType: 'json',
                 timeout: sessionStorage.getItem("timeInetrval"),
                         context: self,
-                        error: function (xhr, textStatus, errorThrown) {
-                            if(textStatus == 'timeout' || textStatus == 'error'){
-                                document.querySelector('#signInProgress').close();
-                                document.querySelector('#TimeoutSign').open();
-                            }
-                        },
+                        global: false, 
+            beforeSend: function () {
+                app.globalProgressMessage("Authenticating...");
+                app.globalBusy(true);
+                app.callWhenReady('#GlobalProgressDialog', 'open');
+            },
+            complete: function () {
+                app.globalBusy(false);
+                app.callWhenReady('#GlobalProgressDialog', 'close');
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                if (textStatus === 'timeout' || xhr.status === 0) {
+                    app.showGlobalError(app.deploymentUnreachableMessage(), "Connection Error");
+                } else {
+                    app.showGlobalError(app.extractErrorMessage(xhr), "Connection Failed");
+                }
+            },
                 success: function (data) {
                    if (data[1]== 'Y') {
                        sessionStorage.setItem("userRole", data[2]);
@@ -80,11 +91,11 @@ define(['ojs/ojcore', 'knockout', 'appController', 'appUtils',
                        var login = localStorage.getItem('login');
                        self.SignIn('Y');
                        if(login == "yes"){
-                        document.querySelector('#signInProgress').close();
+                        // document.querySelector('#signInProgress').close();
                         app.onLoginSuccess();
                        }else{
                         setTimeout(function(){
-                            document.querySelector('#signInProgress').close();
+                            // document.querySelector('#signInProgress').close();
                             app.onLoginSuccess();
                             }, 1000);
                        }
